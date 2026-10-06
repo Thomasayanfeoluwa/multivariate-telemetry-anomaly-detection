@@ -48,8 +48,15 @@ data/raw/cats/*.csv
 # Keep metadata.csv tracked
 !data/raw/metadata.csv
 
-data/processed/
-# Uncomment if interim data should be ignored
+# Ignore generated data files in processed dirs, but keep folder structure (.gitkeep)
+data/processed/**/*.parquet
+data/processed/**/*.csv
+data/processed/**/*.pkl
+data/processed/**/*.joblib
+data/processed/**/*.json
+data/processed/**/*.feather
+data/processed/**/*.h5
+# Uncomment to ignore interim data too
 # data/interim/
 
 # ---- Model Artifacts ---------------------------------------
