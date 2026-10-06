@@ -1,0 +1,125 @@
+# ============================================================
+# CATS - Controlled Anomalies Time Series
+# Telemetry Anomaly Detection - .gitignore
+# ============================================================
+
+# ---- Python ------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+wheels/
+.eggs/
+MANIFEST
+
+# ---- Virtual Environments ----------------------------------
+.venv/
+venv/
+env/
+ENV/
+.env/
+.conda/
+*.venv
+
+# ---- Environment Variables ---------------------------------
+.env
+.env.local
+.env.*.local
+!.env.example          # keep the template
+
+# ---- Jupyter Notebooks -------------------------------------
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+*.ipynb_checkpoints
+# Uncomment below to strip outputs before committing
+# *.ipynb filter=nbstripout
+
+# ---- Data Files (large / sensitive) -----------------------
+data/raw/cats/*.parquet
+data/raw/telemetry/*.parquet
+data/raw/telemetry/*.csv
+data/raw/cats/*.csv
+# Keep metadata.csv tracked
+!data/raw/metadata.csv
+
+data/processed/
+# Uncomment if interim data should be ignored
+# data/interim/
+
+# ---- Model Artifacts ---------------------------------------
+models/isolation_forest/*.pkl
+models/isolation_forest/*.joblib
+models/isolation_forest/*.bin
+# Keep reproducibility manifest tracked
+!models/isolation_forest/reproducibility.json
+
+# ---- Reports & Generated Figures --------------------------
+reports/figures/*.png
+reports/figures/*.jpg
+reports/figures/*.svg
+reports/figures/*.html
+reports/tables/*.csv
+reports/tables/*.xlsx
+
+# ---- Logs --------------------------------------------------
+logs/
+*.log
+*.log.*
+
+# ---- Testing & Coverage ------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+nosetests.xml
+test-results/
+junit*.xml
+
+# ---- Linting & Type Checking -------------------------------
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# ---- IDE / Editor ------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Docker ------------------------------------------------
+*.env.docker
+
+# ---- OS ----------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# ---- Temporary Files ---------------------------------------
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# ---- Documentation Build -----------------------------------
+docs/_build/
+docs/site/
+site/
+
+# ---- Pre-commit --------------------------------------------
+.pre-commit-config.yaml.bak
