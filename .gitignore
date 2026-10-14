@@ -41,6 +41,10 @@ ENV/
 # *.ipynb filter=nbstripout
 
 # ---- Data Files (large / sensitive) -----------------------
+data/raw/*.csv
+data/raw/*.parquet
+data/raw/**/*.csv
+data/raw/**/*.parquet
 data/raw/cats/*.parquet
 data/raw/telemetry/*.parquet
 data/raw/telemetry/*.csv
