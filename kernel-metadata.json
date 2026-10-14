@@ -1,7 +1,7 @@
 {
   "id": "thomasadegoke/cats-telemetry-anomaly-detection",
   "title": "CATS Telemetry Anomaly Detection",
-  "code_file": "notebooks/05_isolation_forest.ipynb",
+  "code_file": "notebooks/05_local_outlier_factor.ipynb",
   "language": "python",
   "kernel_type": "notebook",
   "is_private": true,
