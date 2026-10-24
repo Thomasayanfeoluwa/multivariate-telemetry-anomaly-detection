@@ -60,25 +60,21 @@ Develop a transparent experimental pipeline that:
 
 ### Primary Objectives
 
-1. **Audit the primary reference notebook** before building our own pipeline. The sole primary reference is  
-   [`https://github.com/umairs5/swat-lstm-anomaly-detection/blob/main/notebook.ipynb`](https://github.com/umairs5/swat-lstm-anomaly-detection/blob/main/notebook.ipynb).  
-   Treat it as an object of critical inspection, not as code to copy blindly.
+1. **Establish dataset provenance and identity.** Determine the source, version (if identifiable), collection period, experimental setup, file layout, sampling cadence, label semantics, and any discrepancies with official documentation.
 
-2. **Establish dataset provenance and identity.** Determine the source, version (if identifiable), collection period, experimental setup, file layout, sampling cadence, label semantics, and any discrepancies with official documentation.
+2. **Understand the industrial process.** Learn the water-treatment stages, sensors, actuators, control loops, normal process transitions, and the distinction between an anomalous observation and evidence of a cyberattack or physical fault.
 
-3. **Understand the industrial process.** Learn the water-treatment stages, sensors, actuators, control loops, normal process transitions, and the distinction between an anomalous observation and evidence of a cyberattack or physical fault.
+3. **Validate data quality and temporal structure.** Check schemas, timestamps, ordering, sampling intervals, gaps, missing values, duplicates, constant variables, and label distributions. Preserve the meaning of the original observations.
 
-4. **Validate data quality and temporal structure.** Check schemas, timestamps, ordering, sampling intervals, gaps, missing values, duplicates, constant variables, and label distributions. Preserve the meaning of the original observations.
+4. **Perform grounded exploratory analysis.** Use descriptive statistics and visualisations that answer concrete questions about process behaviour, data quality, and detection feasibility.
 
-5. **Perform grounded exploratory analysis.** Use descriptive statistics and visualisations that answer concrete questions about process behaviour, data quality, and detection feasibility.
+5. **Implement nine anomaly-detection methods** organised into three equal categories (baseline, traditional machine learning, deep learning). Do not assume that more complex methods will outperform simpler ones.
 
-6. **Implement nine anomaly-detection methods** organised into three equal categories (baseline, traditional machine learning, deep learning). Do not assume that more complex methods will outperform simpler ones.
+6. **Evaluate models fairly.** Use chronological partitions, prevent leakage, select thresholds without final-test labels, and report both point-level and event-level metrics.
 
-7. **Evaluate models fairly.** Use chronological partitions, prevent leakage, select thresholds without final-test labels, and report both point-level and event-level metrics.
+7. **Investigate errors and robustness.** Examine false positives, false negatives, missed events, detection delays, threshold sensitivity, and stability under reasonable methodological changes.
 
-8. **Investigate errors and robustness.** Examine false positives, false negatives, missed events, detection delays, threshold sensitivity, and stability under reasonable methodological changes.
-
-9. **Select a final approach on evidence.** Consider performance, false-alarm burden, detection delay, interpretability, computational cost, and known limitations. Complexity alone is not a selection criterion.
+8. **Select a final approach on evidence.** Consider performance, false-alarm burden, detection delay, interpretability, computational cost, and known limitations. Complexity alone is not a selection criterion.
 
 10. **Deliver a reproducible portfolio project.** Provide ordered notebooks, documented assumptions, portable paths, recorded configurations, honest limitations, and a clear statement of what the evidence does and does not support.
 
