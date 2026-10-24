@@ -43,8 +43,10 @@ ENV/
 # ---- Data Files (large / sensitive) -----------------------
 data/raw/*.csv
 data/raw/*.parquet
+data/raw/*.xlsx
 data/raw/**/*.csv
 data/raw/**/*.parquet
+data/raw/**/*.xlsx
 data/raw/cats/*.parquet
 data/raw/telemetry/*.parquet
 data/raw/telemetry/*.csv
@@ -64,11 +66,20 @@ data/processed/**/*.h5
 # data/interim/
 
 # ---- Model Artifacts ---------------------------------------
+/models/*
+!/models/isolation_forest/
+/models/isolation_forest/*
+!/models/isolation_forest/reproducibility.json
 models/isolation_forest/*.pkl
 models/isolation_forest/*.joblib
 models/isolation_forest/*.bin
 # Keep reproducibility manifest tracked
 !models/isolation_forest/reproducibility.json
+
+# ---- Generated Evaluation Artifacts ------------------------
+/nb08_artifacts/
+/swat-artifacts/
+/swat_artifacts_complete.zip
 
 # ---- Reports & Generated Figures --------------------------
 reports/figures/*.png
