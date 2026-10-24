@@ -1,0 +1,9 @@
+Attack #,Start Time,End Time,Attack Point,Start State,Attack,Actual Change,Expected Impact or attacker intent,Unexpected Outcome
+,,,,,,,,
+,,,,,,,,
+,Single Stage Single Point Attacks,,,,,,,
+,Single Stage Multi Point Attacks,,,,,,,
+,Multi Stage Single Point Attacks,,,,,,,
+,Multi Stage Multi Point Attacks,,,,,,,
+,,,,,,,,
+"We changed the value to constant in 26. ICS2 stopped showing the value because it was not changing. When we stopped the attack, it interpolated the points in between. It should have shown a steep increase in level. They will not detect attacks where value is constant",,,,,,,,
