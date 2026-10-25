@@ -1,0 +1,20 @@
+# NB12 — Environment requirements
+# Recorded: ELOHIM on Windows 10
+# Python 3.11.14
+#
+# These are the versions the audit was performed with. Training happened
+# on a different environment (Kaggle Tesla T4). See cell3_environment.json
+# for training-environment notes.
+
+numpy==2.4.6
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.17.1
+torch==2.6.0
+matplotlib==3.11.2
+seaborn==0.13.2
+joblib==1.6.0
+pyarrow==25.0.1
+openpyxl==3.1.5
+jupyter==1.1.1
+notebook==7.6.3

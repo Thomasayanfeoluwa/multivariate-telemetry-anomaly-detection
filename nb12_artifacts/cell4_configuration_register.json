@@ -1,0 +1,333 @@
+{
+  "window_size": 30,
+  "features": [
+    "FIT101",
+    "LIT101",
+    "MV101",
+    "P101",
+    "P102",
+    "AIT201",
+    "AIT202",
+    "AIT203",
+    "FIT201",
+    "MV201",
+    "P201",
+    "P203",
+    "P205",
+    "DPIT301",
+    "FIT301",
+    "LIT301",
+    "MV301",
+    "MV302",
+    "MV303",
+    "MV304",
+    "P302",
+    "AIT401",
+    "AIT402",
+    "FIT401",
+    "LIT401",
+    "P402",
+    "P403",
+    "UV401",
+    "AIT501",
+    "AIT502",
+    "AIT503",
+    "AIT504",
+    "FIT501",
+    "FIT502",
+    "FIT503",
+    "FIT504",
+    "P501",
+    "PIT501",
+    "PIT502",
+    "PIT503",
+    "FIT601",
+    "P602"
+  ],
+  "scaler_type": "MinMaxScaler",
+  "learned_percentile": 99,
+  "learned_interpolation": "linear",
+  "method_thresholds": {
+    "rule": 0.0,
+    "rolling": 0.0,
+    "simple": 0.0,
+    "if": 0.6053833093392436,
+    "ocsvm": -13.48318294920446,
+    "lof": 15.505176544189453,
+    "lstm": 0.018826062995940453,
+    "tcn": 0.003906734725460411,
+    "usad": 0.0564194791764021
+  },
+  "dl_architectures": {
+    "tcn": {
+      "status": "present",
+      "n_params": 40554
+    },
+    "lstm": {
+      "status": "present",
+      "n_params": 132346
+    },
+    "usad": {
+      "status": "present",
+      "n_params": 499064,
+      "best_epoch": 1,
+      "config": {
+        "seed": 42,
+        "sequence_length": 30,
+        "feature_count": 42,
+        "input_dim": 1260,
+        "hidden_dim": 128,
+        "latent_dim": 32,
+        "batch_size": 256,
+        "max_epochs": 50,
+        "learning_rate": 0.0001,
+        "max_gradient_norm": 1.0,
+        "early_stopping_patience": 5
+      }
+    }
+  },
+  "tuning_configs": {
+    "if": {
+      "selected_candidate_id": "ne300_ms1024_mf1.0",
+      "selected_params": {
+        "n_estimators": 300,
+        "max_samples": 1024,
+        "max_features": 1.0
+      },
+      "selection_criterion": "max median_spearman (tie-tol 1e-4), then min fit_seconds",
+      "selected_median_rho": 0.9863884220699396,
+      "selected_mean_fit_seconds": 4.330404917399089,
+      "current_config_median_rho": 0.9738516023225684,
+      "replaces_current": true,
+      "elapsed_seconds": 0.006186246871948242
+    },
+    "ocsvm": {
+      "selected_candidate_id": "nu0.05_mi80_tol0.001",
+      "selected_params": {
+        "nu": 0.05,
+        "max_iter": 80,
+        "tol": 0.001
+      },
+      "selected_all_converged": true,
+      "selected_n_iters": "6/6/6",
+      "selected_median_rho": 0.9999994883771304,
+      "selected_fit_seconds": 0.4637436866760254,
+      "current_all_converged": false,
+      "current_n_iters": "80/80/80",
+      "replaces_current": true,
+      "elapsed_seconds": 0.012147903442382812
+    },
+    "lof": {
+      "selected_candidate_id": "n50",
+      "selected_params": {
+        "n_neighbors": 50,
+        "n_components": 15
+      },
+      "median_pairwise_stability": 0.9368105830522375,
+      "pairwise_spearman": {
+        "n30__vs__n50": 0.9368105830522375,
+        "n30__vs__n70": 0.8615974248192036,
+        "n50__vs__n70": 0.9744260488764482
+      },
+      "replaces_current": false,
+      "elapsed_seconds": 50.112633228302
+    },
+    "lstm": {
+      "selected_candidate_id": "existing_checkpoint",
+      "selected_params": {
+        "hidden_size": 64,
+        "bottleneck_size": 16,
+        "learning_rate": 0.001,
+        "num_layers": 2,
+        "dropout": 0.2
+      },
+      "selected_checkpoint": "/kaggle/working/swat-project/swat-artifacts/lstm_autoencoder.pth",
+      "selected_best_monitor_mse": 0.0033462521619373187,
+      "existing_monitor_mse": 0.0033462521619373187,
+      "improvement_pct_of_best_candidate": -21.732306198635598,
+      "meaningful_improvement_threshold_pct": 5.0,
+      "replaces_current": false,
+      "elapsed_seconds": 345.62321066856384
+    },
+    "tcn": {
+      "selected_candidate_id": "existing_checkpoint",
+      "selected_params": {
+        "channels": [
+          32,
+          32,
+          32,
+          32
+        ],
+        "kernel_size": 3,
+        "dilations": [
+          1,
+          2,
+          4,
+          8
+        ],
+        "learning_rate": 0.001,
+        "receptive_field": 61
+      },
+      "selected_checkpoint": "/kaggle/working/swat-project/swat-artifacts/tcn_preliminary/tcn_autoencoder_best.pth",
+      "selected_best_monitor_mse": 0.0005770922056649144,
+      "existing_monitor_mse": 0.0005770922056649144,
+      "improvement_pct_of_best_candidate": -116.57452058060025,
+      "meaningful_improvement_threshold_pct": 5.0,
+      "replaces_current": false,
+      "elapsed_seconds": 844.8097901344299
+    },
+    "usad": {
+      "selected_candidate_id": "existing_checkpoint",
+      "selected_params": {
+        "learning_rate": 0.0001,
+        "hidden_dim": 128,
+        "latent_dim": 32
+      },
+      "selected_checkpoint": "/kaggle/working/swat-project/swat-artifacts/usad_preliminary/usad_best.pth",
+      "selected_best_monitor_mse": 0.022224580978072807,
+      "best_eligible_new_candidate": "lr5e-05_h64_l16",
+      "best_eligible_new_candidate_mse": 0.2072669349279815,
+      "existing_monitor_mse": 0.022224580978072807,
+      "existing_best_epoch": 1,
+      "replaces_current": false,
+      "elapsed_seconds": 138.2837257385254
+    }
+  },
+  "config_table": [
+    {
+      "method": "Rule-Based",
+      "class": "baseline",
+      "training_data": "None (rule-based, no training)",
+      "features": "feature set defined in NB04/NB06 (not NB08 42-feature set)",
+      "preprocessing": "None (rule operates on raw features)",
+      "window_size": "-",
+      "architecture": "- (no learned model)",
+      "hyperparameters": "- (rule parameters defined in NB04 code)",
+      "seed": "-",
+      "threshold_value": 0.0,
+      "threshold_procedure": "frozen (score > 0), protocol \u00a75.4",
+      "checkpoint_path": "-",
+      "score_definition": "binary violation (score > 0)"
+    },
+    {
+      "method": "Rolling Stat",
+      "class": "baseline",
+      "training_data": "None (rule-based, no training)",
+      "features": "feature set defined in NB04/NB06 (not NB08 42-feature set)",
+      "preprocessing": "None (rule operates on raw features)",
+      "window_size": "-",
+      "architecture": "- (no learned model)",
+      "hyperparameters": "- (rule parameters defined in NB04 code)",
+      "seed": "-",
+      "threshold_value": 0.0,
+      "threshold_procedure": "frozen (score > 0), protocol \u00a75.4",
+      "checkpoint_path": "-",
+      "score_definition": "binary violation (score > 0)"
+    },
+    {
+      "method": "Simple Stat",
+      "class": "baseline",
+      "training_data": "None (rule-based, no training)",
+      "features": "feature set defined in NB04/NB06 (not NB08 42-feature set)",
+      "preprocessing": "None (rule operates on raw features)",
+      "window_size": "-",
+      "architecture": "- (no learned model)",
+      "hyperparameters": "- (rule parameters defined in NB04 code)",
+      "seed": "-",
+      "threshold_value": 0.0,
+      "threshold_procedure": "frozen (score > 0), protocol \u00a75.4",
+      "checkpoint_path": "-",
+      "score_definition": "binary violation (score > 0)"
+    },
+    {
+      "method": "Isolation Forest",
+      "class": "traditional_ml",
+      "training_data": "training partition (221,366 rows), feature set per NB06",
+      "features": "feature set per NB06 (documented in NB06, not NB08 42-feature set)",
+      "preprocessing": "per NB06 (documented in NB06)",
+      "window_size": "-",
+      "architecture": "- (sklearn estimator)",
+      "hyperparameters": "selected_candidate_id=ne300_ms1024_mf1.0, selected_params={'n_estimators': 300, 'max_samples': 1024, 'max_features': 1.0}, selection_criterion=max median_spearman (tie-tol 1e-4), then min fit_seconds, selected_median_rho=0.9863884220699396, selected_mean_fit_seconds=4.330404917399089, current_config_median_rho=0.9738516023225684, replaces_current=True, elapsed_seconds=0.006186246871948242",
+      "seed": "-",
+      "threshold_value": 0.6053833093392436,
+      "threshold_procedure": "99th pct of threshold partition (interpolation=linear)",
+      "checkpoint_path": "nb08_artifacts/isolation_forest.joblib",
+      "score_definition": "decision function / negative outlier factor"
+    },
+    {
+      "method": "One-Class SVM",
+      "class": "traditional_ml",
+      "training_data": "training partition (221,366 rows), feature set per NB06",
+      "features": "feature set per NB06 (documented in NB06, not NB08 42-feature set)",
+      "preprocessing": "per NB06 (documented in NB06)",
+      "window_size": "-",
+      "architecture": "- (sklearn estimator)",
+      "hyperparameters": "selected_candidate_id=nu0.05_mi80_tol0.001, selected_params={'nu': 0.05, 'max_iter': 80, 'tol': 0.001}, selected_all_converged=True, selected_n_iters=6/6/6, selected_median_rho=0.9999994883771304, selected_fit_seconds=0.4637436866760254, current_all_converged=False, current_n_iters=80/80/80, replaces_current=True, elapsed_seconds=0.012147903442382812",
+      "seed": "-",
+      "threshold_value": -13.48318294920446,
+      "threshold_procedure": "99th pct of threshold partition (interpolation=linear)",
+      "checkpoint_path": "nb08_artifacts/sgd_one_class_svm.joblib",
+      "score_definition": "decision function / negative outlier factor"
+    },
+    {
+      "method": "LOF",
+      "class": "traditional_ml",
+      "training_data": "training partition (221,366 rows), feature set per NB06",
+      "features": "feature set per NB06 (documented in NB06, not NB08 42-feature set)",
+      "preprocessing": "per NB06 (documented in NB06)",
+      "window_size": "-",
+      "architecture": "- (sklearn estimator)",
+      "hyperparameters": "selected_candidate_id=n50, selected_params={'n_neighbors': 50, 'n_components': 15}, median_pairwise_stability=0.9368105830522375, pairwise_spearman={'n30__vs__n50': 0.9368105830522375, 'n30__vs__n70': 0.8615974248192036, 'n50__vs__n70': 0.9744260488764482}, replaces_current=False, elapsed_seconds=50.112633228302",
+      "seed": "-",
+      "threshold_value": 15.505176544189453,
+      "threshold_procedure": "99th pct of threshold partition (interpolation=linear)",
+      "checkpoint_path": "nb08_artifacts/lof_model.joblib",
+      "score_definition": "decision function / negative outlier factor"
+    },
+    {
+      "method": "LSTM AE",
+      "class": "deep_learning",
+      "training_data": "training partition (221,366 rows), MinMax-scaled",
+      "features": "42 sensor columns in NB08 order (scaler.feature_names_in_)",
+      "preprocessing": "MinMaxScaler (frozen NB08, fit on training partition)",
+      "window_size": 30,
+      "architecture": "LSTM Autoencoder (encoder\u2192bottleneck\u2192decoder) (132,346 params)",
+      "hyperparameters": "selected_candidate_id=existing_checkpoint, selected_params={'hidden_size': 64, 'bottleneck_size': 16, 'learning_rate': 0.001, 'num_layers': 2, 'dropout': 0.2}, selected_checkpoint=/kaggle/working/swat-project/swat-artifacts/lstm_autoencoder.pth, selected_best_monitor_mse=0.0033462521619373187, existing_monitor_mse=0.0033462521619373187, improvement_pct_of_best_candidate=-21.732306198635598, meaningful_improvement_threshold_pct=5.0, replaces_current=False, elapsed_seconds=345.62321066856384",
+      "seed": "-",
+      "threshold_value": 0.018826062995940453,
+      "threshold_procedure": "99th pct of threshold partition (interpolation=linear)",
+      "checkpoint_path": "nb08_artifacts/lstm_autoencoder.pth",
+      "score_definition": "reconstruction MSE (mean over time & features)"
+    },
+    {
+      "method": "TCN AE",
+      "class": "deep_learning",
+      "training_data": "training partition (221,366 rows), MinMax-scaled",
+      "features": "42 sensor columns in NB08 order (scaler.feature_names_in_)",
+      "preprocessing": "MinMaxScaler (frozen NB08, fit on training partition)",
+      "window_size": 30,
+      "architecture": "TCN Autoencoder (causal conv blocks) (40,554 params)",
+      "hyperparameters": "selected_candidate_id=existing_checkpoint, selected_params={'channels': [32, 32, 32, 32], 'kernel_size': 3, 'dilations': [1, 2, 4, 8], 'learning_rate': 0.001, 'receptive_field': 61}, selected_checkpoint=/kaggle/working/swat-project/swat-artifacts/tcn_preliminary/tcn_autoencoder_best.pth, selected_best_monitor_mse=0.0005770922056649144, existing_monitor_mse=0.0005770922056649144, improvement_pct_of_best_candidate=-116.57452058060025, meaningful_improvement_threshold_pct=5.0, replaces_current=False, elapsed_seconds=844.8097901344299",
+      "seed": "-",
+      "threshold_value": 0.003906734725460411,
+      "threshold_procedure": "99th pct of threshold partition (interpolation=linear)",
+      "checkpoint_path": "nb08_artifacts/tcn_preliminary/tcn_autoencoder_best.pth",
+      "score_definition": "reconstruction MSE (mean over time & features)"
+    },
+    {
+      "method": "USAD",
+      "class": "deep_learning",
+      "training_data": "training partition (221,366 rows), MinMax-scaled",
+      "features": "42 sensor columns in NB08 order (scaler.feature_names_in_)",
+      "preprocessing": "MinMaxScaler (frozen NB08, fit on training partition)",
+      "window_size": 30,
+      "architecture": "USAD (dual autoencoder + adversarial term) (499,064 params)",
+      "hyperparameters": "selected_candidate_id=existing_checkpoint, selected_params={'learning_rate': 0.0001, 'hidden_dim': 128, 'latent_dim': 32}, selected_checkpoint=/kaggle/working/swat-project/swat-artifacts/usad_preliminary/usad_best.pth, selected_best_monitor_mse=0.022224580978072807, best_eligible_new_candidate=lr5e-05_h64_l16, best_eligible_new_candidate_mse=0.2072669349279815, existing_monitor_mse=0.022224580978072807, existing_best_epoch=1, replaces_current=False, elapsed_seconds=138.2837257385254; best_epoch=1",
+      "seed": 42,
+      "threshold_value": 0.0564194791764021,
+      "threshold_procedure": "99th pct of threshold partition (interpolation=linear)",
+      "checkpoint_path": "nb08_artifacts/usad_preliminary/usad_best.pth",
+      "score_definition": "reconstruction error (adversarial formulation)"
+    }
+  ]
+}

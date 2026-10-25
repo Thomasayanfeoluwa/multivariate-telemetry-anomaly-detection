@@ -1,0 +1,57 @@
+{
+  "checks": [
+    {
+      "check": "1. Selected model checkpoint present",
+      "verdict": "PASS",
+      "evidence": "tcn_autoencoder_best.pth (172,469 bytes)"
+    },
+    {
+      "check": "2. TCN metrics match NB11's cited values",
+      "verdict": "PASS",
+      "evidence": "all 6 metrics within 1e-3 of the values cited in NB11 Cell 11"
+    },
+    {
+      "check": "3. Scaler has 42 documented features",
+      "verdict": "PASS",
+      "evidence": "MinMaxScaler, 42 features, feature_names_in_ present"
+    },
+    {
+      "check": "4. TCN frozen threshold reproducible from frozen scores",
+      "verdict": "PASS",
+      "evidence": "frozen=0.003906734725460, recomputed=0.003906734725460, |delta|=0.00e+00"
+    },
+    {
+      "check": "5. frozen_thresholds.json structure complete",
+      "verdict": "PASS",
+      "evidence": "all 9 required fields present; per-method thresholds: ['rule', 'rolling', 'simple', 'if', 'ocsvm', 'lof', 'lstm', 'tcn', 'usad']"
+    },
+    {
+      "check": "6. NB11 report cites Outcome A + TCN selection",
+      "verdict": "PASS",
+      "evidence": "NB11_FINAL_REPORT.md present (10,583 bytes); contains 'Outcome A' and 'TCN'"
+    },
+    {
+      "check": "7. All 12 workflow notebooks present",
+      "verdict": "PASS",
+      "evidence": "all numbers 01\u201312 found in notebooks/"
+    },
+    {
+      "check": "8. requirements.txt present with pinned versions",
+      "verdict": "PASS",
+      "evidence": "requirements.txt (12 pinned packages)"
+    },
+    {
+      "check": "9. Required raw data files present",
+      "verdict": "PASS",
+      "evidence": "all 3 present in data/raw/ (normal.csv, attack.csv, List_of_attacks_Final.xlsx)"
+    },
+    {
+      "check": "10. Frozen artifact integrity (from Cell 6)",
+      "verdict": "PASS",
+      "evidence": "NB08 checksums: 15/15 matched; NB11 checksums: 3/3 matched"
+    }
+  ],
+  "verdict_counts": {
+    "PASS": 10
+  }
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "notebook": "01_data_and_process_understanding.ipynb",
+    "kaggle_paths": 0,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "clean"
+  },
+  {
+    "notebook": "02-data-quality-and-temporal-split.ipynb",
+    "kaggle_paths": 2,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "03-exploratory-analysis.ipynb",
+    "kaggle_paths": 2,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "04-baseline-anomaly-detection.ipynb",
+    "kaggle_paths": 7,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "05-lstm-autoencoder.ipynb",
+    "kaggle_paths": 12,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "06-traditional-ml-anomaly-detection.ipynb",
+    "kaggle_paths": 10,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "07-deep-learning-anomaly-detection.ipynb",
+    "kaggle_paths": 17,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "08-hyperparameter-tuning-threshold-calibration.ipynb",
+    "kaggle_paths": 17,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "09_error_and_event_analysis.ipynb",
+    "kaggle_paths": 0,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "clean"
+  },
+  {
+    "notebook": "10-robustness-Analysis.ipynb",
+    "kaggle_paths": 103,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "11_final_model.ipynb",
+    "kaggle_paths": 0,
+    "windows_user_paths": 1,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  },
+  {
+    "notebook": "12_reproducibility.ipynb",
+    "kaggle_paths": 1,
+    "windows_user_paths": 0,
+    "mac_user_paths": 0,
+    "verdict": "has hardcoded paths"
+  }
+]

@@ -1,0 +1,77 @@
+{
+  "window_size": 30,
+  "row_counts": {
+    "training": 221366,
+    "monitoring": 47435,
+    "threshold": 47437,
+    "validation": 79060,
+    "attack": 54621,
+    "total_normal": 395298
+  },
+  "boundaries": {
+    "training": {
+      "start": "2015-12-28 10:00:00",
+      "end": "2015-12-31 12:43:42"
+    },
+    "monitoring": {
+      "start": "2015-12-31 12:43:43",
+      "end": "2016-01-01 02:23:17"
+    },
+    "threshold": {
+      "start": "2016-01-01 02:23:18",
+      "end": "2016-01-01 15:51:19"
+    },
+    "validation": {
+      "start": "2016-01-01 15:51:20",
+      "end": "2016-01-02 14:59:59"
+    },
+    "attack": {
+      "start": "2015-12-28 10:29:14",
+      "end": "2016-01-02 13:41:11"
+    }
+  },
+  "chronological_problems": [],
+  "threshold_procedure": {
+    "learned_percentile": 99,
+    "learned_interpolation": "linear",
+    "baseline_threshold": 0.0,
+    "rule_text": "Learned models: threshold = 99th percentile (linear interpolation) of threshold-partition sequence scores. Flag if score > threshold. Baselines: threshold = 0.0 (any violation flags). No validation or attack labels were consulted."
+  },
+  "leakage_safeguards": [
+    {
+      "check": "Chronological ordering preserved",
+      "status": "PASS",
+      "evidence": "verified above"
+    },
+    {
+      "check": "Scaler fit on training partition only",
+      "status": "PASS",
+      "evidence": "confirmed in NB08 metadata (scaler.joblib trained on 221,366 rows)"
+    },
+    {
+      "check": "Checkpoint selection on monitoring partition",
+      "status": "PASS",
+      "evidence": "NB05/NB07 use monitoring partition for early stopping"
+    },
+    {
+      "check": "Threshold calibration on threshold partition",
+      "status": "PASS",
+      "evidence": "47,408 sequences, no validation/attack labels used"
+    },
+    {
+      "check": "Validation used for FP/TN only",
+      "status": "PASS",
+      "evidence": "confusion matrix construction per NB08 protocol"
+    },
+    {
+      "check": "Attack used for TP/FN only",
+      "status": "PASS",
+      "evidence": "confusion matrix construction per NB08 protocol"
+    },
+    {
+      "check": "No attack labels in threshold computation",
+      "status": "PASS",
+      "evidence": "verified in frozen_thresholds.json 'rule_text' field"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "files": {
+    "normal.csv": {
+      "sha256": "efa3dfd271fd33402d04ff4323d92ba739758bb2d4b9c6e9cc205980891f111f",
+      "size_bytes": 402374633,
+      "role": "normal-operation rows"
+    },
+    "attack.csv": {
+      "sha256": "81977a6206ba954781df5481481ef1c39e94a405980f4f45b98e9c0a9cedadd2",
+      "size_bytes": 15162438,
+      "role": "attack-partition rows"
+    },
+    "merged.csv": {
+      "sha256": "5472928b8faf51430f4490628c6fe99487d58d5826a41460ab26aee69dde22a4",
+      "size_bytes": 426855390,
+      "role": "normal + attack concatenation (EDA input)"
+    },
+    "List_of_attacks_Final.xlsx": {
+      "sha256": "991b22dd48899769e69fcb0e19fc168784dcdde85b7f55feb888e524857e7709",
+      "size_bytes": 15258,
+      "role": "attack-scenario annotations"
+    }
+  },
+  "csv_schema": {
+    "normal.csv": {
+      "n_columns": 53,
+      "n_rows": 1387098,
+      "first_timestamp": " 28/12/2015 10:00:00 AM",
+      "last_timestamp": " 28/12/2015 9:59:59 AM",
+      "label_column": "Normal/Attack",
+      "label_values": [
+        "Normal"
+      ],
+      "first_8_columns": [
+        " Timestamp",
+        "FIT101",
+        "LIT101",
+        " MV101",
+        "P101",
+        "P102",
+        " AIT201",
+        "AIT202"
+      ]
+    },
+    "attack.csv": {
+      "n_columns": 53,
+      "n_rows": 54621,
+      "first_timestamp": " 28/12/2015 10:29:14 AM",
+      "last_timestamp": " 2/1/2016 1:41:11 PM",
+      "label_column": "Normal/Attack",
+      "label_values": [
+        "Attack"
+      ],
+      "first_8_columns": [
+        " Timestamp",
+        "FIT101",
+        "LIT101",
+        " MV101",
+        "P101",
+        "P102",
+        " AIT201",
+        "AIT202"
+      ]
+    },
+    "merged.csv": {
+      "n_columns": 53,
+      "n_rows": 1441719,
+      "first_timestamp": " 28/12/2015 10:00:00 AM",
+      "last_timestamp": " 2/1/2016 1:41:11 PM",
+      "label_column": "Normal/Attack",
+      "label_values": [
+        "Attack",
+        "Normal"
+      ],
+      "first_8_columns": [
+        " Timestamp",
+        "FIT101",
+        "LIT101",
+        " MV101",
+        "P101",
+        "P102",
+        " AIT201",
+        "AIT202"
+      ]
+    }
+  },
+  "xlsx_schema": {
+    "Sheet1": {
+      "columns": [
+        "Attack #",
+        "Start Time",
+        "End Time",
+        "Attack Point",
+        "Start State",
+        "Attack",
+        "Actual Change",
+        "Expected Impact or attacker intent",
+        "Unexpected Outcome"
+      ],
+      "n_rows": 49
+    }
+  },
+  "checksum_sources_inspected": [
+    "nb08_artifacts\\_nb08_checksums.csv",
+    "nb10_artifacts\\pre_run_hashes.json",
+    "nb11_artifacts\\_nb11_checksums.csv"
+  ]
+}
