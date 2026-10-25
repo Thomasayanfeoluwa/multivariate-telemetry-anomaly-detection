@@ -80,6 +80,7 @@ models/isolation_forest/*.bin
 /nb08_artifacts/
 /swat-artifacts/
 /swat_artifacts_complete.zip
+/SWATS_Kaggle_Transfer_*.zip
 
 # ---- Reports & Generated Figures --------------------------
 reports/figures/*.png
