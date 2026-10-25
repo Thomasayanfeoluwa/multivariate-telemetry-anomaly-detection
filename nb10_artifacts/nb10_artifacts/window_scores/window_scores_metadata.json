@@ -1,0 +1,54 @@
+{
+  "models": {
+    "tcn_window60": {
+      "arch": "tcn",
+      "window": 60,
+      "checkpoint": "tcn_window60_seed42_minmax.pth",
+      "threshold": 0.0027813617512583736,
+      "n_thr": 47378,
+      "n_val": 79001,
+      "n_atk": 54562,
+      "inference_seconds_total": 1.5544788280003559,
+      "inference_seconds_per_1k_seqs": 0.008591081225373772
+    },
+    "tcn_window90": {
+      "arch": "tcn",
+      "window": 90,
+      "checkpoint": "tcn_window90_seed42_minmax.pth",
+      "threshold": 0.0033260990399867295,
+      "n_thr": 47348,
+      "n_val": 78971,
+      "n_atk": 54532,
+      "inference_seconds_total": 2.254565352001009,
+      "inference_seconds_per_1k_seqs": 0.012466424581567197
+    },
+    "lstm_window60": {
+      "arch": "lstm",
+      "window": 60,
+      "checkpoint": "lstm_window60_seed42_minmax.pth",
+      "threshold": 0.033329700566828435,
+      "n_thr": 47378,
+      "n_val": 79001,
+      "n_atk": 54562,
+      "inference_seconds_total": 2.1495205699993676,
+      "inference_seconds_per_1k_seqs": 0.0118796766349217
+    },
+    "lstm_window90": {
+      "arch": "lstm",
+      "window": 90,
+      "checkpoint": "lstm_window90_seed42_minmax.pth",
+      "threshold": 0.040116681605577444,
+      "n_thr": 47348,
+      "n_val": 78971,
+      "n_atk": 54532,
+      "inference_seconds_total": 2.9854530740012706,
+      "inference_seconds_per_1k_seqs": 0.016507805176644148
+    }
+  },
+  "partitions": {
+    "threshold_rows": 47437,
+    "validation_rows": 79060,
+    "attack_rows": 54621
+  },
+  "note_frozen_w30": "Frozen w30 baseline inference times are not re-measured here. Scores themselves are in nb08_artifacts/final_sequence_scores.npz."
+}

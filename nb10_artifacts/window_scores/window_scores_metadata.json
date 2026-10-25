@@ -1,0 +1,53 @@
+{
+  "partitions": {
+    "threshold_rows": 47437,
+    "validation_rows": 79060,
+    "attack_rows": 54621
+  },
+  "models": {
+    "tcn_window60": {
+      "arch": "tcn",
+      "window": 60,
+      "checkpoint": "tcn_window60_seed42_minmax.pth",
+      "threshold": 0.002781362254172564,
+      "n_thr": 47378,
+      "n_val": 79001,
+      "n_atk": 54562,
+      "inference_seconds_total": 79.55689740000525,
+      "inference_seconds_per_1k_seqs": 0.43968419208474174
+    },
+    "tcn_window90": {
+      "arch": "tcn",
+      "window": 90,
+      "checkpoint": "tcn_window90_seed42_minmax.pth",
+      "threshold": 0.003326100232079625,
+      "n_thr": 47348,
+      "n_val": 78971,
+      "n_atk": 54532,
+      "inference_seconds_total": 62.954312100002426,
+      "inference_seconds_per_1k_seqs": 0.348100436823697
+    },
+    "lstm_window60": {
+      "arch": "lstm",
+      "window": 60,
+      "checkpoint": "lstm_window60_seed42_minmax.pth",
+      "threshold": 0.0333296626433732,
+      "n_thr": 47378,
+      "n_val": 79001,
+      "n_atk": 54562,
+      "inference_seconds_total": 54.095581899993704,
+      "inference_seconds_per_1k_seqs": 0.2989680719129092
+    },
+    "lstm_window90": {
+      "arch": "lstm",
+      "window": 90,
+      "checkpoint": "lstm_window90_seed42_minmax.pth",
+      "threshold": 0.040116551779210544,
+      "n_thr": 47348,
+      "n_val": 78971,
+      "n_atk": 54532,
+      "inference_seconds_total": 79.01379209999868,
+      "inference_seconds_per_1k_seqs": 0.4368999458117383
+    }
+  }
+}

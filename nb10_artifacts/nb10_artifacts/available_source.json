@@ -1,0 +1,32 @@
+{
+  "ipynb": [],
+  "py": [
+    "datasets/thomasadegoke/10-robustness-analysis/src/api/detector_service.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/api/main.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/api/schemas.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/data/ingestion.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/data/preprocessing.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/data/validation.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/detection/event_detection.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/detection/isolation_forest.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/detection/rolling_statistical.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/detection/rule_based.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/evaluation/detection_delay.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/evaluation/drift.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/evaluation/event_metrics.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/evaluation/point_metrics.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/evaluation/robustness.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/monitoring/logger.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/monitoring/schemas.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/utils/__init__.py",
+    "datasets/thomasadegoke/10-robustness-analysis/src/utils/paths.py"
+  ],
+  "md": [
+    "datasets/thomasadegoke/10-robustness-analysis/PROJECT_STATE.md",
+    "datasets/thomasadegoke/10-robustness-analysis/README.md",
+    "datasets/thomasadegoke/10-robustness-analysis/nb08_artifacts/_verification_report.md"
+  ],
+  "lookup_05": [],
+  "lookup_07": [],
+  "probes": {}
+}
