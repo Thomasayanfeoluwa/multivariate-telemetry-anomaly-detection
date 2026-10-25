@@ -18,7 +18,7 @@
 | ocsvm    | One-Class SVM    | -           | 0.0        | -        | -                   | -                   |
 | lof      | LOF              | -           | 85.73      | -        | -                   | -                   |
 | lstm     | LSTM AE          | 2.69        | 0.51       | 132346.0 | 299.0               | 436.9               |
-| tcn      | TCN AE           | 5.12        | -          | -        | 439.7               | 348.1               |
+| tcn      | TCN AE           | 5.12        | 0.16       | 40554.0  | 439.7               | 348.1               |
 | usad     | USAD             | -           | 1.91       | 0.0      | -                   | -                   |
 
 ## 3. What is measured vs unavailable
