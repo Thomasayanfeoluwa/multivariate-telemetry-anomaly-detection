@@ -1,0 +1,52 @@
+{
+  "notebook": "13",
+  "notebook_title": "Deployment Feasibility and Historical Replay Test",
+  "decision": "GO",
+  "reason": "All seven tests (A. model load, B. score parity, C. chronological replay, D. full alert record, E. event parity, F. inference performance, G. input handling) passed their required checks. The replay workflow is functionally equivalent to the frozen NB08 scoring path at every measured level, and the CPU inference performance fits the SWaT 1 Hz cadence with substantial headroom. The remaining limitations do not block FastAPI and React application development.",
+  "test_statuses": {
+    "A": "PASS",
+    "B": "PASS",
+    "C": "PASS",
+    "D": "PASS",
+    "E": "PASS",
+    "F": "PASS",
+    "G": "PASS"
+  },
+  "test_files": {
+    "A": "cell2_test_a.json",
+    "B": "cell3_test_b.json",
+    "C": "cell4_test_c.json",
+    "D": "cell5_test_d.json",
+    "E": "cell6_test_e.json",
+    "F": "cell7_test_f.json",
+    "G": "cell8_test_g.json"
+  },
+  "numeric_pins": {
+    "test_b_max_abs_diff_overall": 5.21540641784668e-08,
+    "test_b_flag_disagreements_total": 0,
+    "test_c_max_abs_diff_overall": 6.402842700481415e-10,
+    "test_c_flag_disagreements_total": 0,
+    "test_d_validation_fp": 2528,
+    "test_d_attack_tp": 43345,
+    "test_e_scenarios_detected": 28,
+    "test_e_scenarios_missed": 8,
+    "test_e_median_delay_s": 0.0,
+    "test_e_p90_delay_s": 22.80000000000002,
+    "test_e_max_delay_s": 1489.0,
+    "test_e_validation_fp_count": 2528,
+    "test_e_validation_fp_periods": 73,
+    "test_f_batch1_median_ms": 2.643155000000661,
+    "test_f_batch1_utilization_pct_1hz": 0.2643155000000661,
+    "test_f_batch1_throughput_seqs_per_s": 378.3357426353392,
+    "test_f_batch512_median_ms": 52.1313750000445,
+    "test_f_batch512_throughput_seqs_per_s": 9821.34547231592
+  },
+  "carried_forward_issues": [
+    {
+      "id": "G2-message-clarity",
+      "description": "G2 detail message says 'match the expected set but are in a different order' when the actual mutation was an unexpected feature name. Fix before FastAPI deployment by splitting the validator into separate 'same set, different order' and 'different set' branches.",
+      "blocking": false
+    }
+  ],
+  "output_markdown_relative_path": "nb13_artifacts\\NB13_FEASIBILITY_REPORT.md"
+}

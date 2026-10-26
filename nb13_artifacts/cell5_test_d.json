@@ -34,10 +34,10 @@
   "expected_fp": 2528,
   "expected_tp": 43345,
   "scoring_elapsed_seconds": {
-    "threshold": 8.556550999999672,
-    "validation": 13.295230799999445,
-    "attack": 9.21774809999988,
-    "ts_load": 2.3552741000003152
+    "threshold": 5.109442000000854,
+    "validation": 8.462298499998724,
+    "attack": 7.487069799999517,
+    "ts_load": 1.6137810999989597
   },
   "verdict_checks": {
     "all_timestamps_valid": true,
