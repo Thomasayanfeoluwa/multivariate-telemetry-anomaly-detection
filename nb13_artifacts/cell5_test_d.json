@@ -1,0 +1,54 @@
+{
+  "test": "Test D \u2014 Full alert record",
+  "output_relative_path": "nb13_artifacts\\cell5_alert_records.parquet",
+  "output_bytes": 4017193,
+  "columns": [
+    "partition",
+    "seq_index",
+    "end_index",
+    "timestamp",
+    "score",
+    "threshold",
+    "alert",
+    "label"
+  ],
+  "n_records": 181031,
+  "threshold": 0.003906734725460411,
+  "partitions": {
+    "threshold": {
+      "n": 47408,
+      "alerts": 475,
+      "rate": 0.010019406007424908
+    },
+    "validation": {
+      "n": 79031,
+      "alerts": 2528,
+      "rate": 0.03198744796345738
+    },
+    "attack": {
+      "n": 54592,
+      "alerts": 43345,
+      "rate": 0.7939808030480656
+    }
+  },
+  "expected_fp": 2528,
+  "expected_tp": 43345,
+  "scoring_elapsed_seconds": {
+    "threshold": 8.556550999999672,
+    "validation": 13.295230799999445,
+    "attack": 9.21774809999988,
+    "ts_load": 2.3552741000003152
+  },
+  "verdict_checks": {
+    "all_timestamps_valid": true,
+    "threshold_ts_monotonic": true,
+    "validation_ts_monotonic": true,
+    "attack_ts_monotonic": true,
+    "threshold_flags_match_frozen": true,
+    "validation_flags_match_frozen": true,
+    "attack_flags_match_frozen": true,
+    "validation_fp_matches_nb08": true,
+    "attack_tp_matches_nb08": true
+  },
+  "overall_verdict": "PASS"
+}
