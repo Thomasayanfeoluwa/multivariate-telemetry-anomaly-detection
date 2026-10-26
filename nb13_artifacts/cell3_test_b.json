@@ -9,7 +9,7 @@
   "partitions": {
     "threshold": {
       "n_sequences": 47408,
-      "elapsed_seconds": 11.02374780000082,
+      "elapsed_seconds": 5.950744800000393,
       "max_abs_diff": 5.3551048040390015e-09,
       "mean_abs_diff": 3.475515980309946e-10,
       "median_abs_diff": 2.3283064365386963e-10,
@@ -30,7 +30,7 @@
     },
     "validation": {
       "n_sequences": 79031,
-      "elapsed_seconds": 20.326957799999946,
+      "elapsed_seconds": 8.915705400000661,
       "max_abs_diff": 2.9802322387695312e-08,
       "mean_abs_diff": 4.839232218947927e-10,
       "median_abs_diff": 2.3283064365386963e-10,
@@ -51,7 +51,7 @@
     },
     "attack": {
       "n_sequences": 54592,
-      "elapsed_seconds": 11.050745099999403,
+      "elapsed_seconds": 6.40535589999854,
       "max_abs_diff": 5.21540641784668e-08,
       "mean_abs_diff": 5.873977695546113e-09,
       "median_abs_diff": 3.725290298461914e-09,

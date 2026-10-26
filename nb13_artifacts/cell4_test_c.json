@@ -4,7 +4,7 @@
   "window_size": 30,
   "threshold": 0.003906734725460411,
   "replay_window_count_per_partition": 500,
-  "normal_csv_load_seconds": 43.19383459999972,
+  "normal_csv_load_seconds": 24.581268699999782,
   "warmup": {
     "threshold_first_scored_end_index": 29,
     "validation_first_scored_end_index": 29,
@@ -101,19 +101,19 @@
   "per_window_latency": {
     "threshold": {
       "n": 500,
-      "median_ms": 5.067799999778799,
-      "p95_ms": 13.632760000018587,
-      "mean_ms": 6.663298199997371,
-      "min_ms": 2.654900000379712,
-      "max_ms": 303.89520000062475
+      "median_ms": 2.4918999997680658,
+      "p95_ms": 4.472880000503209,
+      "mean_ms": 3.123790400059079,
+      "min_ms": 2.321699999811244,
+      "max_ms": 119.00090000017371
     },
     "validation": {
       "n": 500,
-      "median_ms": 4.1064999995796825,
-      "p95_ms": 8.840030000465044,
-      "mean_ms": 5.280863199994201,
-      "min_ms": 2.630199999657634,
-      "max_ms": 213.58879999934288
+      "median_ms": 3.1026500000734814,
+      "p95_ms": 5.8823699989261495,
+      "mean_ms": 3.838049799989676,
+      "min_ms": 2.325699999346398,
+      "max_ms": 26.835000000573928
     }
   },
   "verdict_checks": {

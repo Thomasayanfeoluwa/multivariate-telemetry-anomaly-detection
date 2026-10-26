@@ -82,5 +82,6 @@
     0.0007156890351325274
   ],
   "device": "cpu",
-  "verdict": "PASS"
+  "verdict": "PASS",
+  "overall_verdict": "PASS"
 }
