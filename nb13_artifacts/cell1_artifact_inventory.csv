@@ -1,0 +1,19 @@
+label,path,present,size_bytes
+TCN checkpoint,nb08_artifacts\tcn_preliminary\tcn_autoencoder_best.pth,True,172469
+Frozen thresholds,nb08_artifacts\frozen_thresholds.json,True,1347
+Scaler,nb08_artifacts\scaler.joblib,True,2127
+Evaluation summary,nb08_artifacts\evaluation_summary.csv,True,1872
+Final sequence scores,nb08_artifacts\final_sequence_scores.npz,True,5063919
+Final observation scores,nb08_artifacts\final_observation_scores.npz,True,2927982
+Evaluation sequences,nb08_artifacts\evaluation_sequences.npz,True,10735316
+Attack evaluation sequences,nb08_artifacts\attack_evaluation_sequences.npz,True,3954752
+NB09 scenario detection,nb09_artifacts\scenario_detection.csv,True,9923
+NB09 scenario detection summary,nb09_artifacts\scenario_detection_summary.csv,True,666
+NB09 detection delays,nb09_artifacts\detection_delays.csv,True,15121
+NB09 detection delay summary,nb09_artifacts\detection_delay_summary.csv,True,410
+NB09 validation false alarm summary,nb09_artifacts\validation_false_alarm_summary.csv,True,921
+NB09 validation false alarm periods,nb09_artifacts\validation_false_alarm_periods.csv,True,620301
+NB09 fp_sensor_attribution,nb09_artifacts\fp_sensor_attribution.csv,True,1281
+NB11 final report,nb11_artifacts\NB11_FINAL_REPORT.md,True,11108
+Normal CSV,data\raw\normal.csv,True,402374633
+Attack CSV,data\raw\attack.csv,True,15162438
