@@ -11,7 +11,7 @@ The core 12-notebook experimental workflow is complete and Notebook 12's audit r
 | Notebooks 01–10 | Experiments, evaluation, event/error analysis, and robustness work recorded |
 | Notebook 11 | TCN Autoencoder selected from the nine evaluated methods |
 | Notebook 12 | Reproducibility audit complete; 10/10 checks passed |
-| Notebook 13 | Next planned step: test frozen-TCN historical replay and monitoring feasibility; not started |
+| Notebook 13 | Completed; all 7 tests PASS (model load, score parity, replay, alerts, events, latency, validation); Decision: GO |
 | FastAPI / React application | Future work; not implemented |
 | Tests / live integration | Future work; not implemented |
 
