@@ -1,0 +1,104 @@
+{
+  "test": "Test G — Input handling validation",
+  "feature_count": 42,
+  "window_size": 30,
+  "policy": {
+    "feature_validation": "names and order must equal scaler.feature_names_in_",
+    "sequence_validation": "shape must be (30, 42)",
+    "value_validation": "all cells numeric and finite (no NaN, no inf)",
+    "timestamp_validation": "strictly later than last buffered timestamp",
+    "imputation": "never — invalid input is rejected, not repaired",
+    "feature_reordering": "never — invalid order is rejected"
+  },
+  "cases": [
+    {
+      "label": "G1",
+      "description": "missing required feature",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Expected 42 features, got 41. Missing: ['P602']. Unexpected: [].",
+      "pass": true
+    },
+    {
+      "label": "G2",
+      "description": "unexpected feature name",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Feature names match the expected set but are in a different order. Feature order must equal scaler.feature_names_in_.",
+      "pass": true
+    },
+    {
+      "label": "G3",
+      "description": "wrong feature order (same names)",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Feature names match the expected set but are in a different order. Feature order must equal scaler.feature_names_in_.",
+      "pass": true
+    },
+    {
+      "label": "G4",
+      "description": "incorrect sequence length (29 rows)",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Expected sequence shape (30, 42), got (29, 42).",
+      "pass": true
+    },
+    {
+      "label": "G5",
+      "description": "non-numeric sensor value",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Non-numeric value at position (5, 3): 'not_a_number'.",
+      "pass": true
+    },
+    {
+      "label": "G6",
+      "description": "NaN sensor value",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Non-finite value at position (10, 20): nan.",
+      "pass": true
+    },
+    {
+      "label": "G7",
+      "description": "infinite sensor value",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Non-finite value at position (15, 5): inf.",
+      "pass": true
+    },
+    {
+      "label": "G8",
+      "description": "duplicate timestamp in buffer",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Duplicate timestamp '2016-01-01 12:00:00' — incoming observation must have a strictly later timestamp than the last buffered one.",
+      "pass": true
+    },
+    {
+      "label": "G9",
+      "description": "out-of-order timestamp in buffer",
+      "expected": "REJECTED",
+      "actual": "REJECTED",
+      "detail": "Out-of-order timestamp '2016-01-01 11:59:59' precedes last buffered timestamp Timestamp('2016-01-01 12:00:00').",
+      "pass": true
+    },
+    {
+      "label": "G10",
+      "description": "well-formed control case",
+      "expected": "ACCEPTED",
+      "actual": "ACCEPTED",
+      "detail": "",
+      "pass": true
+    }
+  ],
+  "verdict_checks": {
+    "all_10_cases_pass": true,
+    "no_silent_imputation_or_accept": true,
+    "all_rejections_have_detail": true,
+    "missing_feature_rejected": true,
+    "unexpected_feature_rejected": true,
+    "wrong_feature_order_rejected": true
+  },
+  "overall_verdict": "PASS"
+}
