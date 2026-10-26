@@ -1,0 +1,53 @@
+{
+  "test": "Test F \u2014 Inference performance measurement",
+  "device": "cpu",
+  "torch_version": "2.6.0+cpu",
+  "python_version": "3.11.14",
+  "platform": "Windows-10-10.0.22000-SP0",
+  "gpu": null,
+  "cuda_version": null,
+  "swat_cadence_hz": 1.0,
+  "warmup_passes": 20,
+  "batch512": {
+    "batch_size": 512,
+    "n_iters": 100,
+    "n_batches_per_pass": 2,
+    "n_seqs_per_pass": 1024,
+    "per_pass_median_ms": 117.4364999997124,
+    "per_pass_p95_ms": 168.75744000008126,
+    "per_pass_mean_ms": 123.8740670000152,
+    "per_pass_min_ms": 105.444400000124,
+    "per_pass_max_ms": 236.9118000005983,
+    "per_batch_median_ms": 58.7182499998562,
+    "throughput_median_seqs_per_sec": 8719.619932535921,
+    "throughput_p5_seqs_per_sec": 6068.10656837755
+  },
+  "batch1": {
+    "batch_size": 1,
+    "n_iters": 200,
+    "n_batches_per_pass": 200,
+    "n_seqs_per_pass": 200,
+    "per_pass_median_ms": 1294.6326999999656,
+    "per_pass_p95_ms": 2054.233390000627,
+    "per_pass_mean_ms": 1342.0314590000726,
+    "per_pass_min_ms": 511.8551000014122,
+    "per_pass_max_ms": 6313.755299999684,
+    "per_batch_median_ms": 6.473163499999828,
+    "throughput_median_seqs_per_sec": 154.48428386751362,
+    "throughput_p5_seqs_per_sec": 97.35997999175517
+  },
+  "first_call_informational": {
+    "first_call_ms": 4.455500000403845,
+    "next_5_median_ms": 4.479499999433756,
+    "next_5_min_ms": 3.9290999993681908,
+    "next_5_max_ms": 5.3471000010176795,
+    "ratio_first_to_steady": 0.9946422593965968,
+    "note": "Process-wide oneDNN kernel cache and memory pool were already warm before this test. Process-first-call cost cannot be reproduced in-process after warm-up. Test C captured the process-first-call cost correctly."
+  },
+  "verdict_checks": {
+    "batch1_fits_1hz_cadence": true,
+    "batch1_fits_interactive_target_100ms": true,
+    "batch512_throughput_over_10x_cadence": true
+  },
+  "overall_verdict": "PASS"
+}
