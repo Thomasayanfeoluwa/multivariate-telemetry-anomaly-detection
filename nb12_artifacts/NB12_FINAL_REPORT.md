@@ -4,11 +4,13 @@
 
 **Selected method (from NB11):** TCN Autoencoder, window 30, MinMaxScaler, seed 42, threshold 0.003907.
 
+**Post-audit editorial note (2026-10-26):** Personal machine and Kaggle account paths were redacted, and the report wording was clarified. No notebook cells were rerun, and no model, score, or evaluation result was recomputed. Related inventory and checksum metadata were refreshed.
+
 ---
 
 ## 1. Executive summary
 
-Notebook 12 audited the SWaT anomaly-detection project for reproducibility. It verified the environment, the frozen artifacts, the temporal partitions, the threshold procedures, and the final selection decision from NB11. Every check was performed against actual files, not against assumptions. The audit passes all ten reproducibility checks in Cell 8, and all eleven audit areas in Cell 11 are settled — five with plain PASS and five with documented ISSUEs that do not affect the TCN selection.
+Notebook 12 audited the SWaT anomaly-detection project for reproducibility. It verified the environment, the frozen artifacts, the temporal partitions, the threshold procedures, and the final selection decision from NB11. Every check was performed against actual files, not against assumptions. The audit passes all ten reproducibility checks in Cell 8, and all eleven audit areas in Cell 11 are settled — six with plain PASS and five with documented ISSUEs that do not affect the TCN selection.
 
 **The project is:**
 - Structurally complete (all 12 notebooks present, all 5 artifact directories populated, all raw data on disk).
@@ -102,8 +104,8 @@ Each limitation is qualified by Cell 9 as to whether it affects the TCN selectio
 
 ## 7. What the project establishes
 
-- A reproducible evaluation of nine anomaly-detection methods on the SWaT testbed dataset under a documented, leakage-safe, chronologically-split protocol.
-- That the TCN Autoencoder at w30 / MinMax / seed 42 is the most defensible of the nine methods for the project's stated objective — leading on pAUC@0.05, F1, alert-period burden, and retraining robustness.
+- A documented, artifact-audited offline comparison of nine anomaly-detection methods on the available SWaT testbed data under a leakage-safe, chronologically-split protocol. The threshold and frozen-artifact checks are reproducible; a clean independent from-scratch reproduction has not been demonstrated.
+- That the TCN Autoencoder at w30 / MinMax / seed 42 is the most defensible of the nine methods under the project's documented weighting — leading on pAUC@0.05, F1, validation alert-period count, and the tested retraining-robustness comparisons.
 - That seven of seven leakage safeguards required by the specification are met.
 - That the frozen artifacts are internally consistent, traceable, and their threshold is reproducible from the recorded scores.
 
@@ -149,7 +151,7 @@ Regenerated during NB11:
 
 Notebook 12 completes the audit and reproducibility stage of the twelve-notebook SWaT anomaly-detection project. The selection of the TCN Autoencoder is documented, evidenced, and bounded by the project's stated limitations. The frozen artifacts are intact and traceable. All reproducibility checks pass.
 
-**The project is complete.** Further work — production deployment, additional methods, cross-dataset validation, or a full from-scratch reproduction — would be new notebooks (NB13+), and the current NB12 audit defines the starting conditions those would inherit.
+**The twelve-notebook research and audit workflow is complete.** Production deployment, additional methods, cross-dataset validation, and an independent from-scratch reproduction remain future work; the current NB12 audit defines the starting conditions those efforts would inherit.
 
 ---
 

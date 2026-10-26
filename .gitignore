@@ -1,5 +1,5 @@
 # ============================================================
-# CATS - Controlled Anomalies Time Series
+# SWaT Industrial Anomaly Detection
 # Telemetry Anomaly Detection - .gitignore
 # ============================================================
 
@@ -47,10 +47,6 @@ data/raw/*.xlsx
 data/raw/**/*.csv
 data/raw/**/*.parquet
 data/raw/**/*.xlsx
-data/raw/cats/*.parquet
-data/raw/telemetry/*.parquet
-data/raw/telemetry/*.csv
-data/raw/cats/*.csv
 # Keep metadata.csv tracked
 !data/raw/metadata.csv
 
@@ -84,6 +80,7 @@ models/isolation_forest/*.bin
 
 # ---- Reports & Generated Figures --------------------------
 reports/figures/*.png
+!/reports/figures/frozen-baseline-comparison.png
 reports/figures/*.jpg
 reports/figures/*.svg
 reports/figures/*.html

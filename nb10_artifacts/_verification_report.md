@@ -35,6 +35,6 @@ Generated: 2026-10-25T02:15:47.772396Z
 ## Protection of earlier artifacts
 
 NB08 and NB09 artifacts live under
-`/kaggle/input/datasets/thomasadegoke/10-robustness-analysis/` and were
+`/kaggle/input/datasets/<dataset-owner>/10-robustness-analysis/` and were
 not modified by any NB10 cell. `pre_run_hashes.json` records the state of
 the frozen models before NB10 retraining began.

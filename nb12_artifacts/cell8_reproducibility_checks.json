@@ -28,7 +28,7 @@
     {
       "check": "6. NB11 report cites Outcome A + TCN selection",
       "verdict": "PASS",
-      "evidence": "NB11_FINAL_REPORT.md present (10,583 bytes); contains 'Outcome A' and 'TCN'"
+      "evidence": "NB11_FINAL_REPORT.md present (11,108 bytes); contains 'Outcome A' and 'TCN'"
     },
     {
       "check": "7. All 12 workflow notebooks present",

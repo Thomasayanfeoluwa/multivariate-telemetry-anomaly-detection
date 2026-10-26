@@ -6,7 +6,7 @@
       11,
       14
     ],
-    "executable": "c:\\Users\\ADEGOKE\\Desktop\\SWATS\\cats\\Scripts\\python.exe",
+    "executable": "<redacted local interpreter path>",
     "implementation": "CPython"
   },
   "os": {

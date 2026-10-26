@@ -686,51 +686,13 @@ The most complex model is not automatically preferred. If a simpler method yield
 - Clear figures, tables, and descriptive captions.
 - Attribution of the dataset provider and observance of any required publication notifications.
 
-Production infrastructure, Docker services, or streaming pipelines are out of scope unless later authorised.
+The core deliverable remains the fixed twelve-notebook experimental study; it does not include production infrastructure, Docker services, or streaming pipelines. The next planned extension is Notebook 13: a focused feasibility test that replays historical SWaT data chronologically through the frozen Notebook 11 selection. It will check scoring parity, sequence warm-up and boundaries, timestamped alerts, event coverage and delay, false-alarm episodes, and inference performance; labels are for offline evaluation only, never model inputs. Only if replay is validated should the project proceed to a FastAPI inference service and React monitoring interface. The prototype remains advisory and must not connect to or control a live plant; historical replay does not establish real-plant effectiveness.
 
 ---
 
 ## 18. Project-State and Progress Tracking
 
-### Progress Table
-
-| Notebook | Objective | Status | Completion Evidence | Outstanding Work | Next Action |
-|----------|-----------|--------|---------------------|------------------|-------------|
-| 01_data_and_process_understanding | Industrial context & process variables | Not yet verified | — | — | Begin reference-notebook audit and process documentation |
-| 02_data_quality_and_temporal_split | Provenance, quality, chronological splits | Not yet verified | — | — | — |
-| 03_exploratory_analysis | EDA grounded in industrial & statistical reasoning | Not yet verified | — | — | — |
-| 04_baseline_anomaly_detection | Three baseline methods | Not yet verified | — | — | — |
-| 05_lstm_autoencoder | LSTM Autoencoder experiment | Not yet verified | — | — | — |
-| 06_traditional_ml_anomaly_detection | Isolation Forest, OCSVM, LOF | Not yet verified | — | — | — |
-| 07_deep_learning_anomaly_detection | TCN Autoencoder & USAD | Not yet verified | — | — | — |
-| 08_threshold_and_evaluation | Unified protocol for all nine methods | Not yet verified | — | — | — |
-| 09_error_and_event_analysis | Error & event analysis | Not yet verified | — | — | — |
-| 10_robustness_analysis | Sensitivity & robustness | Not yet verified | — | — | — |
-| 11_final_model | Evidence-based selection | Not yet verified | — | — | — |
-| 12_reproducibility | Reproducibility record | Not yet verified | — | — | — |
-
-Status vocabulary: **Not started**, **In progress**, **Awaiting review**, **Completed and verified**, **Blocked**, **Not yet verified**.
-
-A stage is marked complete only when concrete evidence (executed code, reviewed outputs, recorded findings) supports that claim.
-
-### Project-State Record Template
-
-At the close of every notebook the following concise record is written:
-
-1. Current notebook  
-2. Current stage  
-3. Objective  
-4. Actions completed  
-5. Commands or code executed  
-6. Actual outputs reviewed  
-7. Verified findings  
-8. Decisions made and their rationale  
-9. Unresolved questions  
-10. Known limitations  
-11. Next action  
-12. Conditions required before the next stage may begin  
-
-Work always resumes from the recorded current stage. Completed work is not repeated unnecessarily; unresolved dependencies are not skipped.
+The current status and next action are maintained in [`PROJECT_STATE.md`](./PROJECT_STATE.md), rather than duplicated here. A stage is marked complete only when executed code, reviewed outputs, and recorded findings support that claim. The core workflow is notebooks 01–12; any later feasibility or application work must be recorded as a separate extension.
 
 ---
 
@@ -774,6 +736,8 @@ By the end of the project the repository must contain:
 - An evidence-based final-model selection with explicit trade-offs.  
 - A reproducibility record (environment, seeds, paths, configurations).  
 - A concise final summary of findings, limitations, and the statements that the evidence does and does not support.
+
+The historical-replay feasibility test and any later application are optional post-12 extensions, not completed core deliverables.
 
 ---
 

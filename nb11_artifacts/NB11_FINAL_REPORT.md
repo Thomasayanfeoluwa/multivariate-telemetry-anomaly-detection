@@ -4,6 +4,8 @@
 
 **Selection:** Outcome A — TCN Autoencoder, window 30, MinMaxScaler, seed 42 (the frozen NB08 configuration).
 
+**Post-audit editorial note (2026-10-26):** Personal machine and Kaggle account paths were redacted, and benchmark findings were clarified to avoid implying production readiness or measured operator burden. No model, score, or evaluation result was recomputed. Related inventory and checksum metadata were refreshed.
+
 ---
 
 ## 1. Executive summary
@@ -21,10 +23,10 @@ Notebook 11 compared the nine selected anomaly-detection methods across point-le
 | FPR | 3.20% |
 | ROC-AUC | 0.8240 |
 | Event recall | 77.8% (28/36 scenarios) |
-| Median detection delay | 0.0 s |
+| Median detection delay (detected scenarios only) | 0.0 s |
 | Alert periods (validation) | 73 |
 
-TCN leads the field on pAUC@0.05, F1, alert-period burden, and retraining robustness. Its weaknesses (ROC-AUC below LSTM and Simple Stat; largest F1 threshold swing in the table) are bounded and do not affect the low-FPR operating region where industrial detection operates.
+TCN leads the field on pAUC@0.05, F1, the recorded validation alert-period count, and retraining robustness. Its weaknesses (ROC-AUC below LSTM and Simple Stat; largest F1 threshold swing in the table) are bounded and do not affect the low-FPR evaluation region prioritized by this study.
 
 The alternatives — LSTM and Simple Stat — remain competitive on specific criteria but do not displace TCN under the weighting documented in Cell 11.
 
@@ -56,11 +58,11 @@ TCN is #1 on pAUC@0.05 (0.7597) and #1 on F1 (0.8629). LSTM is #2 on both (0.728
 
 ### Event-level behaviour (recall, delay)
 
-Simple Stat: 91.7% recall at 2.0 s median delay. LSTM: 83.3% at 1.5 s. TCN: 77.8% at 0.0 s. **No method dominates** — Simple Stat leads recall, TCN leads delay, LSTM is between. The 5.5 pp recall gap between Simple Stat and TCN is offset by TCN's immediate detection.
+Simple Stat: 91.7% recall at 2.0 s median delay. LSTM: 83.3% at 1.5 s. TCN: 77.8% at 0.0 s. These delay medians apply only to detected scenarios; the TCN's p90 delay is 22.8 seconds and its maximum is about 24.8 minutes. **No method dominates** — Simple Stat leads recall, TCN has the lowest median delay among detected scenarios, and LSTM is between.
 
 ### False-alarm burden (FPR, alert periods)
 
-TCN: 73 alert periods, FPR 3.20%. LSTM: 180 periods, FPR 2.86%. Simple Stat: 232 periods, FPR 13.69%. TCN's FPs are temporally clustered (avg ~35 consecutive observations per period); LSTM's are scattered (avg ~13). **TCN leads the operational false-alarm burden** despite having a slightly higher FPR percentage, because operator workload scales with distinct alerts, not with raw FP observation count.
+TCN: 73 alert periods, FPR 3.20%. LSTM: 180 periods, FPR 2.86%. Simple Stat: 232 periods, FPR 13.69%. TCN's FPs are temporally clustered (avg ~35 consecutive observations per period); LSTM's are scattered (avg ~13). TCN has the fewest counted alert periods in this validation output among these three; this benchmark does not measure operator workload or establish an acceptable alert burden.
 
 ### Threshold stability
 
@@ -84,15 +86,15 @@ Simple Stat is the most directly interpretable. LSTM and TCN are both deep autoe
 
 ### LSTM Autoencoder — viable but weighted-second
 
-LSTM leads on event recall (83.3% vs 77.8%) and precision (0.9478 vs 0.9449). But it has 2.5× the alert-period burden (180 vs 73), sits near the ±10% boundary on retraining robustness (worst −8.14% vs TCN's −5.53%), and has 3.3× the parameters (132,346 vs 40,554). Its every-axis-degrades pattern suggests its frozen result is a favourable draw rather than the typical case.
+LSTM leads on event recall (83.3% vs 77.8%) and precision (0.9478 vs 0.9449). But it has 2.5× the validation alert-period count (180 vs 73), sits near the ±10% boundary on retraining robustness (worst −8.14% vs TCN's −5.53%), and has 3.3× the parameters (132,346 vs 40,554). Its every-axis-degrades pattern suggests its frozen result is a favourable draw rather than the typical case.
 
 **Selection would flip to LSTM if the project weighted event recall above point-level ranking and alert burden.**
 
 ### Simple Stat — competitive but FPR-disqualifying
 
-Simple Stat leads ROC-AUC (0.8839), PR-AUC (0.9056), recall (0.8231), and event recall (91.7%). But its FPR is 13.69% — roughly 4.3× TCN's and 4.8× LSTM's — and its pAUC@0.05 (0.6434) trails TCN by 11.6 pp. Its advantages are in high-FPR regions and event recall; its disadvantage is in the low-FPR region and false-alarm burden that industrial deployment cares most about.
+Simple Stat leads ROC-AUC (0.8839), PR-AUC (0.9056), recall (0.8231), and event recall (91.7%). But its FPR is 13.69% — roughly 4.3× TCN's and 4.8× LSTM's — and its pAUC@0.05 (0.6434) trails TCN by 11.6 pp. Its advantages are in high-FPR regions and event recall; its disadvantage is in the low-FPR region and validation alert counts prioritized by this study.
 
-**Selection would flip to Simple Stat if the project weighted ROC-AUC or interpretability above FPR and pAUC, but the 13.69% FPR is a hard obstacle.**
+**Selection could change if the project weighted ROC-AUC or interpretability above FPR and pAUC; the 13.69% FPR remains a material trade-off under the documented criteria.**
 
 ### Methods excluded on evidentiary grounds
 
@@ -110,10 +112,10 @@ Simple Stat leads ROC-AUC (0.8839), PR-AUC (0.9056), recall (0.8231), and event 
 The TCN selection is defensible, not overwhelming:
 
 - **TCN misses 22.2% of labeled scenarios** (8 of 36) at the frozen threshold.
-- **TCN's ROC-AUC trails both LSTM and Simple Stat.** The gap is entirely in the high-FPR region that industrial deployment does not use, but it is a real limitation.
+- **TCN's ROC-AUC trails both LSTM and Simple Stat.** The gap is in the high-FPR region not prioritized by this evaluation, but it is a real limitation.
 - **TCN's F1 has the largest threshold swing in the table** (0.1099). The frozen threshold is on the F1 plateau but the plateau is narrow.
 - **The TCN-LSTM pAUC gap is 3.1 pp; the F1 gap is 2.4 pp.** Not a landslide. A different criteria weighting could defensibly select LSTM.
-- **The selection rests on weighting pAUC/F1 and alert-period burden above event recall.** That weighting is documented in Cell 11 and can be challenged.
+- **The selection rests on weighting pAUC/F1 and validation alert-period counts above event recall.** That weighting is documented in Cell 11 and can be challenged; it does not establish that the observed count is operationally acceptable.
 
 ---
 
