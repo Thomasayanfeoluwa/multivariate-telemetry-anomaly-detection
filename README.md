@@ -71,7 +71,7 @@ Run notebooks in numeric order, subject to the data and environment limitations 
 12. [12 — Reproducibility and final audit](notebooks/12_reproducibility.ipynb)
 
 The root [`PROJECT_SPEC.md`](PROJECT_SPEC.md) defines the research methodology. [`PROJECT_STATE.md`](PROJECT_STATE.md) records the verified project state. The reference implementation review is in [`REFERENCE_NOTEBOOK_AUDIT.md`](REFERENCE_NOTEBOOK_AUDIT.md).
-The proposed application structure, Docker setup, database decision, and test plan are in [`DEPLOYMENT_PLAN.md`](DEPLOYMENT_PLAN.md). They are plans only; the backend, frontend, and tests are not implemented yet.
+The proposed application structure, hosting choices, database, notifications, Docker setup, and test plan are in [`DEPLOYMENT_PLAN.md`](DEPLOYMENT_PLAN.md). Current target: the React/Vite frontend on Vercel, FastAPI and frozen-TCN inference on Modal, and PostgreSQL run/alert history on Neon. W&B is reserved for optional experiment tracking, not production inference. These are plans only; the application is not deployed.
 
 ## Reproduce the audit
 
@@ -97,6 +97,8 @@ The project keeps the detailed, evidence-based summaries in the tracked [Noteboo
 Notebook 13 is the next planned step: replay historical SWaT data chronologically through the **frozen Notebook 11 TCN**, using its saved scaler, feature order, window, and threshold. Do not retrain or retune the model. Check that replay matches the saved scoring procedure, handles sequence warm-up and boundaries correctly, produces timestamped scores and alert episodes, and records inference performance. Evaluate event coverage, detection delay, and false-alarm episodes offline; labels must not be model inputs.
 
 This test asks whether the selected model can support a practical historical-monitoring workflow. It does not establish real-plant effectiveness. If the replay is sound, the next stage can expose the verified inference flow through FastAPI and present scores, alert history, and relevant telemetry in a React interface for human review. Keep the prototype advisory: no live-plant connection or equipment control.
+
+The intended portfolio architecture after a successful feasibility test is **Vercel (React UI) → Modal (FastAPI + frozen TCN) → Neon PostgreSQL (run reports and alert episodes)**. A backend `HookNotifier` is planned for run-start/completion/failure events and each new alert episode; continuous anomalous samples are grouped into episodes to avoid notification floods. W&B may track aggregate experiment/replay measurements, but it is not the runtime database or inference service.
 
 ## Known limitations
 

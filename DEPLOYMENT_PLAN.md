@@ -2,23 +2,37 @@
 
 This document describes the proposed path from the completed 12-notebook study to a portfolio-ready historical-monitoring prototype. It is a plan, not a claim that the application has been built or deployed.
 
+### Chosen deployment services
+
+- **Model API:** Modal, running the FastAPI service and the frozen TCN inference code. Start with CPU; use a GPU only if Notebook 13 measurements show it is needed.
+- **Frontend:** Vercel, serving the existing Vite/React single-page app. The frontend calls the Modal API; it does not run the model.
+- **Database:** Neon PostgreSQL, accessed only by the backend for replay reports, alert episodes, and notification delivery records.
+- **Experiment tracking:** Weights & Biases (W&B), for selected experiment/replay metadata and aggregate measurements only. It is not part of online inference and does not replace PostgreSQL. Do not upload SWaT data or model files unless sharing permissions are confirmed.
+- **Notifications:** a small project-owned backend `HookNotifier` sends webhook notifications on run lifecycle changes and new alert episodes. It is not a separate notification platform or a browser-side secret.
+
+Vercel is selected over Netlify because this is a static Vite/React app and Vercel supports that build and Git-based preview deployments directly. Netlify could also host it; there is no model-serving advantage to either frontend host. Modal is the model/API host, not Vercel.
+
 ## Current repository state
 
 - Notebooks 01–12 contain the completed offline study. Notebook 13 is the planned feasibility check and has not been implemented.
 - The selected model artifacts exist locally under `nb08_artifacts/`: the TCN checkpoint, scaler, training metadata, and `frozen_thresholds.json`. The selected threshold in that file is `0.003906734725460411`. An identical copy of the TCN training folder also exists under `models/tcn_preliminary/`; treat the NB08 artifacts as the selection record and do not package both copies.
-- The current `backend/Dockerfile`, root `docker-compose.yml`, `.env.example`, three files in `configs/`, and files under `src/` and `tests/` are empty placeholders.
-- There is no frontend directory and no database file or database service.
+- The `frontend/` directory now contains a Vite/React/TypeScript starter and notification/database placeholders; it is not yet the SWaT dashboard. Its `App.tsx` is still template content.
+- The current `backend/Dockerfile`, root `docker-compose.yml`, root and frontend `.env.example` files, three files in `configs/`, and files under `src/` and `tests/` are empty placeholders.
+- `database/migrations/001_initial_schema.sql` exists but is empty. There is no configured PostgreSQL database or deployed database service.
+- The frontend has empty `supabase.ts`, `useRunNotifier.ts`, `NotificationHost.tsx`, and `App.test.tsx` placeholders. `package-lock.json` lists Supabase and frontend-testing packages that are absent from `package.json`, and `package.json` has no test script. Before frontend implementation, reconcile the manifest and lockfile, remove Supabase because Neon is backend-only, and add the selected test scripts.
+- The selected database is Neon, so the browser must use the backend API for all database access; do not connect the browser directly to Neon.
+- Existing `backend/api`, `backend/data`, `backend/detection`, `backend/evaluation`, `backend/monitoring`, and `backend/utils` folders duplicate the intended root `src/` layout. Keep `src/` as the one Python implementation tree; use `backend/` only for Modal deployment entrypoint, Dockerfile, and runtime dependencies.
 - Raw SWaT data and generated model artifacts must stay outside the source image and must not be committed unless dataset terms and artifact-sharing permissions have been checked.
 
 ## Recommended build order
 
-1. **Notebook 13 — feasibility first.** Replay the frozen TCN chronologically. Verify the exact checkpoint, scaler, 42-feature order, 30-step window, threshold, sequence warm-up and partition boundaries. Check score parity against the existing saved scoring procedure. Measure event coverage and delay, false-alarm episodes, and inference time. Keep labels out of inference; use them only for offline evaluation. Do not retrain or retune the model.
-2. **Backend inference.** Extract the verified inference path into a small Python service. Load the frozen artifacts once at startup. Validate input columns, order, timestamps, missing values, and sequence length. Do not expose training or threshold-tuning endpoints.
+1. **Notebook 13 — feasibility first.** Replay the frozen TCN chronologically. Verify the exact checkpoint, scaler, 42-feature order, 30-step window, threshold, sequence warm-up and partition boundaries. Check score parity against the existing saved scoring procedure. Measure detected/missed scenarios, delay for matched events, false-alarm episodes per hour of normal operation, and inference time; compare with existing baselines only where alignment is valid. Keep labels out of inference; use them only for offline evaluation. Do not retrain or retune the model.
+2. **Backend inference on Modal.** Extract the verified inference path into FastAPI and deploy it as a Modal ASGI web app. Load the frozen artifacts once per warm container. Validate input columns, order, timestamps, missing values, and sequence length. Do not expose training or threshold-tuning endpoints.
 3. **Backend tests.** Confirm preprocessing and score parity, input rejection, alert grouping, and API behavior before building the UI.
-4. **Frontend.** Build a React interface for historical replay and human review: replay controls, telemetry and score timelines, alert history, and a run summary. Label detections as model alerts, not confirmed attacks, causes, or faults.
-5. **Persistence, if retaining history is desired.** Use SQLite for replay-run summaries and alert episodes. Do not put raw SWaT rows or the entire score stream in the database for the first version.
-6. **Docker Compose.** Run the API and static frontend as two services. Mount permitted data and frozen artifacts read-only; persist only the SQLite file.
-7. **CI and portfolio release.** Run backend and frontend checks and build both images in GitHub Actions. Publish a portfolio demo only after checking dataset and model-artifact sharing terms. Choose a hosting provider later, based on the replay's measured CPU, memory, storage, and runtime.
+4. **Notifications and persistence.** Store each replay and its report in Neon. Use `HookNotifier` to notify on run start, completion/failure, and each newly opened alert episode. Do not send a notification for every above-threshold sample; continuous samples form one alert episode and per-sample notifications would flood recipients.
+5. **Frontend.** Build the React interface for historical replay and human review: replay controls, telemetry and score timelines, alert history, run reports, and visible notifications. Label detections as model alerts, not confirmed attacks, causes, or faults.
+6. **Local Docker Compose.** Use Compose for local end-to-end development and checks only. Production hosting is Vercel (frontend) plus Modal (FastAPI/model) plus Neon (PostgreSQL).
+7. **CI and portfolio release.** Run backend and frontend checks in GitHub Actions. Publish the portfolio demo only after checking dataset and model-artifact sharing terms. W&B is optional and only for experiment/replay metadata, not user-facing reports.
 
 If Notebook 13 reveals scoring or portability problems, fix and verify those before proceeding to the API. A successful replay supports an application-feasibility claim; it does not prove real-plant performance or operational benefit.
 
@@ -32,8 +46,9 @@ The layout below is the intended shape after implementation. Keep the research n
 │   └── workflows/
 │       └── ci.yml                 # backend tests, frontend checks, image builds
 ├── backend/
-│   ├── Dockerfile
-│   └── requirements.txt           # small, pinned runtime dependencies only
+│   ├── modal_app.py               # Modal image, FastAPI ASGI entrypoint
+│   ├── Dockerfile                 # local Compose image; keep dependencies aligned
+│   └── requirements.txt           # pinned API/inference runtime dependencies
 ├── configs/
 │   ├── project.yaml               # research/project settings, if needed
 │   ├── evaluation.yaml            # offline evaluation settings, if needed
@@ -41,20 +56,28 @@ The layout below is the intended shape after implementation. Keep the research n
 ├── data/
 │   ├── raw/                       # local, permitted input data; never in image/Git
 │   └── processed/                 # generated data; never in image/Git
-├── frontend/
-│   ├── Dockerfile
-│   ├── nginx.conf                 # static site and same-origin /api proxy
+├── frontend/                      # existing Vite + React + TypeScript scaffold
+│   ├── vercel.json                # SPA fallback only if client-side routes need it
 │   ├── package.json
 │   ├── package-lock.json
 │   └── src/
-│       ├── api/client.ts
+│       ├── App.tsx
+│       ├── api/apiClient.ts
 │       ├── components/
+│       │   ├── AlertEpisodeList.tsx
+│       │   ├── NotificationHost.tsx
+│       │   ├── ReplayControls.tsx
+│       │   ├── RunSummary.tsx
+│       │   └── ScoreTimeline.tsx
+│       ├── hooks/useRunNotifier.ts
 │       ├── pages/Dashboard.tsx
-│       └── types/
+│       ├── test/setup.ts
+│       ├── types/api.ts
+│       └── types/notifications.ts
 ├── models/                        # existing research artifacts; not copied into image
 ├── notebooks/                     # 01–12 unchanged; 13 is feasibility work
 ├── reports/
-├── src/                           # one Python source tree; do not duplicate in backend/app
+├── src/                           # single Python implementation tree
 │   ├── __init__.py
 │   ├── api/
 │   │   ├── main.py
@@ -70,8 +93,13 @@ The layout below is the intended shape after implementation. Keep the research n
 │   │   └── logger.py
 │   ├── replay/
 │   │   └── runner.py
+│   ├── notifications/
+│   │   └── hook_notifier.py       # run and alert-episode webhook notifications
 │   └── storage/
-│       └── sqlite_repository.py   # only if persistent run history is included
+│       └── postgres_repository.py # Neon access, backend only
+├── database/                      # existing migration placeholder
+│   └── migrations/
+│       └── 001_initial_schema.sql # replay_runs, alert_episodes, notification_deliveries
 ├── tests/
 │   ├── conftest.py
 │   ├── fixtures/                  # small synthetic, non-restricted input
@@ -81,14 +109,14 @@ The layout below is the intended shape after implementation. Keep the research n
 │   ├── test_evaluation.py
 │   ├── test_event_detection.py
 │   └── test_monitoring.py
-├── .dockerignore
 ├── .env.example
+├── .dockerignore
 ├── docker-compose.yml
 ├── DEPLOYMENT_PLAN.md
 └── README.md
 ```
 
-`src/` is the single Python implementation location. `backend/` contains the API container recipe and its runtime dependencies; do not create a second `backend/app/` implementation. The currently empty source/test files can be filled only when their stage begins. No source folders need to be deleted now.
+`src/` is the single Python implementation location; do not implement a second copy under `backend/`. The existing frontend is a Vite starter, so retain its package and TypeScript setup, then replace starter UI only after Notebook 13. The named application files are planned targets, not files to implement now. Existing empty duplicate backend subfolders need not be populated; do not delete or move them during this documentation-only step.
 
 ## Backend responsibilities
 
@@ -105,10 +133,11 @@ Small initial API surface:
 
 - `GET /api/v1/health` — service readiness and model-loaded status; no sensitive paths.
 - `GET /api/v1/model` — model name and public configuration summary (window, feature count, threshold version), not filesystem paths.
-- `POST /api/v1/replays` — start a replay for an allowed dataset and time range.
-- `GET /api/v1/replays/{run_id}` — retrieve the replay summary and alert episodes if persistence is enabled.
+- `POST /api/v1/replays` — create a replay for an allowlisted dataset and time range; return a run ID.
+- `GET /api/v1/replays/{run_id}` — retrieve status and the saved report.
+- `GET /api/v1/replays/{run_id}/alerts` — retrieve alert episodes for the dashboard.
 
-Use Pydantic request/response schemas. Keep CORS closed to cross-origin access when the frontend and API are served through the same Nginx origin. Do not expose a live process-control endpoint.
+Use Pydantic request/response schemas. Configure CORS for the Vercel production domain and chosen preview domain only; CORS is not authentication. Never accept arbitrary filesystem paths or raw-data uploads from a public browser. Apply replay size, duration, and concurrency limits. Do not expose a live process-control endpoint.
 
 ## Frontend responsibilities
 
@@ -120,33 +149,57 @@ Use React with TypeScript and a small set of components:
 - Summary of replay duration, event coverage, detection delay, and false-alarm episodes when offline evaluation results are available.
 - Clear status text that an alert means “unusual model score for review,” not “confirmed attack” or “equipment failure.”
 
-Use one API client module and typed response definitions. Do not add global state management until ordinary component state proves insufficient. Do not add authentication to a local single-user demo; if the service is exposed publicly with user-specific data or write access, security requirements must be revisited first.
+Use one API client module and typed response definitions. The browser calls FastAPI and never connects directly to Neon. Keep `VITE_API_BASE_URL` public; do not put database URLs, webhook URLs, W&B keys, or Modal secrets in Vite variables. During an active replay, poll the run status at a modest interval for in-app progress/notifications; the backend `HookNotifier` sends outbound webhook alerts. Do not add global state management until ordinary component state proves insufficient.
 
-## Database decision
+The current Vite starter is scaffolding, not a designed monitoring UI. Keep the existing Vite/React/TypeScript setup; later replace the template screen, add the dashboard components and API client, and configure component tests. There is no need to create a separate frontend backend or connect the browser to the database.
 
-No database currently exists in the repository, and a separate database server is not needed for historical replay.
+## PostgreSQL decision: Neon
 
-For a portfolio dashboard that should retain replay history across restarts, **SQLite is the smallest reasonable option**. Store only replay-run metadata, aggregate evaluation results, and alert episodes. Keep the database file in a Docker volume or ignored local runtime directory, never in Git. Do not add PostgreSQL, Redis, or a database container for this single-user prototype.
+Use **Neon PostgreSQL** rather than Supabase for the first version. This project needs a managed Postgres database, not Supabase's additional browser client, Auth, Storage, or Realtime features. Neon keeps the architecture focused; Modal connects to Neon using its pooled connection URL. Supabase is a valid alternative if the project later needs its integrated Auth or Realtime features, but do not configure both.
 
-If persistent history is not needed, omit SQLite initially and return replay results directly; this is even simpler. The storage choice can be finalized after Notebook 13 establishes typical replay size and duration.
+Store only information needed to review model runs:
+
+- `replay_runs`: run ID/status/timestamps, model version and artifact hash, dataset ID/hash and evaluated time range, aggregate detection/evaluation metrics, inference duration, and a compact report JSON.
+- `alert_episodes`: run ID, start/end timestamps, peak score, frozen threshold, and selected feature-deviation context.
+- `notification_deliveries`: run/event ID, destination label, status, attempt count, and last delivery time for deduplication and retry visibility.
+
+Do **not** store raw SWaT rows or every per-timestamp score in PostgreSQL for the first version. Return score traces from the replay response for the active dashboard; retain compact reports and alert episodes for run history. If later requirements need full traces, measure volume first and decide whether to store a downsampled trace or a permitted output artifact.
+
+Keep the database credential only in Modal Secrets. Use a pooled Neon connection string for the running service and short transactions; run versioned SQL migrations from `database/migrations/` once per deployment, not on every container startup. The frontend must use the FastAPI API, never a Postgres URL or public database key.
+
+## Experiment tracking: W&B, not MLflow
+
+Use **Weights & Biases (W&B)** only if experiment/replay comparisons need a hosted dashboard. It avoids operating an MLflow tracking server, which would add another service and storage configuration. Log run IDs, code revision, frozen model/config identifiers, and aggregate metrics such as score parity, latency, event coverage, and alert-episode counts. Do not log raw telemetry, labels, secrets, or model files unless the dataset/model permissions explicitly allow it.
+
+W&B is not the system of record for API runs or alert history: Neon is. W&B is not installed in the Modal inference image and is not required for a successful deployment. Because model training is already complete, start W&B logging only when Notebook 13 or a later approved experiment has useful new measurements; do not retrofit it into the completed notebooks now.
+
+## HookNotifier and notification behavior
+
+`HookNotifier` is a small project-owned backend component that posts a concise JSON notification to a configured webhook. The receiving destination (for example, a chosen chat or incident channel) can be selected later; no notification vendor is needed in the model runtime.
+
+Send an event immediately when a replay starts, completes, or fails, and when a **new alert episode opens**. Include run ID, model version, timestamp, anomaly score, threshold, and a dashboard link where available. Do not send one message for every anomalous time-series row: adjacent threshold crossings belong to one episode, and per-row messages would overwhelm recipients. Save delivery status and deduplicate by run/event ID; retry temporary failures with bounded backoff.
+
+Store the webhook URL in a Modal Secret, never in the frontend or Git. The UI's notification host shows active-run progress by polling the run API; outbound webhooks are server-to-server. Test webhook delivery with a mocked receiver in CI. Never include raw sensor payloads or sensitive dataset contents in notifications.
 
 ## Configuration and secrets
 
 - The existing `configs/project.yaml`, `evaluation.yaml`, and `robustness.yaml` are empty research placeholders. Their intended roles are project/run settings, offline evaluation protocol, and robustness experiments. They are not application configuration and should not be repurposed for deployment.
 - Do not create configuration files just to hold values already defined by the frozen artifact metadata. Read the selected threshold from `frozen_thresholds.json`; validate the checkpoint, scaler, feature order, and window against the Notebook 11 evidence.
-- Use environment variables for runtime paths and ports (for example, model-artifact directory, allowed replay-data directory, and SQLite path). `.env.example` documents variable names and safe local defaults; actual `.env` files are ignored and must not contain committed secrets.
+- Use environment variables for non-secret runtime settings (Modal model-volume path, allowlisted dataset ID, Vercel API base URL, log level, and bounded replay limits). `.env.example` documents safe local variable names/defaults; actual `.env` files are ignored.
+- Store `NEON_DATABASE_URL` and `HOOK_NOTIFIER_WEBHOOK_URL` as Modal Secrets. Store `WANDB_API_KEY` only for an offline tracking job if/when W&B logging is used. Never put secrets into `VITE_*` variables because they are embedded in browser JavaScript.
 - If a future runtime setting genuinely needs a checked-in default, add one small application config file with comments and a single source of truth.
 
-## Docker and local deployment
+## Hosting and Docker
 
-- **API image:** built from `backend/Dockerfile`, installs only pinned API/inference dependencies, runs as a non-root user, and starts Uvicorn. Do not install notebook, plotting, training, or drift-analysis packages in the runtime image unless the service actually needs them.
-- **Frontend image:** builds the React assets and serves them with Nginx. Nginx serves the UI and proxies `/api/` to the API service, so the browser uses one origin.
-- **Compose:** two services only (`api`, `web`). Expose the web port (default `8080`); keep the API port internal. Add health checks and start the web service after API health is available.
-- **Mounts:** mount the frozen model artifacts and permitted replay data read-only. Keep the SQLite database, if used, in a named persistent volume.
-- **Build context:** add `.dockerignore` before building. Exclude `.git`, virtual environments (including the local `cats/` environment), notebooks, raw data, ZIP archives, generated artifacts, caches, and local `.env` files. This prevents oversized images and accidental data disclosure.
-- **Local run:** copy `.env.example` to `.env`, install Docker Desktop, check dataset/artifact availability, then use `docker compose up --build`. The exact command and required local files should be documented after the files exist and have been tested.
+- **Production frontend — Vercel:** connect the repository and set the project root to `frontend/`; build with `npm ci` and `npm run build`, output `dist`. Set only the public `VITE_API_BASE_URL` to the Modal FastAPI URL. Add an SPA fallback only if client-side routes are introduced. Vercel preview builds make UI changes reviewable before release.
+- **Production model/API — Modal:** define a Modal ASGI app that serves FastAPI and loads the selected model once per container. Package only runtime dependencies and the verified model bundle; mount artifacts read-only through Modal storage rather than copying notebooks or data into the image. Start on CPU. Modal can scale containers down when idle; account for a cold start on the first request and keep a warm container only if measured demo responsiveness justifies its cost.
+- **Long replay handling:** Notebook 13 measures typical duration first. If the replay fits within a bounded HTTP request, return normally; otherwise submit a background Modal function, persist run status in Neon, return the run ID immediately, and let the UI poll. Do not add a queue service for this.
+- **Local Docker:** root `docker-compose.yml` is for development/integration only. It can run a local FastAPI container and a static frontend server with the same Neon development branch or a local test database. Keep production routing as Vercel → Modal → Neon; do not imply Compose is the deployed production stack.
+- **Modal image/Dockerfile:** use `backend/Dockerfile` or a Modal image definition, not two independent dependency lists. Exclude `.git`, virtual environments (including `cats/`), notebooks, raw data, ZIP archives, generated artifacts, caches, and local `.env` files from build context. Mount the authorized model/data at runtime.
+- **Data permission gate:** before uploading SWaT data or model files to Modal or exposing any sample publicly, confirm the applicable iTrust/data-copy terms permit that use. If not, keep replay local and deploy only a synthetic demo.
+- **Local run:** document copy/setup commands only after the Dockerfile and Compose file are implemented and tested.
 
-Do not add Kubernetes, a message queue, Redis, a separate PostgreSQL service, cloud infrastructure-as-code, or a production reverse-proxy stack for the first portfolio version. Reconsider a component only when a measured requirement needs it.
+Do not add Kubernetes, Redis, Celery, a separate PostgreSQL server, or cloud infrastructure-as-code for the first portfolio version. Modal handles the model/API execution, Neon provides managed PostgreSQL, and Vercel serves the static UI.
 
 ## Test plan
 
@@ -154,39 +207,50 @@ Use small synthetic fixtures in automated tests so CI does not need SWaT files o
 
 ### Backend tests
 
-- **Unit:** schema and timestamp validation; feature ordering; missing/invalid values; window warm-up; preprocessing; deterministic score/threshold behavior; alert episode grouping; SQLite repository if included.
+- **Unit:** schema and timestamp validation; feature ordering; missing/invalid values; window warm-up; preprocessing; deterministic score/threshold behavior; alert episode grouping; PostgreSQL repository if included.
 - **Parity:** a small fixed input sequence verifies the inference wrapper returns the same scores and flags as the Notebook 13 reference within a documented numeric tolerance. This is the key model-integration test.
 - **API:** health and model metadata; valid replay; malformed request; insufficient sequence history; unsupported dataset/path; clear error responses.
-- **Integration:** start the API with a test checkpoint or injected fake detector and a synthetic fixture; verify an end-to-end replay and persistence behavior without depending on real data.
+- **Integration:** start FastAPI with a fake detector and synthetic fixture; verify replay records, Neon writes (using a test database or isolated schema), alert episode creation, notification deduplication, and retry behavior without SWaT data.
 - **Data-backed manual check:** after the automated suite passes, run the frozen model against the permitted local replay data and compare with Notebook 13 evidence. This is not a substitute for automated tests and should not run in ordinary CI.
 
 ### Frontend tests
 
 - Unit/component tests for replay controls, loading/error states, charts receiving aligned timestamps, alert list, and model-alert wording.
 - One end-to-end smoke test: load dashboard, submit replay, and verify a result/alert summary appears. Use a mocked API in CI; reserve a real-model check for local/manual verification.
+- Notification UI tests: run started/completed/failed and new alert episode appear once; duplicate samples do not create duplicate notifications.
 - Check keyboard access, readable labels/units, and non-color-only alert status.
 
 ### CI checks
 
-For pull requests, run Python lint/type checks selected for the implementation, backend unit/API tests, frontend lint/type checks/component tests, frontend production build, and Docker image builds. Use synthetic fixtures only. Do not automatically deploy from pull requests. Add deployment automation only after a hosting target and secret-handling approach are explicitly chosen.
+For pull requests, run Python lint/type checks selected for the implementation, backend unit/API tests, frontend lint/type checks/component tests, frontend production build, and local Docker build. Use synthetic fixtures only; never require Modal credentials, Neon credentials, W&B keys, webhooks, or SWaT data in CI. Do not automatically deploy from pull requests. Vercel previews may be enabled for the frontend; production Modal deploys should be a deliberate release action.
 
 ## Portfolio release checks
 
 Before calling the prototype complete:
 
 1. Notebook 13 parity and chronological replay checks pass, with limitations recorded.
-2. The API loads the exact selected checkpoint/scaler/features/window/threshold and reports its version.
-3. Backend and frontend tests pass; the Compose stack starts from a clean checkout when the required permitted artifacts are supplied.
+2. The Modal API loads the exact selected checkpoint/scaler/features/window/threshold and reports a safe model version.
+3. Backend and frontend tests pass; the local Compose stack starts from a clean checkout when permitted artifacts/configuration are supplied.
 4. The demo explains benchmark scope, SWaT release uncertainty, false-alarm trade-offs, and that alerts require human review.
-5. No raw restricted data, personal paths, credentials, local databases, or virtual environments are in the Git image or repository.
-6. Any model artifact shared publicly has been checked against the dataset terms and project permissions.
-7. Describe the result as a historical-replay monitoring prototype. Do not claim production deployment, real-plant effectiveness, prevented incidents, measured operator savings, or financial return without evidence.
+5. Neon stores replay summaries, alert episodes, and notification status only; raw restricted data are not copied into it.
+6. Modal and Vercel secrets/domains/CORS are configured without exposing credentials in the browser bundle.
+7. No raw restricted data, personal paths, credentials, local database dumps, or virtual environments are in Git or container images.
+8. Any model artifact shared publicly or uploaded to a third party has been checked against dataset terms and project permissions.
+9. Describe the result as a historical-replay monitoring prototype. Do not claim production deployment, real-plant effectiveness, prevented incidents, measured operator savings, or financial return without evidence.
 
 ## Deliberately out of scope for the first version
 
 - Live SWaT/plant connections, control commands, or automatic actions.
 - Retraining or changing the selected TCN/threshold during deployment work.
 - User accounts, role management, multi-tenant access, and internet-facing write access.
-- PostgreSQL, Redis, Celery, Kubernetes, and microservices.
+- Redis, Celery, Kubernetes, and microservices.
 - Financial ROI or cost-saving estimates without real operational and cost records.
-- A cloud-hosting provider choice before resource needs and artifact permissions are known.
+- Duplicate database providers (do not use both Neon and Supabase).
+- Both MLflow and W&B; W&B is the selected optional experiment tracker and must stay out of serving.
+
+## Official platform references
+
+- [Modal Web Functions and ASGI apps](https://modal.com/docs/guide/webhooks)
+- [Deploying Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite)
+- [Neon connection pooling](https://neon.com/docs/connect/connection-pooling)
+- [W&B experiment tracking](https://docs.wandb.ai/guides/track/)
