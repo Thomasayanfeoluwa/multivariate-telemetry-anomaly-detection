@@ -43,7 +43,7 @@ The TCN is the selected model under the documented weighting, not the best choic
 ## Planned direction after the core study
 
 1. Use Notebook 13 to replay the frozen TCN chronologically and validate scoring parity, window warm-up/boundaries, alert episodes, event coverage and delay, and inference performance. Keep labels out of inference and use them only for offline evaluation.
-2. Only if replay is verified, build the planned service: FastAPI and frozen-TCN inference on Modal, React on Vercel, and Neon PostgreSQL for run reports and alert episodes. W&B is optional experiment tracking only; `HookNotifier` is planned for run and alert-episode notifications.
+2. Only if replay is verified, build the planned service: FastAPI and frozen-TCN inference on Modal, React on Vercel, and Neon PostgreSQL for run reports and alert episodes. `HookNotifier` is planned for run and alert-episode notifications. No experiment-tracking service is needed for this frozen-model feasibility work.
 3. Keep the system advisory. No live-plant connection or equipment control is planned.
 4. Report only what the historical replay and its measured evaluation support; do not present benchmark results as proof of real-plant outcomes.
 

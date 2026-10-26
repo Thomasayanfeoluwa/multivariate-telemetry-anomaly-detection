@@ -7,7 +7,6 @@ This document describes the proposed path from the completed 12-notebook study t
 - **Model API:** Modal, running the FastAPI service and the frozen TCN inference code. Start with CPU; use a GPU only if Notebook 13 measurements show it is needed.
 - **Frontend:** Vercel, serving the existing Vite/React single-page app. The frontend calls the Modal API; it does not run the model.
 - **Database:** Neon PostgreSQL, accessed only by the backend for replay reports, alert episodes, and notification delivery records.
-- **Experiment tracking:** Weights & Biases (W&B), for selected experiment/replay metadata and aggregate measurements only. It is not part of online inference and does not replace PostgreSQL. Do not upload SWaT data or model files unless sharing permissions are confirmed.
 - **Notifications:** a small project-owned backend `HookNotifier` sends webhook notifications on run lifecycle changes and new alert episodes. It is not a separate notification platform or a browser-side secret.
 
 Vercel is selected over Netlify because this is a static Vite/React app and Vercel supports that build and Git-based preview deployments directly. Netlify could also host it; there is no model-serving advantage to either frontend host. Modal is the model/API host, not Vercel.
@@ -19,7 +18,7 @@ Vercel is selected over Netlify because this is a static Vite/React app and Verc
 - The `frontend/` directory now contains a Vite/React/TypeScript starter and notification/database placeholders; it is not yet the SWaT dashboard. Its `App.tsx` is still template content.
 - The current `backend/Dockerfile`, root `docker-compose.yml`, root and frontend `.env.example` files, three files in `configs/`, and files under `src/` and `tests/` are empty placeholders.
 - `database/migrations/001_initial_schema.sql` exists but is empty. There is no configured PostgreSQL database or deployed database service.
-- The frontend has empty `supabase.ts`, `useRunNotifier.ts`, `NotificationHost.tsx`, and `App.test.tsx` placeholders. `package-lock.json` lists Supabase and frontend-testing packages that are absent from `package.json`, and `package.json` has no test script. Before frontend implementation, reconcile the manifest and lockfile, remove Supabase because Neon is backend-only, and add the selected test scripts.
+- The frontend has empty `useRunNotifier.ts`, `NotificationHost.tsx`, and `App.test.tsx` placeholders. Its package manifest and lockfile have been reconciled, and the unused database-client placeholder/dependency has been removed. Frontend test scripts and packages can be added when implementation begins.
 - The selected database is Neon, so the browser must use the backend API for all database access; do not connect the browser directly to Neon.
 - Existing `backend/api`, `backend/data`, `backend/detection`, `backend/evaluation`, `backend/monitoring`, and `backend/utils` folders duplicate the intended root `src/` layout. Keep `src/` as the one Python implementation tree; use `backend/` only for Modal deployment entrypoint, Dockerfile, and runtime dependencies.
 - Raw SWaT data and generated model artifacts must stay outside the source image and must not be committed unless dataset terms and artifact-sharing permissions have been checked.
@@ -32,7 +31,7 @@ Vercel is selected over Netlify because this is a static Vite/React app and Verc
 4. **Notifications and persistence.** Store each replay and its report in Neon. Use `HookNotifier` to notify on run start, completion/failure, and each newly opened alert episode. Do not send a notification for every above-threshold sample; continuous samples form one alert episode and per-sample notifications would flood recipients.
 5. **Frontend.** Build the React interface for historical replay and human review: replay controls, telemetry and score timelines, alert history, run reports, and visible notifications. Label detections as model alerts, not confirmed attacks, causes, or faults.
 6. **Local Docker Compose.** Use Compose for local end-to-end development and checks only. Production hosting is Vercel (frontend) plus Modal (FastAPI/model) plus Neon (PostgreSQL).
-7. **CI and portfolio release.** Run backend and frontend checks in GitHub Actions. Publish the portfolio demo only after checking dataset and model-artifact sharing terms. W&B is optional and only for experiment/replay metadata, not user-facing reports.
+7. **CI and portfolio release.** Run backend and frontend checks in GitHub Actions. Publish the portfolio demo only after checking dataset and model-artifact sharing terms.
 
 If Notebook 13 reveals scoring or portability problems, fix and verify those before proceeding to the API. A successful replay supports an application-feasibility claim; it does not prove real-plant performance or operational benefit.
 
@@ -149,13 +148,13 @@ Use React with TypeScript and a small set of components:
 - Summary of replay duration, event coverage, detection delay, and false-alarm episodes when offline evaluation results are available.
 - Clear status text that an alert means “unusual model score for review,” not “confirmed attack” or “equipment failure.”
 
-Use one API client module and typed response definitions. The browser calls FastAPI and never connects directly to Neon. Keep `VITE_API_BASE_URL` public; do not put database URLs, webhook URLs, W&B keys, or Modal secrets in Vite variables. During an active replay, poll the run status at a modest interval for in-app progress/notifications; the backend `HookNotifier` sends outbound webhook alerts. Do not add global state management until ordinary component state proves insufficient.
+Use one API client module and typed response definitions. The browser calls FastAPI and never connects directly to Neon. Keep `VITE_API_BASE_URL` public; do not put database URLs, webhook URLs, or Modal secrets in Vite variables. During an active replay, poll the run status at a modest interval for in-app progress/notifications; the backend `HookNotifier` sends outbound webhook alerts. Do not add global state management until ordinary component state proves insufficient.
 
 The current Vite starter is scaffolding, not a designed monitoring UI. Keep the existing Vite/React/TypeScript setup; later replace the template screen, add the dashboard components and API client, and configure component tests. There is no need to create a separate frontend backend or connect the browser to the database.
 
 ## PostgreSQL decision: Neon
 
-Use **Neon PostgreSQL** rather than Supabase for the first version. This project needs a managed Postgres database, not Supabase's additional browser client, Auth, Storage, or Realtime features. Neon keeps the architecture focused; Modal connects to Neon using its pooled connection URL. Supabase is a valid alternative if the project later needs its integrated Auth or Realtime features, but do not configure both.
+Use **Neon PostgreSQL** for run reports and alert history. The browser does not need a database SDK: all reads and writes go through FastAPI, which connects to Neon using its pooled connection URL.
 
 Store only information needed to review model runs:
 
@@ -167,11 +166,9 @@ Do **not** store raw SWaT rows or every per-timestamp score in PostgreSQL for th
 
 Keep the database credential only in Modal Secrets. Use a pooled Neon connection string for the running service and short transactions; run versioned SQL migrations from `database/migrations/` once per deployment, not on every container startup. The frontend must use the FastAPI API, never a Postgres URL or public database key.
 
-## Experiment tracking: W&B, not MLflow
+## Experiment records
 
-Use **Weights & Biases (W&B)** only if experiment/replay comparisons need a hosted dashboard. It avoids operating an MLflow tracking server, which would add another service and storage configuration. Log run IDs, code revision, frozen model/config identifiers, and aggregate metrics such as score parity, latency, event coverage, and alert-episode counts. Do not log raw telemetry, labels, secrets, or model files unless the dataset/model permissions explicitly allow it.
-
-W&B is not the system of record for API runs or alert history: Neon is. W&B is not installed in the Modal inference image and is not required for a successful deployment. Because model training is already complete, start W&B logging only when Notebook 13 or a later approved experiment has useful new measurements; do not retrofit it into the completed notebooks now.
+Notebook 13 evaluates a frozen model; it does not train or compare new model experiments. No separate experiment-tracking service is needed. Record replay configuration, score-parity results, latency, event metrics, and limitations in Notebook 13's outputs/reports; save application replay reports and alert episodes in Neon. Revisit experiment tracking only if future work resumes model training or requires repeated experiment comparisons.
 
 ## HookNotifier and notification behavior
 
@@ -186,7 +183,7 @@ Store the webhook URL in a Modal Secret, never in the frontend or Git. The UI's 
 - The existing `configs/project.yaml`, `evaluation.yaml`, and `robustness.yaml` are empty research placeholders. Their intended roles are project/run settings, offline evaluation protocol, and robustness experiments. They are not application configuration and should not be repurposed for deployment.
 - Do not create configuration files just to hold values already defined by the frozen artifact metadata. Read the selected threshold from `frozen_thresholds.json`; validate the checkpoint, scaler, feature order, and window against the Notebook 11 evidence.
 - Use environment variables for non-secret runtime settings (Modal model-volume path, allowlisted dataset ID, Vercel API base URL, log level, and bounded replay limits). `.env.example` documents safe local variable names/defaults; actual `.env` files are ignored.
-- Store `NEON_DATABASE_URL` and `HOOK_NOTIFIER_WEBHOOK_URL` as Modal Secrets. Store `WANDB_API_KEY` only for an offline tracking job if/when W&B logging is used. Never put secrets into `VITE_*` variables because they are embedded in browser JavaScript.
+- Store `NEON_DATABASE_URL` and `HOOK_NOTIFIER_WEBHOOK_URL` as Modal Secrets. Never put secrets into `VITE_*` variables because they are embedded in browser JavaScript.
 - If a future runtime setting genuinely needs a checked-in default, add one small application config file with comments and a single source of truth.
 
 ## Hosting and Docker
@@ -222,7 +219,7 @@ Use small synthetic fixtures in automated tests so CI does not need SWaT files o
 
 ### CI checks
 
-For pull requests, run Python lint/type checks selected for the implementation, backend unit/API tests, frontend lint/type checks/component tests, frontend production build, and local Docker build. Use synthetic fixtures only; never require Modal credentials, Neon credentials, W&B keys, webhooks, or SWaT data in CI. Do not automatically deploy from pull requests. Vercel previews may be enabled for the frontend; production Modal deploys should be a deliberate release action.
+For pull requests, run Python lint/type checks selected for the implementation, backend unit/API tests, frontend lint/type checks/component tests, frontend production build, and local Docker build. Use synthetic fixtures only; never require Modal credentials, Neon credentials, webhook URLs, or SWaT data in CI. Do not automatically deploy from pull requests. Vercel previews may be enabled for the frontend; production Modal deploys should be a deliberate release action.
 
 ## Portfolio release checks
 
@@ -245,12 +242,10 @@ Before calling the prototype complete:
 - User accounts, role management, multi-tenant access, and internet-facing write access.
 - Redis, Celery, Kubernetes, and microservices.
 - Financial ROI or cost-saving estimates without real operational and cost records.
-- Duplicate database providers (do not use both Neon and Supabase).
-- Both MLflow and W&B; W&B is the selected optional experiment tracker and must stay out of serving.
+- A separate experiment-tracking service for the current frozen-model feasibility and serving work.
 
 ## Official platform references
 
 - [Modal Web Functions and ASGI apps](https://modal.com/docs/guide/webhooks)
 - [Deploying Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite)
 - [Neon connection pooling](https://neon.com/docs/connect/connection-pooling)
-- [W&B experiment tracking](https://docs.wandb.ai/guides/track/)
