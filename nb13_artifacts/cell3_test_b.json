@@ -1,0 +1,76 @@
+{
+  "test": "Test B. Score parity against frozen NB08 scores.",
+  "model_relative_path": "nb08_artifacts/tcn_preliminary/tcn_autoencoder_best.pth",
+  "threshold": 0.003906734725460411,
+  "tol_strict": 1e-06,
+  "tol_acceptable": 0.0001,
+  "device": "cpu",
+  "batch_size": 512,
+  "partitions": {
+    "threshold": {
+      "n_sequences": 47408,
+      "elapsed_seconds": 11.02374780000082,
+      "max_abs_diff": 5.3551048040390015e-09,
+      "mean_abs_diff": 3.475515980309946e-10,
+      "median_abs_diff": 2.3283064365386963e-10,
+      "n_exceeding_strict_tol": 0,
+      "n_exceeding_acceptable_tol": 0,
+      "flag_disagreements": 0,
+      "flag_agreement_pct": 100.0,
+      "first_3_frozen": [
+        0.000715835252776742,
+        0.0007163545815274119,
+        0.0007163419504649937
+      ],
+      "first_3_recomputed": [
+        0.0007158351945690811,
+        0.0007163544651120901,
+        0.0007163420668803155
+      ]
+    },
+    "validation": {
+      "n_sequences": 79031,
+      "elapsed_seconds": 20.326957799999946,
+      "max_abs_diff": 2.9802322387695312e-08,
+      "mean_abs_diff": 4.839232218947927e-10,
+      "median_abs_diff": 2.3283064365386963e-10,
+      "n_exceeding_strict_tol": 0,
+      "n_exceeding_acceptable_tol": 0,
+      "flag_disagreements": 0,
+      "flag_agreement_pct": 100.0,
+      "first_3_frozen": [
+        0.001607169397175312,
+        0.0016076250467449427,
+        0.001610220642760396
+      ],
+      "first_3_recomputed": [
+        0.0016071690479293466,
+        0.0016076244646683335,
+        0.0016102202935144305
+      ]
+    },
+    "attack": {
+      "n_sequences": 54592,
+      "elapsed_seconds": 11.050745099999403,
+      "max_abs_diff": 5.21540641784668e-08,
+      "mean_abs_diff": 5.873977695546113e-09,
+      "median_abs_diff": 3.725290298461914e-09,
+      "n_exceeding_strict_tol": 0,
+      "n_exceeding_acceptable_tol": 0,
+      "flag_disagreements": 0,
+      "flag_agreement_pct": 100.0,
+      "first_3_frozen": [
+        6.154746370157227e-05,
+        6.200766074471176e-05,
+        6.244995165616274e-05
+      ],
+      "first_3_recomputed": [
+        6.154762377263978e-05,
+        6.200776988407597e-05,
+        6.244993710424751e-05
+      ]
+    }
+  },
+  "overall_verdict": "PASS",
+  "reason": "Strict score parity and 100% flag agreement across all partitions."
+}
