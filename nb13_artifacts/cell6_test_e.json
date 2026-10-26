@@ -1,0 +1,40 @@
+{
+  "test": "Test E \u2014 Event detection evaluation",
+  "nb13_event_metrics": {
+    "scenarios_scored": 36,
+    "scenarios_detected": 28,
+    "scenarios_missed": 8,
+    "median_delay_s": 0.0,
+    "p90_delay_s": 22.80000000000002,
+    "max_delay_s": 1489.0,
+    "validation_fp_count": 2528,
+    "validation_fp_rate": 0.03198744796345738,
+    "validation_fp_periods": 73,
+    "period_gap_limit_s": 1.5
+  },
+  "nb09_tcn_reference": {
+    "scenarios_detected": 28,
+    "scenarios_missed": 8,
+    "median_delay_s": 0.0,
+    "p90_delay_s": 22.8,
+    "max_delay_s": 1489.0,
+    "validation_fp_count": 2528,
+    "validation_fp_periods": 73
+  },
+  "per_scenario_detection": {
+    "total": 36,
+    "matches": 36,
+    "mismatches": []
+  },
+  "verdict_checks": {
+    "scenarios_detected_matches_nb09": true,
+    "scenarios_missed_matches_nb09": true,
+    "median_delay_matches_nb09": true,
+    "p90_delay_matches_nb09": true,
+    "max_delay_matches_nb09": true,
+    "validation_fp_count_matches_nb09": true,
+    "validation_fp_periods_matches_nb09": true,
+    "per_scenario_detection_matches_nb09": true
+  },
+  "overall_verdict": "PASS"
+}
