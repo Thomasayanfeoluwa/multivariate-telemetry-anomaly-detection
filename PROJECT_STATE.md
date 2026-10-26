@@ -53,4 +53,5 @@ The TCN is the selected model under the documented weighting, not the best choic
 - Preserve raw data and scored/model artifacts; do not retrain or replace frozen results without an explicitly documented experiment.
 - Keep notebooks 01–12 and their recorded results unchanged. Notebook 13 is a completed post-12 feasibility extension; do not treat it as evidence of deployment or real-plant validation.
 - Do not treat a statistical anomaly as a confirmed attack, failure, cause, or safety event.
-- Backend, frontend, and tests remain unfinished and are intentionally outside the current documentation cleanup.
+- The repository layout is documented in `DEPLOYMENT_PLAN.md`. The backend, database migration, CI workflow, most source modules, tests, and frontend monitoring components are empty placeholders; the React screen is still the Vite starter. Correct folder placement does not mean those features have been implemented.
+- Keep notebook outputs, raw data, and model artifacts in their current root-level locations. Notebook code and reproducibility records refer to these paths; do not relocate or duplicate them during application work.

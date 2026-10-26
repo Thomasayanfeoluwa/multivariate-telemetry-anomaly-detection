@@ -20,12 +20,13 @@ Vercel is selected over Netlify because this is a static Vite/React app and Verc
 - Test G rejected all malformed fixtures and accepted the control input. G2 was rejected safely but its diagnostic misclassified an unexpected feature as an ordering problem; correct this before exposing validation through FastAPI.
 - Notebook 13 justifies proceeding to a local, historical-replay application prototype. HTTP serving, deployed Modal performance, concurrent sessions, and real-plant behavior remain untested.
 - The selected model artifacts exist locally under `nb08_artifacts/`: the TCN checkpoint, scaler, training metadata, and `frozen_thresholds.json`. The selected threshold in that file is `0.003906734725460411`. An identical copy of the TCN training folder also exists under `models/tcn_preliminary/`; treat the NB08 artifacts as the selection record and do not package both copies.
-- The `frontend/` directory now contains a Vite/React/TypeScript starter and notification/database placeholders; it is not yet the SWaT dashboard. Its `App.tsx` is still template content.
-- The current `backend/Dockerfile`, root `docker-compose.yml`, root and frontend `.env.example` files, three files in `configs/`, and files under `src/` and `tests/` are empty placeholders.
+- The `frontend/` directory contains a Vite/React/TypeScript starter and empty notification/test placeholders; it is not yet the SWaT dashboard. Its `App.tsx` is still template content. There is no authentication or browser-side database integration in scope.
+- The current `backend/Dockerfile`, root `docker-compose.yml`, root and frontend `.env.example` files, three files in `configs/`, database migration, CI workflow, and the Python test modules are empty placeholders. Most files under `src/` are also empty; `src/utils/paths.py` is the existing path-resolution utility.
 - `database/migrations/001_initial_schema.sql` exists but is empty. There is no configured PostgreSQL database or deployed database service.
-- The frontend has empty `useRunNotifier.ts`, `NotificationHost.tsx`, and `App.test.tsx` placeholders. Its package manifest and lockfile have been reconciled, and the unused database-client placeholder/dependency has been removed. Frontend test scripts and packages can be added when implementation begins.
+- The frontend has empty `useRunNotifier.ts`, `NotificationHost.tsx`, notification-type, test setup, and `App.test.tsx` placeholders. Its package manifest and lockfile have been reconciled, and the unused database-client placeholder/dependency has been removed. Frontend test scripts and packages can be added when implementation begins.
 - The selected database is Neon, so the browser must use the backend API for all database access; do not connect the browser directly to Neon.
-- Existing `backend/api`, `backend/data`, `backend/detection`, `backend/evaluation`, `backend/monitoring`, and `backend/utils` folders duplicate the intended root `src/` layout. Keep `src/` as the one Python implementation tree; use `backend/` only for Modal deployment entrypoint, Dockerfile, and runtime dependencies.
+- Keep `src/` as the one Python implementation tree. `backend/` is reserved for the Modal entrypoint, Dockerfile, and backend runtime dependency list; do not create a second copy of application modules there.
+- The existing notebook, data, and generated-artifact directories stay at the repository root. Several notebooks and `src/utils/paths.py` resolve these root-relative paths directly, and Notebook 12 records their locations. Do not relocate or duplicate them as part of deployment setup.
 - Raw SWaT data and generated model artifacts must stay outside the source image and must not be committed unless dataset terms and artifact-sharing permissions have been checked.
 
 ## Recommended build order
@@ -41,87 +42,130 @@ Vercel is selected over Netlify because this is a static Vite/React app and Verc
 
 The recommendation is **GO for building and validating a portfolio prototype**. It is **not** a GO for a production system: this evidence comes from in-process, single-machine replay; HTTP, concurrency, hosted infrastructure, dataset permissions, human response, and real-plant performance have not been demonstrated.
 
-## Target repository structure
+## Repository structure and placement rules
 
-The layout below is the intended shape after implementation. Keep the research notebooks, reports, and artifacts in their existing locations; do not duplicate model files just to fit this tree.
+The tree below distinguishes files that exist now from files to add during implementation. Items marked **planned** are not implemented. Empty tracked placeholders are called out so the tree does not imply that the API, database, CI, tests, or dashboard already work.
 
 ```text
 .
-├── .github/
-│   └── workflows/
-│       └── ci.yml                 # backend tests, frontend checks, image builds
+├── .github/workflows/ci.yml                 # existing empty CI placeholder
 ├── backend/
-│   ├── modal_app.py               # Modal image, FastAPI ASGI entrypoint
-│   ├── Dockerfile                 # local Compose image; keep dependencies aligned
-│   └── requirements.txt           # pinned API/inference runtime dependencies
+│   ├── modal_app.py                         # planned Modal/FastAPI entrypoint
+│   ├── requirements.txt                     # planned serving dependencies
+│   └── Dockerfile                           # existing empty; local API image definition
 ├── configs/
-│   ├── project.yaml               # research/project settings, if needed
-│   ├── evaluation.yaml            # offline evaluation settings, if needed
-│   └── robustness.yaml            # notebook robustness settings, if needed
+│   ├── evaluation.yaml                      # existing empty research placeholder
+│   ├── project.yaml                         # existing empty research placeholder
+│   └── robustness.yaml                      # existing empty research placeholder
 ├── data/
-│   ├── raw/                       # local, permitted input data; never in image/Git
-│   └── processed/                 # generated data; never in image/Git
-├── frontend/                      # existing Vite + React + TypeScript scaffold
-│   ├── vercel.json                # SPA fallback only if client-side routes need it
+│   ├── raw/                                 # attack.csv, normal.csv, merged.csv, workbook
+│   └── processed/                           # audit/evaluation/features/robustness folders
+├── database/
+│   └── migrations/001_initial_schema.sql    # existing empty; Neon schema migration
+├── frontend/                                # existing Vite + React + TypeScript app
+│   ├── .env.example                         # existing empty; public VITE_API_BASE_URL only
+│   ├── .gitignore
+│   ├── README.md
+│   ├── index.html
+│   ├── .oxlintrc.json
 │   ├── package.json
 │   ├── package-lock.json
+│   ├── public/                              # favicon.svg, icons.svg
 │   └── src/
-│       ├── App.tsx
-│       ├── api/apiClient.ts
+│       ├── App.tsx                           # existing Vite starter
+│       ├── App.css
+│       ├── App.test.tsx                      # existing empty placeholder
+│       ├── index.css
+│       ├── main.tsx
+│       ├── assets/                           # existing starter images/SVGs
 │       ├── components/
-│       │   ├── AlertEpisodeList.tsx
-│       │   ├── NotificationHost.tsx
-│       │   ├── ReplayControls.tsx
-│       │   ├── RunSummary.tsx
-│       │   └── ScoreTimeline.tsx
-│       ├── hooks/useRunNotifier.ts
-│       ├── pages/Dashboard.tsx
-│       ├── test/setup.ts
-│       ├── types/api.ts
-│       └── types/notifications.ts
-├── models/                        # existing research artifacts; not copied into image
-├── notebooks/                     # 01–12 unchanged; 13 is feasibility work
+│       │   ├── NotificationHost.tsx         # existing empty placeholder
+│       │   └── [dashboard components]        # planned
+│       ├── hooks/useRunNotifier.ts           # existing empty placeholder
+│       ├── test/setup.ts                     # existing empty placeholder
+│       ├── types/notifications.ts             # existing empty placeholder
+│       ├── api/apiClient.ts                  # planned
+│       ├── pages/Dashboard.tsx               # planned
+│       └── types/api.ts                      # planned
+│   ├── tsconfig*.json
+│   └── vite.config.ts
+├── models/                                  # existing local research exports; preserve
+├── nb08_artifacts/                           # existing model-selection evidence
+├── nb09_artifacts/                           # existing Notebook 09 outputs
+├── nb10_artifacts/                           # existing Notebook 10 outputs
+├── nb11_artifacts/                           # existing Notebook 11 outputs
+├── nb12_artifacts/                           # existing Notebook 12 audit outputs
+├── nb13_artifacts/                           # existing Notebook 13 feasibility outputs
+├── notebooks/                                # completed notebooks 01–13
+│   ├── 01_data_and_process_understanding.ipynb
+│   ├── 02-data-quality-and-temporal-split.ipynb
+│   ├── 03-exploratory-analysis.ipynb
+│   ├── 04-baseline-anomaly-detection.ipynb
+│   ├── 05-lstm-autoencoder.ipynb
+│   ├── 06-traditional-ml-anomaly-detection.ipynb
+│   ├── 07-deep-learning-anomaly-detection.ipynb
+│   ├── 08-hyperparameter-tuning-threshold-calibration.ipynb
+│   ├── 09_error_and_event_analysis.ipynb
+│   ├── 10-robustness-Analysis.ipynb
+│   ├── 11_final_model.ipynb
+│   ├── 12_reproducibility.ipynb
+│   └── 13_deployment_feasibility_and_historical_replay_rest.ipynb
 ├── reports/
-├── src/                           # single Python implementation tree
-│   ├── __init__.py
+│   ├── NOTEBOOK_13_COMPLIANCE_AND_COMPLETION_REPORT.md
+│   └── figures/frozen-baseline-comparison.png
+├── src/                                      # sole Python implementation tree
 │   ├── api/
-│   │   ├── main.py
-│   │   ├── routes.py
-│   │   └── schemas.py
+│   │   ├── detector_service.py               # existing empty placeholder
+│   │   ├── main.py                           # existing empty placeholder
+│   │   ├── schemas.py                        # existing empty placeholder
+│   │   └── routes.py                         # planned
 │   ├── data/
-│   │   └── validation.py
+│   │   ├── ingestion.py                      # existing empty placeholder
+│   │   ├── preprocessing.py                  # existing empty placeholder
+│   │   └── validation.py                     # existing empty placeholder
 │   ├── detection/
-│   │   └── tcn_inference.py
+│   │   ├── event_detection.py                # existing empty placeholder
+│   │   ├── isolation_forest.py               # existing empty placeholder
+│   │   ├── rolling_statistical.py             # existing empty placeholder
+│   │   └── rule_based.py                     # existing empty placeholder
 │   ├── evaluation/
-│   │   └── replay_metrics.py
+│   │   ├── detection_delay.py                # existing empty placeholder
+│   │   ├── drift.py                          # existing empty placeholder
+│   │   ├── event_metrics.py                  # existing empty placeholder
+│   │   ├── point_metrics.py                  # existing empty placeholder
+│   │   └── robustness.py                     # existing empty placeholder
 │   ├── monitoring/
-│   │   └── logger.py
-│   ├── replay/
-│   │   └── runner.py
-│   ├── notifications/
-│   │   └── hook_notifier.py       # run and alert-episode webhook notifications
-│   └── storage/
-│       └── postgres_repository.py # Neon access, backend only
-├── database/                      # existing migration placeholder
-│   └── migrations/
-│       └── 001_initial_schema.sql # replay_runs, alert_episodes, notification_deliveries
+│   │   ├── logger.py                         # existing empty placeholder
+│   │   └── schemas.py                        # existing empty placeholder
+│   ├── replay/runner.py                      # planned
+│   ├── notifications/hook_notifier.py        # planned; run/episode events
+│   ├── storage/postgres_repository.py        # planned; Neon access only
+│   └── utils/
+│       ├── __init__.py
+│       └── paths.py                          # existing path-resolution utility
+├── swat-artifacts/                            # existing legacy output path; preserve
 ├── tests/
-│   ├── conftest.py
-│   ├── fixtures/                  # small synthetic, non-restricted input
-│   ├── test_api.py
-│   ├── test_data_validation.py
-│   ├── test_detectors.py
-│   ├── test_evaluation.py
-│   ├── test_event_detection.py
-│   └── test_monitoring.py
-├── .env.example
-├── .dockerignore
-├── docker-compose.yml
+│   ├── test_api.py                            # existing empty placeholder
+│   ├── test_data_validation.py                # existing empty placeholder
+│   ├── test_detectors.py                      # existing empty placeholder
+│   ├── test_evaluation.py                     # existing empty placeholder
+│   ├── test_event_detection.py                # existing empty placeholder
+│   └── test_monitoring.py                     # existing empty placeholder
+├── .dockerignore                             # build-context exclusions
+├── .env.example                              # existing empty local backend template
 ├── DEPLOYMENT_PLAN.md
-└── README.md
+├── PROJECT_SPEC.md
+├── PROJECT_STATE.md
+├── README.md
+├── docker-compose.yml                        # existing empty local integration placeholder
+└── requirements.txt                          # research/notebook dependencies
 ```
 
-`src/` is the single Python implementation location; do not implement a second copy under `backend/`. The existing frontend is a Vite starter, so retain its package and TypeScript setup and replace the starter UI as frontend work begins. The named application files are planned targets, not a claim that they are implemented. Existing empty duplicate backend subfolders need not be populated; no folder cleanup is required to start the next phase.
+The local `cats/` virtual environment, installed `frontend/node_modules/`, frontend build output, raw CSV/XLSX data, and generated model/run artifacts are not source-code directories. They remain in place locally where they already exist; Git and Docker ignore rules keep them out of commits and images. `models/` and `swat-artifacts/` are overlapping research/export trees; the `nb08_artifacts/`–`nb13_artifacts/` directories contain notebook evidence and outputs. Preserve these root paths rather than consolidating them based on apparent duplicates. The deployment bundle should contain only the verified files needed for inference, supplied through the approved Modal artifact mechanism.
+
+Keep research dependencies in the root `requirements.txt` and add a separate `backend/requirements.txt` only when the serving dependencies are chosen. Do not duplicate Python application modules under `backend/`; `backend/modal_app.py` is a **planned** Modal adapter that will import the implementation from `src/`. Keep frontend-only code under `frontend/`, Neon migrations under `database/migrations/`, synthetic Python tests under `tests/`, and project-wide evidence/reporting under `reports/` and the existing notebook artifact directories.
+
+Notebook artifact directories remain at the root because notebook code and saved audit records refer to those exact paths. Empty, untracked folders that contained no files (`docs/`, root `nb09_analysis/`, `notebooks/nb09_analysis/`, `reports/tables/`, and `frontend/src/lib/`) were removed; they are not needed by the current code or plan. Do not create duplicate copies of documentation or research artifacts to make the tree look more uniform.
 
 ## Backend responsibilities
 

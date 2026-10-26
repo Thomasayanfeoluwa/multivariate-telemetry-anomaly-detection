@@ -69,9 +69,10 @@ Run notebooks in numeric order, subject to the data and environment limitations 
 10. [10 — Robustness analysis](notebooks/10-robustness-Analysis.ipynb)
 11. [11 — Final model selection](notebooks/11_final_model.ipynb)
 12. [12 — Reproducibility and final audit](notebooks/12_reproducibility.ipynb)
+13. [13 — Deployment feasibility and historical replay](notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb)
 
 The root [`PROJECT_SPEC.md`](PROJECT_SPEC.md) defines the research methodology. [`PROJECT_STATE.md`](PROJECT_STATE.md) records the verified project state.
-The proposed application structure, hosting choices, database, notifications, Docker setup, and test plan are in [`DEPLOYMENT_PLAN.md`](DEPLOYMENT_PLAN.md). Current target: the React/Vite frontend on Vercel, FastAPI and frozen-TCN inference on Modal, and PostgreSQL run/alert history on Neon. These are plans only; the application is not deployed.
+The repository layout, hosting choices, database, notifications, Docker setup, and test plan are in [`DEPLOYMENT_PLAN.md`](DEPLOYMENT_PLAN.md). Current target: the React/Vite frontend on Vercel, FastAPI and frozen-TCN inference on Modal, and PostgreSQL run/alert history on Neon. Application files are still placeholders; the app is not implemented or deployed.
 
 ## Reproduce the audit
 
