@@ -3,8 +3,8 @@
 **Date:** 26 October 2026  
 **Auditor / Reviewer:** Antigravity Machine Learning Engineering & Review Agent  
 **Target Repository:** `SWATS` (Multivariate Telemetry Anomaly Detection)  
-**Evaluated Notebook:** [`notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb`](file:///c:/Users/ADEGOKE/Desktop/SWATS/notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb)  
-**Execution Environment:** Windows 10, Python 3.11.14 (`cats` venv), PyTorch 2.6.0+cpu  
+**Evaluated Notebook:** [`notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb`](../notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb)
+**Execution Environment:** Windows 10, Python 3.11.14 (project virtual environment), PyTorch 2.6.0+cpu
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### Final Verdict: **YES — 100% Completed, Fully De-duplicated, Verified End-to-End, and Passed All 7 Feasibility Tests with Consolidated Decision: GO**
 
-Following your explicit instruction, Notebook 13 has been audited, completely refactored to remove all duplicate imports, variables, and class definitions, and executed end-to-end in the project's Python 3.11 virtual environment (`cats`).
+Following your explicit instruction, Notebook 13 has been audited, refactored to remove duplicate imports, variables, and class definitions, and executed end-to-end in the project's Python 3.11 virtual environment.
 
 1. **Substantive Technical Adherence (Tests A through G — PASS):**
    - In all technical dimensions (model loading, exact thresholding, score parity across all 181,031 observations, chronological replay warm-up, boundary resetting, confusion matrix replication, scenario detection parity, CPU inference benchmarking, and malformed input rejection), Notebook 13 **strictly and flawlessly followed the technical specifications of Sections 1–11 and Section 14**.
@@ -38,8 +38,8 @@ Following your explicit instruction, Notebook 13 has been audited, completely re
      - **Cell 16 (Markdown):** Clean explanatory preamble for Cell 9.
      - **Cell 17 (Code):** Clean executable Python script that runs the consolidated aggregator without schema bugs.
      - **Cell 18 (Markdown):** Evidence-based Result Record documenting actual outputs, the scorecard, and the official **GO** decision.
-   - The authoritative feasibility report [`nb13_artifacts/NB13_FEASIBILITY_REPORT.md`](file:///c:/Users/ADEGOKE/Desktop/SWATS/nb13_artifacts/NB13_FEASIBILITY_REPORT.md) and machine-readable verdict record [`nb13_artifacts/cell9_final_verdict.json`](file:///c:/Users/ADEGOKE/Desktop/SWATS/nb13_artifacts/cell9_final_verdict.json) have been generated and validated.
-   - [`PROJECT_STATE.md`](file:///c:/Users/ADEGOKE/Desktop/SWATS/PROJECT_STATE.md) has been updated to record Notebook 13 completion.
+   - The authoritative feasibility report [`nb13_artifacts/NB13_FEASIBILITY_REPORT.md`](../nb13_artifacts/NB13_FEASIBILITY_REPORT.md) and machine-readable verdict record [`nb13_artifacts/cell9_final_verdict.json`](../nb13_artifacts/cell9_final_verdict.json) have been generated and validated.
+   - [`PROJECT_STATE.md`](../PROJECT_STATE.md) has been updated to record Notebook 13 completion.
 
 ---
 
@@ -67,7 +67,7 @@ Following your explicit instruction, Notebook 13 has been audited, completely re
 
 ## 3. Final Notebook 13 Architecture & Cell Layout
 
-The finalized notebook [`notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb`](file:///c:/Users/ADEGOKE/Desktop/SWATS/notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb) consists of **19 cells** (9 Code cells, 10 Markdown cells), each with verified outputs:
+The finalized notebook [`notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb`](../notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb) consists of **19 cells** (9 Code cells, 10 Markdown cells), each with verified outputs:
 
 ```text
 Cell  0 [Code]     -> Repository & artifact inspection (imports, root discovery, inventory)
@@ -95,7 +95,7 @@ Cell 18 [Markdown] -> Cell 9: Final feasibility report (result record & GO autho
 
 ## 4. Final Verified Artifacts Inventory
 
-All required artifacts are cleanly saved in [`nb13_artifacts/`](file:///c:/Users/ADEGOKE/Desktop/SWATS/nb13_artifacts):
+All required artifacts are cleanly saved in [`nb13_artifacts/`](../nb13_artifacts/):
 
 | Filename | File Size | Description | Verified Status |
 |---|---|---|---|
@@ -136,4 +136,4 @@ Notebook 13 has concluded with an unambiguous **GO** decision. The selected TCN 
 3. Operating at over **370x real-time speed** on commodity CPU hardware.
 4. Safely rejecting malformed inputs at the API validation boundary.
 
-The project is officially authorized to proceed to **Phase 2: FastAPI Model Inference Backend & React.js Monitoring Dashboard** in accordance with [`DEPLOYMENT_PLAN.md`](file:///c:/Users/ADEGOKE/Desktop/SWATS/DEPLOYMENT_PLAN.md).
+The project is authorized to proceed to **Phase 2: FastAPI Model Inference Backend & React.js Monitoring Dashboard** as a historical-replay prototype, in accordance with [`DEPLOYMENT_PLAN.md`](../DEPLOYMENT_PLAN.md). This GO is not production or live-plant authorization.

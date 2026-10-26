@@ -686,7 +686,7 @@ The most complex model is not automatically preferred. If a simpler method yield
 - Clear figures, tables, and descriptive captions.
 - Attribution of the dataset provider and observance of any required publication notifications.
 
-The core deliverable remains the fixed twelve-notebook experimental study; it does not include production infrastructure, Docker services, or streaming pipelines. The next planned extension is Notebook 13: a focused feasibility test that replays historical SWaT data chronologically through the frozen Notebook 11 selection. It will check scoring parity, sequence warm-up and boundaries, timestamped alerts, event coverage and delay, false-alarm episodes, and inference performance; labels are for offline evaluation only, never model inputs. Only if replay is validated should the project proceed to a FastAPI inference service and React monitoring interface. The prototype remains advisory and must not connect to or control a live plant; historical replay does not establish real-plant effectiveness.
+The core deliverable is the fixed twelve-notebook experimental study; it does not include production infrastructure, Docker services, or streaming pipelines. Notebook 13 is a completed post-12 feasibility extension: its saved tests support a **GO to build and validate a historical-monitoring application prototype** around the frozen Notebook 11 selection. This is not authorization to claim production readiness or real-plant effectiveness. The next phase may implement and locally test FastAPI inference and a React interface, then proceed to Modal, Neon, and Vercel after parity, API, concurrency, permission, and deployment checks. The prototype remains advisory and must not connect to or control a live plant.
 
 ---
 
@@ -737,7 +737,7 @@ By the end of the project the repository must contain:
 - A reproducibility record (environment, seeds, paths, configurations).  
 - A concise final summary of findings, limitations, and the statements that the evidence does and does not support.
 
-The historical-replay feasibility test and any later application are optional post-12 extensions, not completed core deliverables.
+Notebook 13 is a completed optional post-12 feasibility extension. The FastAPI/React prototype and any hosting work remain separate, not-yet-completed extensions.
 
 ---
 

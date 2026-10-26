@@ -2,7 +2,7 @@
 
 An experimental study of anomaly detection on multivariate telemetry from the Secure Water Treatment (SWaT) testbed. The project compares nine detection methods, evaluates false alarms and event detection, and selects a model from recorded evidence.
 
-> **Project status:** the 12-notebook research and reproducibility workflow is complete. The next step is Notebook 13, a feasibility test that replays historical SWaT data through the frozen TCN. FastAPI and React are later steps only if replay validates; no live-plant integration or production deployment has been completed.
+> **Project status:** Notebooks 01–13 are complete. Notebook 13's replay tests support a **GO to build a historical-monitoring prototype** using the frozen TCN. FastAPI, React, database, and hosting work are next; no live-plant integration or production readiness has been established.
 
 ## What the project asks
 
@@ -91,14 +91,15 @@ Place permitted source files under `data/raw/` before running data-dependent not
 ## Reports and evidence
 
 The project keeps the detailed, evidence-based summaries in the tracked [Notebook 11 model-selection report](nb11_artifacts/NB11_FINAL_REPORT.md) and [Notebook 12 reproducibility report](nb12_artifacts/NB12_FINAL_REPORT.md). The comparison figure above is the saved Notebook 10 visualization. Some large or run-specific intermediate artifacts may be excluded from a Git checkout.
+Notebook 13's results are summarized in the [feasibility report](nb13_artifacts/NB13_FEASIBILITY_REPORT.md) and [completion/compliance report](reports/NOTEBOOK_13_COMPLIANCE_AND_COMPLETION_REPORT.md).
 
-## Next step: Notebook 13 feasibility test
+## Notebook 13 feasibility result
 
-Notebook 13 is the next planned step: replay historical SWaT data chronologically through the **frozen Notebook 11 TCN**, using its saved scaler, feature order, window, and threshold. Do not retrain or retune the model. Check that replay matches the saved scoring procedure, handles sequence warm-up and boundaries correctly, produces timestamped scores and alert episodes, and records inference performance. Evaluate event coverage, detection delay, and false-alarm episodes offline; labels must not be model inputs.
+Notebook 13 tested chronological replay using the **frozen Notebook 11 TCN**, its scaler, feature order, window, and threshold. Across 181,031 sequences, scores matched the frozen results with maximum absolute difference `5.215e-08` and zero alert-flag disagreements. The test also reproduced 28/36 detected scenarios, 8 missed scenarios, and 73 validation false-alarm periods. Median delay was 0 seconds among detected scenarios only; p90 was 22.8 seconds and maximum delay was 1,489 seconds. The saved report records all seven feasibility tests passing.
 
-This test asks whether the selected model can support a practical historical-monitoring workflow. It does not establish real-plant effectiveness. If the replay is sound, the next stage can expose the verified inference flow through FastAPI and present scores, alert history, and relevant telemetry in a React interface for human review. Keep the prototype advisory: no live-plant connection or equipment control.
+On the tested Windows CPU, model-only single-sequence inference had a median latency of 2.64 ms, well below the dataset's 1-second sampling interval. This is encouraging for a prototype, but it does not measure FastAPI, network, or Modal latency.
 
-The intended portfolio architecture after a successful feasibility test is **Vercel (React UI) → Modal (FastAPI + frozen TCN) → Neon PostgreSQL (run reports and alert episodes)**. A backend `HookNotifier` is planned for run-start/completion/failure events and each new alert episode; continuous anomalous samples are grouped into episodes to avoid notification floods. Notebook 13 tests the frozen model and does not need an experiment-tracking service.
+**Conclusion: GO to build and test the portfolio prototype—not to claim production readiness.** The next stage is local FastAPI integration and API/parity tests, followed by Neon-backed run reports and episode-level `HookNotifier` events, a React human-review UI, Docker integration, and staged hosting (**Modal API/model → Neon PostgreSQL → Vercel frontend**). Notebook 13 rejected malformed inputs, but its G2 diagnostic needs a wording fix before that validation is exposed through the API. The real HTTP path, concurrent sessions, hosted performance, data-sharing permissions, and real-plant behavior still require verification.
 
 ## Known limitations
 

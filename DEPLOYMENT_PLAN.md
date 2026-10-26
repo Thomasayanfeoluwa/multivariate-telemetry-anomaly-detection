@@ -1,6 +1,6 @@
 # SWaT Monitoring Prototype — Deployment Plan
 
-This document describes the proposed path from the completed 12-notebook study to a portfolio-ready historical-monitoring prototype. It is a plan, not a claim that the application has been built or deployed.
+This document describes the next phase after Notebook 13's historical-replay feasibility test. Notebook 13 produced a **GO for building the application prototype**, not for production or live-plant deployment. This document is a plan; the application has not been implemented or deployed.
 
 ### Chosen deployment services
 
@@ -13,7 +13,12 @@ Vercel is selected over Netlify because this is a static Vite/React app and Verc
 
 ## Current repository state
 
-- Notebooks 01–12 contain the completed offline study. Notebook 13 is the planned feasibility check and has not been implemented.
+- Notebooks 01–12 contain the completed offline study. Notebook 13 is complete; its seven saved feasibility tests passed.
+- Notebook 13 reproduced frozen scores across 181,031 sequences with max absolute difference `5.215e-08` and zero alert-flag disagreements. Stateful replay on the tested slices also had zero flag disagreements.
+- Event results matched the recorded reference: 28/36 scenarios detected, 8 missed, 73 validation false-alarm periods; median delay was 0 seconds among detected scenarios only, p90 22.8 seconds, maximum 1,489 seconds.
+- On the tested Windows CPU, single-sequence inference median was 2.64 ms against the dataset's 1 Hz cadence. This is model-only timing, not measured FastAPI/Modal response latency.
+- Test G rejected all malformed fixtures and accepted the control input. G2 was rejected safely but its diagnostic misclassified an unexpected feature as an ordering problem; correct this before exposing validation through FastAPI.
+- Notebook 13 justifies proceeding to a local, historical-replay application prototype. HTTP serving, deployed Modal performance, concurrent sessions, and real-plant behavior remain untested.
 - The selected model artifacts exist locally under `nb08_artifacts/`: the TCN checkpoint, scaler, training metadata, and `frozen_thresholds.json`. The selected threshold in that file is `0.003906734725460411`. An identical copy of the TCN training folder also exists under `models/tcn_preliminary/`; treat the NB08 artifacts as the selection record and do not package both copies.
 - The `frontend/` directory now contains a Vite/React/TypeScript starter and notification/database placeholders; it is not yet the SWaT dashboard. Its `App.tsx` is still template content.
 - The current `backend/Dockerfile`, root `docker-compose.yml`, root and frontend `.env.example` files, three files in `configs/`, and files under `src/` and `tests/` are empty placeholders.
@@ -25,15 +30,16 @@ Vercel is selected over Netlify because this is a static Vite/React app and Verc
 
 ## Recommended build order
 
-1. **Notebook 13 — feasibility first.** Replay the frozen TCN chronologically. Verify the exact checkpoint, scaler, 42-feature order, 30-step window, threshold, sequence warm-up and partition boundaries. Check score parity against the existing saved scoring procedure. Measure detected/missed scenarios, delay for matched events, false-alarm episodes per hour of normal operation, and inference time; compare with existing baselines only where alignment is valid. Keep labels out of inference; use them only for offline evaluation. Do not retrain or retune the model.
-2. **Backend inference on Modal.** Extract the verified inference path into FastAPI and deploy it as a Modal ASGI web app. Load the frozen artifacts once per warm container. Validate input columns, order, timestamps, missing values, and sequence length. Do not expose training or threshold-tuning endpoints.
-3. **Backend tests.** Confirm preprocessing and score parity, input rejection, alert grouping, and API behavior before building the UI.
-4. **Notifications and persistence.** Store each replay and its report in Neon. Use `HookNotifier` to notify on run start, completion/failure, and each newly opened alert episode. Do not send a notification for every above-threshold sample; continuous samples form one alert episode and per-sample notifications would flood recipients.
-5. **Frontend.** Build the React interface for historical replay and human review: replay controls, telemetry and score timelines, alert history, run reports, and visible notifications. Label detections as model alerts, not confirmed attacks, causes, or faults.
-6. **Local Docker Compose.** Use Compose for local end-to-end development and checks only. Production hosting is Vercel (frontend) plus Modal (FastAPI/model) plus Neon (PostgreSQL).
-7. **CI and portfolio release.** Run backend and frontend checks in GitHub Actions. Publish the portfolio demo only after checking dataset and model-artifact sharing terms.
+1. **Carry forward Notebook 13's one validation fix.** Report unexpected/missing feature names separately from a correct feature set in the wrong order. Preserve the tested policy: exact feature order, exact window shape, finite numeric values, and strictly increasing timestamps; reject invalid data rather than silently imputing or reordering it.
+2. **Implement and test the API locally first.** Reuse Notebook 13's frozen inference behavior. Keep per-run sequence buffers isolated, test reset/boundary handling and concurrent requests, and verify API scores against the notebook within a documented tolerance. Do not expose retraining, threshold-tuning, or plant-control endpoints.
+3. **Measure the HTTP path.** Test serialization, validation, response time, and full replay duration locally. The Notebook 13 2.64 ms figure is model-only on its Windows CPU; it does not establish Modal or end-to-end latency. Use the measurements to decide whether replay can be synchronous or needs a Modal background job.
+4. **Add Neon persistence and notifications.** Store run status, compact reports, alert episodes, and delivery state. Implement `HookNotifier` for run start/completion/failure and new alert episodes, with deduplication and bounded retries. Do not notify once per anomalous sample.
+5. **Build the Vercel-hosted React interface.** Present replay progress, score/telemetry context, event outcomes, alert episodes, and limitations. Alerts remain advisory model outputs, never confirmed attacks or process failures.
+6. **Integrate locally with Docker Compose.** Run the API and frontend together against synthetic fixtures and a test database. Keep secrets and restricted data out of the image and repository.
+7. **Deploy in stages.** Deploy FastAPI/model inference to Modal and Neon-backed persistence after local tests pass; measure the deployed HTTP path. Then deploy the static React frontend to Vercel with only the public API URL configured. Allow only expected Vercel origins in API CORS.
+8. **Release checks.** Run unit, API, parity, persistence, notification, frontend, and deployment smoke tests. Publish/share only after confirming SWaT data and model-artifact permissions.
 
-If Notebook 13 reveals scoring or portability problems, fix and verify those before proceeding to the API. A successful replay supports an application-feasibility claim; it does not prove real-plant performance or operational benefit.
+The recommendation is **GO for building and validating a portfolio prototype**. It is **not** a GO for a production system: this evidence comes from in-process, single-machine replay; HTTP, concurrency, hosted infrastructure, dataset permissions, human response, and real-plant performance have not been demonstrated.
 
 ## Target repository structure
 
@@ -115,7 +121,7 @@ The layout below is the intended shape after implementation. Keep the research n
 └── README.md
 ```
 
-`src/` is the single Python implementation location; do not implement a second copy under `backend/`. The existing frontend is a Vite starter, so retain its package and TypeScript setup, then replace starter UI only after Notebook 13. The named application files are planned targets, not files to implement now. Existing empty duplicate backend subfolders need not be populated; do not delete or move them during this documentation-only step.
+`src/` is the single Python implementation location; do not implement a second copy under `backend/`. The existing frontend is a Vite starter, so retain its package and TypeScript setup and replace the starter UI as frontend work begins. The named application files are planned targets, not a claim that they are implemented. Existing empty duplicate backend subfolders need not be populated; no folder cleanup is required to start the next phase.
 
 ## Backend responsibilities
 
@@ -205,10 +211,11 @@ Use small synthetic fixtures in automated tests so CI does not need SWaT files o
 ### Backend tests
 
 - **Unit:** schema and timestamp validation; feature ordering; missing/invalid values; window warm-up; preprocessing; deterministic score/threshold behavior; alert episode grouping; PostgreSQL repository if included.
-- **Parity:** a small fixed input sequence verifies the inference wrapper returns the same scores and flags as the Notebook 13 reference within a documented numeric tolerance. This is the key model-integration test.
+- **Parity:** retain a small fixed input sequence that verifies the inference wrapper returns the same scores and flags as the Notebook 13 reference within a documented numeric tolerance. This is the key model-integration test.
 - **API:** health and model metadata; valid replay; malformed request; insufficient sequence history; unsupported dataset/path; clear error responses.
 - **Integration:** start FastAPI with a fake detector and synthetic fixture; verify replay records, Neon writes (using a test database or isolated schema), alert episode creation, notification deduplication, and retry behavior without SWaT data.
 - **Data-backed manual check:** after the automated suite passes, run the frozen model against the permitted local replay data and compare with Notebook 13 evidence. This is not a substitute for automated tests and should not run in ordinary CI.
+- **Deployment check:** after Modal deployment, test the real HTTP endpoint, cold/warm starts, response/error schemas, run isolation, and measured replay latency. Notebook 13 does not cover these.
 
 ### Frontend tests
 

@@ -4,7 +4,7 @@
 
 ## Current status
 
-The core 12-notebook experimental workflow is complete and Notebook 12's audit records 10/10 reproducibility checks passing. The preferred model is the frozen TCN Autoencoder selected in Notebook 11. This is an offline benchmark result, not a production recommendation.
+The 12-notebook experimental workflow and Notebook 13's historical-replay feasibility test are complete. Notebook 13 passed all seven recorded checks and supports proceeding to build a portfolio monitoring prototype around the frozen TCN. This is not production authorization or a real-plant recommendation.
 
 | Stage | Status |
 |---|---|
@@ -12,11 +12,11 @@ The core 12-notebook experimental workflow is complete and Notebook 12's audit r
 | Notebook 11 | TCN Autoencoder selected from the nine evaluated methods |
 | Notebook 12 | Reproducibility audit complete; 10/10 checks passed |
 | Notebook 13 | Completed; all 7 tests PASS (model load, score parity, replay, alerts, events, latency, validation); Decision: GO |
-| FastAPI / React application | Future work; not implemented |
+| FastAPI / React application | Prototype phase approved by NB13 evidence; not implemented |
 | Tests / live integration | Future work; not implemented |
 
 The detailed experimental specification remains in [`PROJECT_SPEC.md`](./PROJECT_SPEC.md). The main results and public-facing summary belong in [`README.md`](./README.md).
-The proposed backend, frontend, Docker, storage, and testing sequence is documented in [`DEPLOYMENT_PLAN.md`](./DEPLOYMENT_PLAN.md); it is not implemented work.
+The approved next-phase scope and its remaining gates are in [`DEPLOYMENT_PLAN.md`](./DEPLOYMENT_PLAN.md); implementation and deployment have not started.
 
 ## Selected model and measured results
 
@@ -42,14 +42,15 @@ The TCN is the selected model under the documented weighting, not the best choic
 
 ## Planned direction after the core study
 
-1. Use Notebook 13 to replay the frozen TCN chronologically and validate scoring parity, window warm-up/boundaries, alert episodes, event coverage and delay, and inference performance. Keep labels out of inference and use them only for offline evaluation.
-2. Only if replay is verified, build the planned service: FastAPI and frozen-TCN inference on Modal, React on Vercel, and Neon PostgreSQL for run reports and alert episodes. `HookNotifier` is planned for run and alert-episode notifications. No experiment-tracking service is needed for this frozen-model feasibility work.
-3. Keep the system advisory. No live-plant connection or equipment control is planned.
-4. Report only what the historical replay and its measured evaluation support; do not present benchmark results as proof of real-plant outcomes.
+1. Notebook 13 verified score parity across 181,031 sequences (maximum absolute difference `5.215e-08`, zero flag disagreements), reproduced event metrics (28/36 detected, 8 missed, 73 validation false-alarm periods), and measured 2.64 ms median model-only latency per sequence on its tested CPU.
+2. Proceed to local FastAPI integration and tests; fix the carried-forward G2 feature-diagnostic wording and test request isolation, HTTP behavior, and end-to-end latency.
+3. If local API checks pass, connect Neon for compact replay reports/alert episodes and implement `HookNotifier` at run and alert-episode boundaries. Then complete the React UI and Docker integration.
+4. Deploy the API/model to Modal and the frontend to Vercel only after local end-to-end checks and data/model permission review. Re-measure the hosted HTTP path.
+5. Keep the system advisory. No live-plant connection, equipment control, production-readiness claim, or financial benefit is established.
 
 ## Repository constraints for continuation
 
 - Preserve raw data and scored/model artifacts; do not retrain or replace frozen results without an explicitly documented experiment.
-- Keep the core 12 notebooks unchanged in order. Notebook 13 is a separate planned extension, not part of the completed core workflow.
+- Keep notebooks 01–12 and their recorded results unchanged. Notebook 13 is a completed post-12 feasibility extension; do not treat it as evidence of deployment or real-plant validation.
 - Do not treat a statistical anomaly as a confirmed attack, failure, cause, or safety event.
 - Backend, frontend, and tests remain unfinished and are intentionally outside the current documentation cleanup.
