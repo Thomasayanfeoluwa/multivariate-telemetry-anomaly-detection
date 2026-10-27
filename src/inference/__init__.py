@@ -1,0 +1,1 @@
+"""Frozen TCN inference bundle and request-payload validation."""

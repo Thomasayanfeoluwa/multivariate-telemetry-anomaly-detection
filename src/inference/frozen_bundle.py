@@ -30,6 +30,7 @@ from typing import Any
 
 import joblib
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -157,21 +158,21 @@ class FrozenBundle:
             return float(((recon - tensor) ** 2).mean().item())
 
     def predict(self, window: np.ndarray) -> tuple[float, bool]:
-        """Scale, score, and threshold one (window_size, n_features) window.
-
-        Returns (score, alert) where alert == (score > self.threshold).
-        Assumes the caller has NOT applied the scaler.
-        """
+        """Scale, score, and threshold one (window_size, n_features) window."""
         window = np.asarray(window, dtype=np.float32)
         expected = (self.window_size, self.n_features)
         if window.shape != expected:
             raise FrozenBundleError(
                 f"Expected window shape {expected}, got {window.shape}."
             )
-        scaled = self.scaler.transform(window).astype(np.float32)
+        # Pass a DataFrame with the scaler's feature names as columns so:
+        #   (1) scikit-learn does not warn about missing feature names, and
+        #   (2) the scaler's own feature-order validation runs, adding a
+        #       redundant check on top of src.inference.validate.
+        named = pd.DataFrame(window, columns=self.feature_names)
+        scaled = self.scaler.transform(named).astype(np.float32)
         score = self.score_scaled(scaled)
         return score, bool(score > self.threshold)
-
 
 def _require_file(path: Path, label: str) -> None:
     if not path.is_file():
