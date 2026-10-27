@@ -24,7 +24,6 @@ function shortTs(ts: string): string {
 }
 
 function toMs(ts: string): number {
-  // Replay timestamps are "YYYY-MM-DD HH:MM:SS"; normalize for Date parsing.
   return new Date(ts.replace(" ", "T")).getTime();
 }
 
@@ -61,7 +60,6 @@ export function ScoreChart({
   };
   const yFor = (v: number) => PAD.top + innerH - (v / yMax) * innerH;
 
-  // Map a wall-clock timestamp to an x coordinate within the current view.
   const t0 = toMs(view[0].timestamp);
   const tEnd = toMs(view[view.length - 1].timestamp);
   const xForTs = (ts: string): number => {
@@ -70,7 +68,6 @@ export function ScoreChart({
     return PAD.left + frac * innerW;
   };
 
-  // Clip ground-truth windows to the visible time range.
   const visibleWindows = (retrospectiveWindows ?? [])
     .map((w) => {
       const wx1 = Math.max(PAD.left, xForTs(w.start));
@@ -103,7 +100,6 @@ export function ScoreChart({
             : ""
         }`}
       >
-        {/* Retrospective attack windows — rendered first, behind everything */}
         {visibleWindows.map((w) => (
           <rect
             key={`gt-${w.scenario_id}`}
@@ -116,7 +112,6 @@ export function ScoreChart({
           />
         ))}
 
-        {/* Baseline */}
         <line
           x1={PAD.left}
           x2={width - PAD.right}
@@ -126,7 +121,6 @@ export function ScoreChart({
           strokeWidth={1}
         />
 
-        {/* Threshold */}
         <line
           x1={PAD.left}
           x2={width - PAD.right}
@@ -146,7 +140,6 @@ export function ScoreChart({
           thr {threshold.toExponential(3)}
         </text>
 
-        {/* Score line / point */}
         {view.length === 1 ? (
           <circle
             cx={xFor(0)}
@@ -158,7 +151,6 @@ export function ScoreChart({
           <path d={scorePath} fill="none" stroke="#14b8a6" strokeWidth={1.5} />
         )}
 
-        {/* Threshold-crossing points */}
         {view.map((p, i) =>
           p.alert ? (
             <circle
@@ -171,7 +163,6 @@ export function ScoreChart({
           ) : null,
         )}
 
-        {/* X-axis labels */}
         <text x={PAD.left} y={height - 6} fontSize={10} fill="#8ba3ba">
           {shortTs(view[0].timestamp)}
         </text>
