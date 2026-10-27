@@ -27,6 +27,7 @@ export function ReplayControls({
   onStart,
   onAdvance,
   onReset,
+  onInitialStatus,
 }: ReplayControlsProps = {}) {
   const [partition, setPartition] = useState<Partition>("threshold");
   const [status, setStatus] = useState<ReplayStatus | null>(null);
@@ -42,12 +43,17 @@ export function ReplayControls({
         if (!cancelled) {
           setStatus(s);
           setActive(true);
+          onInitialStatus?.(s);
         }
       },
       (e) => {
         if (cancelled) return;
-        if (e instanceof ApiError && e.status === 404) return;
+        if (e instanceof ApiError && e.status === 404) {
+          onInitialStatus?.(null);
+          return;
+        }
         setError(formatError(e));
+        onInitialStatus?.(null);
       },
     );
     return () => {

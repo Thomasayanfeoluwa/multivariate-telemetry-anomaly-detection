@@ -30,10 +30,12 @@ export function AlertTable({
 
       {alerts.length === 0 ? (
         <p className="hint">
-          No threshold-exceeding observations in this replay so far. This is
-          not evidence of normal operation — the frozen threshold produces
-          roughly 1% alerts on the calibration partition and ~3.2% on the
-          validation partition.
+          No threshold-exceeding observations accumulated in this session&apos;s
+          history yet. This is not evidence of normal operation — the frozen
+          threshold produces roughly 1% alerts on the calibration partition
+          and ~3.2% on the validation partition. If the backend
+          replay is already in progress, its alert count is shown above and
+          this table will fill as you Advance.
         </p>
       ) : (
         <table>

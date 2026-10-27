@@ -35,10 +35,12 @@ export function ScoreChart({
     return (
       <section className="score-chart" aria-label="Anomaly score chart">
         <p className="hint">
-          No scored observations yet. Advance the replay past warm-up to see
-          scores here. Warm-up is the first 29 observations; no score is
-          produced during warm-up, and the absence of a score does not
-          indicate normal behaviour.
+          No scored observations accumulated in this session&apos;s history
+          yet. Advance the replay past warm-up to see scores here. Warm-up is
+          the first 29 observations; no score is produced during warm-up, and
+          the absence of a score does not indicate normal behaviour. If the
+          backend replay is already in progress, its position and last score
+          are shown above.
         </p>
       </section>
     );

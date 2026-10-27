@@ -4,11 +4,14 @@ import { ReplayControls } from "./components/ReplayControls";
 import { ScoreChart, type ScorePoint } from "./components/ScoreChart";
 import { AlertTable } from "./components/AlertTable";
 import { EvaluationSummary } from "./components/EvaluationSummary";
+import type { ReplayStatus } from "./types/api";
 import "./App.css";
 
 function App() {
   const [history, setHistory] = useState<ScorePoint[]>([]);
   const [threshold, setThreshold] = useState<number | null>(null);
+  const [priorBackendState, setPriorBackendState] =
+    useState<ReplayStatus | null>(null);
 
   // Read the threshold from the frozen bundle via /model-info.
   // Never hardcode it — the backend is the source of truth.
@@ -32,9 +35,17 @@ function App() {
       </header>
 
       <ReplayControls
-        onStart={() => setHistory([])}
-        onReset={() => setHistory([])}
+        onInitialStatus={setPriorBackendState}
+        onStart={() => {
+          setHistory([]);
+          setPriorBackendState(null);
+        }}
+        onReset={() => {
+          setHistory([]);
+          setPriorBackendState(null);
+        }}
         onAdvance={(res) => {
+          setPriorBackendState(null);
           if (res.score !== null && res.timestamp !== null && res.alert !== null) {
             setHistory((h) => [
               ...h,
@@ -47,6 +58,27 @@ function App() {
           }
         }}
       />
+
+      {priorBackendState !== null &&
+        priorBackendState.position > 0 &&
+        history.length === 0 && (
+          <p className="resume-banner" role="status">
+            Backend replay is already active at position{" "}
+            <strong>{priorBackendState.position}</strong> /{" "}
+            {priorBackendState.total_rows}
+            {priorBackendState.alerts_emitted > 0 && (
+              <>
+                {" "}with <strong>{priorBackendState.alerts_emitted}</strong>{" "}
+                alert{priorBackendState.alerts_emitted === 1 ? "" : "s"}{" "}
+                emitted
+              </>
+            )}
+            . The chart and alert table below accumulate history from the
+            moment this page loaded. Click <strong>Reset</strong> below to
+            align with the backend count, or click <strong>Advance</strong>{" "}
+            to continue and accumulate fresh history from here.
+          </p>
+        )}
 
       {threshold !== null && (
         <>
