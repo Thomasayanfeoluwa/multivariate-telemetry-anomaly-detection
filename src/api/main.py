@@ -299,6 +299,7 @@ def replay_advance() -> ReplayAdvanceResponse:
             window_filled=result.window_filled,
             warmup_remaining=result.warmup_remaining,
             threshold=result.threshold,
+            observation=result.observation,
             status=_status_from_runner(runner),
         )
 

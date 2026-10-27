@@ -220,6 +220,13 @@ class ReplayAdvanceResponse(BaseModel):
     window_filled: bool
     warmup_remaining: int
     threshold: float
+    observation: Optional[dict[str, float]] = Field(
+        default=None,
+        description=(
+            "The just-consumed observation's feature values, keyed by "
+            "feature name. Populated for both warm-up and scored rows."
+        ),
+    )
     status: ReplayStatus = Field(
         description="Snapshot of the runner state after this advance."
     )

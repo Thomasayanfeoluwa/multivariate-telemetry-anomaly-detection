@@ -63,6 +63,7 @@ class ReplayResult:
     window_filled: bool
     warmup_remaining: int
     threshold: float
+    observation: Optional[dict[str, float]] = None  # current row's feature values
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -76,6 +77,7 @@ class ReplayResult:
             "window_filled": self.window_filled,
             "warmup_remaining": self.warmup_remaining,
             "threshold": self.threshold,
+            "observation": self.observation,
         }
 
 
@@ -142,6 +144,7 @@ class ReplayRunner:
           finished=True and last-known context; does not raise.
         """
         if self._pos >= self._n_rows:
+            last_row = self._features_np[self._n_rows - 1]
             return ReplayResult(
                 advanced=False,
                 finished=True,
@@ -153,8 +156,11 @@ class ReplayRunner:
                 window_filled=len(self._buf) == self._window_size,
                 warmup_remaining=max(0, self._window_size - len(self._buf)),
                 threshold=self._threshold,
+                observation={
+                    name: float(last_row[i])
+                    for i, name in enumerate(self._features)
+                },
             )
-
         ts = pd.Timestamp(self._df["timestamp"].iloc[self._pos])
         if self._last_ts is not None and ts <= self._last_ts:
             raise ReplayError(
@@ -194,6 +200,10 @@ class ReplayRunner:
             window_filled=len(self._buf) == self._window_size,
             warmup_remaining=max(0, self._window_size - len(self._buf)),
             threshold=self._threshold,
+            observation={
+                name: float(row[i])
+                for i, name in enumerate(self._features)
+            },
         )
 
     def reset(self) -> None:

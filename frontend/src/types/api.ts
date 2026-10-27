@@ -106,6 +106,7 @@ export interface ReplayAdvanceResponse {
   window_filled: boolean;
   warmup_remaining: number;
   threshold: number;
+  observation: Record<string, number> | null;
   status: ReplayStatus;
   alert_interpretation: string;
   warmup_interpretation: string;
