@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { GroundTruthWindow } from "../types/api";
 
 export interface ScorePoint {
   timestamp: string;
@@ -12,6 +13,7 @@ export interface ScoreChartProps {
   width?: number;
   height?: number;
   maxPoints?: number;
+  retrospectiveWindows?: GroundTruthWindow[];
 }
 
 const PAD = { top: 12, right: 12, bottom: 24, left: 64 };
@@ -21,12 +23,18 @@ function shortTs(ts: string): string {
   return parts.length === 2 ? parts[1] : ts;
 }
 
+function toMs(ts: string): number {
+  // Replay timestamps are "YYYY-MM-DD HH:MM:SS"; normalize for Date parsing.
+  return new Date(ts.replace(" ", "T")).getTime();
+}
+
 export function ScoreChart({
   points,
   threshold,
   width = 720,
   height = 240,
   maxPoints = 200,
+  retrospectiveWindows,
 }: ScoreChartProps) {
   const view = useMemo(() => points.slice(-maxPoints), [points, maxPoints]);
 
@@ -51,8 +59,25 @@ export function ScoreChart({
     if (view.length <= 1) return PAD.left + innerW / 2;
     return PAD.left + (i / (view.length - 1)) * innerW;
   };
-  const yFor = (v: number) =>
-    PAD.top + innerH - (v / yMax) * innerH;
+  const yFor = (v: number) => PAD.top + innerH - (v / yMax) * innerH;
+
+  // Map a wall-clock timestamp to an x coordinate within the current view.
+  const t0 = toMs(view[0].timestamp);
+  const tEnd = toMs(view[view.length - 1].timestamp);
+  const xForTs = (ts: string): number => {
+    if (tEnd === t0) return PAD.left + innerW / 2;
+    const frac = (toMs(ts) - t0) / (tEnd - t0);
+    return PAD.left + frac * innerW;
+  };
+
+  // Clip ground-truth windows to the visible time range.
+  const visibleWindows = (retrospectiveWindows ?? [])
+    .map((w) => {
+      const wx1 = Math.max(PAD.left, xForTs(w.start));
+      const wx2 = Math.min(width - PAD.right, xForTs(w.end));
+      return { ...w, x: wx1, wWidth: wx2 - wx1 };
+    })
+    .filter((w) => w.wWidth > 0.5);
 
   const scorePath = view
     .map(
@@ -70,8 +95,28 @@ export function ScoreChart({
         viewBox={`0 0 ${width} ${height}`}
         width="100%"
         role="img"
-        aria-label={`Anomaly score chart for the last ${view.length} scored observations`}
+        aria-label={`Anomaly score chart for the last ${view.length} scored observations${
+          visibleWindows.length > 0
+            ? `, with ${visibleWindows.length} retrospective attack window${
+                visibleWindows.length === 1 ? "" : "s"
+              } overlaid`
+            : ""
+        }`}
       >
+        {/* Retrospective attack windows — rendered first, behind everything */}
+        {visibleWindows.map((w) => (
+          <rect
+            key={`gt-${w.scenario_id}`}
+            x={w.x}
+            y={PAD.top}
+            width={w.wWidth}
+            height={innerH}
+            fill="#f59e0b"
+            opacity={0.14}
+          />
+        ))}
+
+        {/* Baseline */}
         <line
           x1={PAD.left}
           x2={width - PAD.right}
@@ -81,6 +126,7 @@ export function ScoreChart({
           strokeWidth={1}
         />
 
+        {/* Threshold */}
         <line
           x1={PAD.left}
           x2={width - PAD.right}
@@ -100,6 +146,7 @@ export function ScoreChart({
           thr {threshold.toExponential(3)}
         </text>
 
+        {/* Score line / point */}
         {view.length === 1 ? (
           <circle
             cx={xFor(0)}
@@ -111,6 +158,7 @@ export function ScoreChart({
           <path d={scorePath} fill="none" stroke="#14b8a6" strokeWidth={1.5} />
         )}
 
+        {/* Threshold-crossing points */}
         {view.map((p, i) =>
           p.alert ? (
             <circle
@@ -123,6 +171,7 @@ export function ScoreChart({
           ) : null,
         )}
 
+        {/* X-axis labels */}
         <text x={PAD.left} y={height - 6} fontSize={10} fill="#8ba3ba">
           {shortTs(view[0].timestamp)}
         </text>
@@ -139,6 +188,9 @@ export function ScoreChart({
       <p className="chart-caption">
         Last {view.length} scored observation{view.length === 1 ? "" : "s"} ·
         dashed line: threshold · red dots: exceeded threshold
+        {visibleWindows.length > 0 && (
+          <> · amber bands: known attack windows (retrospective)</>
+        )}
       </p>
     </section>
   );

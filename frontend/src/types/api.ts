@@ -162,3 +162,18 @@ export interface EvaluationSummaryResponse {
   performance: EvaluationPerformance;
   disclaimer: string;
 }
+
+// --- Ground-truth windows (retrospective overlay only) ------------------
+
+export interface GroundTruthWindow {
+  scenario_id: number;
+  start: string;
+  end: string;
+}
+
+export interface GroundTruthResponse {
+  partition: string;
+  source: string;
+  disclaimer: string;
+  windows: GroundTruthWindow[];
+}

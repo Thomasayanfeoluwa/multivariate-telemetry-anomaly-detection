@@ -5,7 +5,11 @@ import { ScoreChart, type ScorePoint } from "../components/ScoreChart";
 import { AlertTable } from "../components/AlertTable";
 import { SensorChart, type SensorObservation } from "../components/SensorChart";
 import { EvaluationSummary } from "../components/EvaluationSummary";
-import type { ModelInfoResponse, ReplayStatus } from "../types/api";
+import type {
+  GroundTruthWindow,
+  ModelInfoResponse,
+  ReplayStatus,
+} from "../types/api";
 
 export interface DashboardProps {
   onExit?: () => void;
@@ -18,6 +22,10 @@ export function Dashboard({ onExit }: DashboardProps) {
   const [featureNames, setFeatureNames] = useState<string[]>([]);
   const [priorBackendState, setPriorBackendState] =
     useState<ReplayStatus | null>(null);
+  const [currentPartition, setCurrentPartition] = useState<string | null>(null);
+  const [groundTruthWindows, setGroundTruthWindows] = useState<
+    GroundTruthWindow[]
+  >([]);
 
   useEffect(() => {
     api
@@ -30,6 +38,13 @@ export function Dashboard({ onExit }: DashboardProps) {
         setThreshold(null);
         setFeatureNames([]);
       });
+  }, []);
+
+  useEffect(() => {
+    api
+      .groundTruthWindows()
+      .then((r) => setGroundTruthWindows(r.windows))
+      .catch(() => setGroundTruthWindows([]));
   }, []);
 
   return (
@@ -49,19 +64,25 @@ export function Dashboard({ onExit }: DashboardProps) {
       </header>
 
       <ReplayControls
-        onInitialStatus={setPriorBackendState}
-        onStart={() => {
-          setHistory([]);
-          setSensorHistory([]);
-          setPriorBackendState(null);
+        onInitialStatus={(s) => {
+          setPriorBackendState(s);
+          setCurrentPartition(s?.partition ?? null);
         }}
-        onReset={() => {
+        onStart={(res) => {
           setHistory([]);
           setSensorHistory([]);
           setPriorBackendState(null);
+          setCurrentPartition(res.status.partition);
+        }}
+        onReset={(res) => {
+          setHistory([]);
+          setSensorHistory([]);
+          setPriorBackendState(null);
+          setCurrentPartition(res.status.partition);
         }}
         onAdvance={(res) => {
           setPriorBackendState(null);
+          setCurrentPartition(res.status.partition);
           if (res.timestamp !== null && res.observation !== null) {
             setSensorHistory((s) => [
               ...s,
@@ -109,7 +130,13 @@ export function Dashboard({ onExit }: DashboardProps) {
 
       {threshold !== null && (
         <>
-          <ScoreChart points={history} threshold={threshold} />
+          <ScoreChart
+            points={history}
+            threshold={threshold}
+            retrospectiveWindows={
+              currentPartition === "attack" ? groundTruthWindows : []
+            }
+          />
           <AlertTable points={history} threshold={threshold} />
           {featureNames.length > 0 && (
             <SensorChart

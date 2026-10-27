@@ -13,6 +13,7 @@
 
 import type {
   EvaluationSummaryResponse,
+  GroundTruthResponse,
   HealthResponse,
   ModelInfoResponse,
   Partition,
@@ -160,7 +161,11 @@ export const api = {
     return request<ReplayResetResponse>("POST", "/replay/reset");
     },
   
-    evaluationSummary(): Promise<EvaluationSummaryResponse> {
+  evaluationSummary(): Promise<EvaluationSummaryResponse> {
     return request<EvaluationSummaryResponse>("GET", "/evaluation-summary");
+  },
+
+  groundTruthWindows(): Promise<GroundTruthResponse> {
+    return request<GroundTruthResponse>("GET", "/ground-truth-windows");
   },
 };

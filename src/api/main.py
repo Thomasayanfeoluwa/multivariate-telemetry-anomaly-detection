@@ -624,6 +624,19 @@ if __name__ == "__main__":
             f"status={r.status_code}",
         )
 
+        # A10: ground-truth windows (retrospective overlay data)
+        r = client.get("/ground-truth-windows")
+        j = r.json()
+        a10 = (
+            r.status_code == 503
+            or (r.status_code == 200 and len(j.get("windows", [])) >= 1)
+        )
+        _check(
+            "A10", a10,
+            f"status={r.status_code} windows={len(j.get('windows', [])) if r.status_code == 200 else 0}",
+        )
+
+
         # A9: evaluation summary reads from NB13 artifacts
         r = client.get("/evaluation-summary")
         j = r.json()
