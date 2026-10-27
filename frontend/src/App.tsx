@@ -47,7 +47,10 @@ function App() {
       />
 
       {threshold !== null && (
-        <ScoreChart points={history} threshold={threshold} />
+        <>
+          <ScoreChart points={history} threshold={threshold} />
+          <AlertTable points={history} threshold={threshold} />
+        </>
       )}
     </main>
   );
