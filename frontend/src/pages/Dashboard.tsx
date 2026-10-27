@@ -43,19 +43,8 @@ export function Dashboard({ onExit }: DashboardProps) {
   useEffect(() => {
     api
       .groundTruthWindows()
-      .then((r) => {
-        console.log(
-          "[gt] loaded",
-          r.windows.length,
-          "windows; first =",
-          r.windows[0],
-        );
-        setGroundTruthWindows(r.windows);
-      })
-      .catch((e) => {
-        console.warn("[gt] fetch failed:", e);
-        setGroundTruthWindows([]);
-      });
+      .then((r) => setGroundTruthWindows(r.windows))
+      .catch(() => setGroundTruthWindows([]));
   }, []);
 
   return (
@@ -141,20 +130,22 @@ export function Dashboard({ onExit }: DashboardProps) {
 
       {threshold !== null && (
         <>
-          <ScoreChart
-            points={history}
-            threshold={threshold}
-            retrospectiveWindows={
-              currentPartition === "attack" ? groundTruthWindows : []
-            }
-          />
-          <AlertTable points={history} threshold={threshold} />
-          {featureNames.length > 0 && (
-            <SensorChart
-              observations={sensorHistory}
-              featureNames={featureNames}
+          <div className="dashboard-charts">
+            <ScoreChart
+              points={history}
+              threshold={threshold}
+              retrospectiveWindows={
+                currentPartition === "attack" ? groundTruthWindows : []
+              }
             />
-          )}
+            {featureNames.length > 0 && (
+              <SensorChart
+                observations={sensorHistory}
+                featureNames={featureNames}
+              />
+            )}
+          </div>
+          <AlertTable points={history} threshold={threshold} />
         </>
       )}
 
