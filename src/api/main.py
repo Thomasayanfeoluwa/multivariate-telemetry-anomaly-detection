@@ -58,11 +58,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.schemas import (
     ALERT_INTERPRETATION,
     EVALUATION_DISCLAIMER,
+    GROUND_TRUTH_DISCLAIMER,
     EvaluationEventLevel,
     EvaluationParity,
     EvaluationPerformance,
     EvaluationPointLevel,
     EvaluationSummaryResponse,
+    GroundTruthResponse,
+    GroundTruthWindow,
     HealthResponse,
     ModelInfoResponse,
     PredictRequest,
@@ -87,6 +90,7 @@ CSV_ROOT = PROJECT_ROOT / "data" / "raw"
 MODEL_ID = "tcn_autoencoder_nb08_frozen"
 NB13_VERDICT_JSON = PROJECT_ROOT / "nb13_artifacts" / "cell9_final_verdict.json"
 NB13_PARITY_JSON  = PROJECT_ROOT / "nb13_artifacts" / "cell3_test_b.json"
+NB09_SCENARIOS_CSV = PROJECT_ROOT / "nb09_artifacts" / "attack_scenarios_matching_dates.csv"
 
 
 # --- App state -----------------------------------------------------------
@@ -303,6 +307,66 @@ def replay_advance() -> ReplayAdvanceResponse:
             observation=result.observation,
             status=_status_from_runner(runner),
         )
+
+@app.get("/ground-truth-windows", response_model=GroundTruthResponse)
+def ground_truth_windows() -> GroundTruthResponse:
+    """Retrospective attack scenario windows, for visual overlay only.
+
+    Labels are NOT used by inference. This endpoint exists solely so the
+    frontend can shade known attack periods on the timeline. It is never
+    called by /predict or /replay/advance, and the runner never sees it.
+    """
+    if not NB09_SCENARIOS_CSV.is_file():
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Ground-truth scenario windows not available. "
+                "Expected nb09_artifacts/attack_scenarios_matching_dates.csv."
+            ),
+        )
+
+    try:
+        df = pd.read_csv(NB09_SCENARIOS_CSV)
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Could not read ground-truth scenario file: {e}",
+        )
+
+    required = {"start_time", "end_time", "attack_id"}
+    missing = required - set(df.columns)
+    if missing:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"Ground-truth scenario file missing columns: "
+                f"{sorted(missing)}."
+            ),
+        )
+
+    windows: list[GroundTruthWindow] = []
+    for _, row in df.iterrows():
+        start = pd.to_datetime(row["start_time"], errors="coerce")
+        end = pd.to_datetime(row["end_time"], errors="coerce")
+        sid = row["attack_id"]
+        if pd.isna(start) or pd.isna(end) or pd.isna(sid) or end <= start:
+            continue
+        windows.append(
+            GroundTruthWindow(
+                scenario_id=int(sid),
+                start=start.strftime("%Y-%m-%d %H:%M:%S"),
+                end=end.strftime("%Y-%m-%d %H:%M:%S"),
+            )
+        )
+
+    windows.sort(key=lambda w: w.start)
+
+    return GroundTruthResponse(
+        partition="attack",
+        source="nb09_artifacts/attack_scenarios_matching_dates.csv",
+        disclaimer=GROUND_TRUTH_DISCLAIMER,
+        windows=windows,
+    )
 
 @app.get("/evaluation-summary", response_model=EvaluationSummaryResponse)
 def evaluation_summary() -> EvaluationSummaryResponse:
