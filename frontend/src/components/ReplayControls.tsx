@@ -177,17 +177,14 @@ export function ReplayControls({
 
       {last && last.warmup_remaining > 0 && (
         <p className="warmup">
-          Warm-up: {last.warmup_remaining} more observations before the first
-          score is produced. No score during warm-up does not indicate normal
-          behaviour.
+          Warm-up: {last.warmup_remaining} more observations until scoring
+          begins.
         </p>
       )}
 
       {last?.alert === true && (
         <p className="alert-note" role="status">
-          Anomaly score exceeded threshold at {last.timestamp}. This is an
-          advisory model output, not a confirmed attack, equipment failure, or
-          safety event.
+          Score exceeded threshold at {last.timestamp}
         </p>
       )}
     </section>

@@ -3,16 +3,14 @@ import type { ScorePoint } from "./ScoreChart";
 export interface AlertTableProps {
   points: ScorePoint[];
   threshold: number;
-  interpretation?: string;
   maxRows?: number;
 }
 
-const DEFAULT_INTERPRETATION =
-  "Alert indicates the model's anomaly score exceeded the frozen threshold. " +
-  "It is not a confirmed attack, equipment failure, or safety event. " +
-  "Human review is required.";
-
 export function AlertTable({
+  points,
+  threshold,
+  maxRows = 50,
+}: AlertTableProps) {
   points,
   threshold,
   interpretation = DEFAULT_INTERPRETATION,

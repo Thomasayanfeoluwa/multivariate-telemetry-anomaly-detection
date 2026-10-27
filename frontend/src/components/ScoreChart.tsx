@@ -35,12 +35,9 @@ export function ScoreChart({
     return (
       <section className="score-chart" aria-label="Anomaly score chart">
         <p className="hint">
-          No scored observations accumulated in this session&apos;s history
-          yet. Advance the replay past warm-up to see scores here. Warm-up is
-          the first 29 observations; no score is produced during warm-up, and
-          the absence of a score does not indicate normal behaviour. If the
-          backend replay is already in progress, its position and last score
-          are shown above.
+        <p className="hint">
+          No scored observations in this session yet. Advance past warm-up to
+          see scores.
         </p>
       </section>
     );
@@ -138,9 +135,8 @@ export function ScoreChart({
         </text>
       </svg>
       <p className="chart-caption">
-        Last {view.length} scored observation{view.length === 1 ? "" : "s"}.
-        Dashed line: frozen threshold. Red dots: scores exceeded the threshold.
-        Alerts are advisory; they are not confirmed attacks or failures.
+        Last {view.length} scored observation{view.length === 1 ? "" : "s"} ·
+        dashed line: threshold · red dots: exceeded threshold
       </p>
     </section>
   );
