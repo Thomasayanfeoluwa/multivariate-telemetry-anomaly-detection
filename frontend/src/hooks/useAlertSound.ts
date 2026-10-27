@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "swat.alertSound.enabled";
-const MIN_INTERVAL_MS = 800;
+const MIN_INTERVAL_MS = 500;
 
 export interface UseAlertSound {
   enabled: boolean;
@@ -49,18 +49,36 @@ export function useAlertSound(): UseAlertSound {
       if (ctx.state === "suspended") {
         void ctx.resume();
       }
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = 880;
-      gain.gain.value = 0.12;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      const t0 = ctx.currentTime;
-      osc.start(t0);
-      gain.gain.setValueAtTime(0.12, t0);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.15);
-      osc.stop(t0 + 0.16);
+
+      // Industrial-style alarm: three rapid square-wave pulses at 880 Hz.
+      // Duration ~420 ms total. Peak gain 0.18 (clearly audible without being
+      // shrill). Rate limit above prevents overlapping alarms if two episodes
+      // start close together.
+      const pulses = 3;
+      const pulseSec = 0.1;
+      const gapSec = 0.06;
+      const peakGain = 0.18;
+      const startAt = ctx.currentTime + 0.01;
+
+      for (let i = 0; i < pulses; i++) {
+        const t0 = startAt + i * (pulseSec + gapSec);
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "square";
+        osc.frequency.value = 880;
+
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.linearRampToValueAtTime(peakGain, t0 + 0.008);
+        gain.gain.setValueAtTime(peakGain, t0 + pulseSec - 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + pulseSec);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(t0);
+        osc.stop(t0 + pulseSec + 0.01);
+      }
     } catch {
       // Silent failure — sound is a nice-to-have
     }

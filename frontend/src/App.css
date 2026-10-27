@@ -647,3 +647,146 @@ body {
   border-radius: 0 4px 4px 0;
   line-height: 1.6;
 }
+
+.sound-toggle {
+  font-size: 1rem;
+  padding: 6px 10px;
+  line-height: 1;
+}
+
+.sound-toggle[aria-pressed="false"] {
+  opacity: 0.55;
+}
+
+.session-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.session-summary h2 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.2px;
+}
+
+.summary-intro {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0 0 8px;
+  line-height: 1.6;
+}
+
+.summary-detail {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  line-height: 1.6;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-stat {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.summary-stat-value {
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.summary-stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.summary-stat-attention {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.summary-stat-attention .summary-stat-value {
+  color: var(--warning);
+}
+
+.summary-spacer-note {
+  font-size: 0.72rem;
+  color: var(--text-subtle);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Backend unreachable / model not ready banner */
+.backend-banner {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.backend-banner.backend-error {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  color: var(--text);
+}
+
+.backend-banner.backend-error strong {
+  color: var(--danger);
+}
+
+.backend-banner-text {
+  flex: 1;
+  min-width: 240px;
+}
+
+.backend-banner button {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 16px;
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.backend-banner button:hover {
+  background: var(--danger);
+  color: var(--bg);
+}
+
+/* Replay complete banner */
+.replay-complete {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--accent);
+  font-size: 0.85rem;
+  margin: 12px 0 0;
+}

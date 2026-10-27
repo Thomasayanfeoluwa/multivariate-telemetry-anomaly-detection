@@ -5,6 +5,7 @@ import { ScoreChart, type ScorePoint } from "../components/ScoreChart";
 import { AlertTable } from "../components/AlertTable";
 import { SensorChart, type SensorObservation } from "../components/SensorChart";
 import { EvaluationSummary } from "../components/EvaluationSummary";
+import { SessionSummary } from "../components/SessionSummary";
 import type {
   GroundTruthWindow,
   ModelInfoResponse,

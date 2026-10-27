@@ -227,6 +227,20 @@ export function ReplayControls({
         >
           Reset
         </button>
+        {onToggleSound && (
+          <button
+            type="button"
+            onClick={onToggleSound}
+            className="sound-toggle"
+            title={soundEnabled ? "Mute alert sound" : "Enable alert sound"}
+            aria-label={
+              soundEnabled ? "Mute alert sound" : "Enable alert sound"
+            }
+            aria-pressed={soundEnabled}
+          >
+            {soundEnabled ? "🔔" : "🔕"}
+          </button>
+        )}
       </div>
 
       {error && (
@@ -282,6 +296,13 @@ export function ReplayControls({
       {last?.alert === true && (
         <p className="alert-note" role="status">
           Score exceeded threshold at {last.timestamp}
+        </p>
+      )}
+
+      {status?.finished && (
+        <p className="replay-complete" role="status">
+          Replay complete — all {status.total_rows.toLocaleString()}{" "}
+          observations replayed on the {status.partition} partition.
         </p>
       )}
     </section>
