@@ -38,11 +38,13 @@ export function ScoreChart({
   const view = useMemo(() => points.slice(-maxPoints), [points, maxPoints]);
 
   if (view.length === 0) {
+    const hasAttackWindows = (retrospectiveWindows ?? []).length > 0;
     return (
       <section className="score-chart" aria-label="Anomaly score chart">
         <p className="hint">
-          No scored observations in this session yet. Advance past warm-up to
-          see scores.
+          {hasAttackWindows
+            ? "Attack replay ready. Press Start, then Play or Advance to populate the chart. Amber bands will mark known attack windows."
+            : "No scored observations in this session yet. Advance past warm-up to see scores."}
         </p>
       </section>
     );
