@@ -2,7 +2,7 @@
 
 An experimental study of anomaly detection on multivariate telemetry from the Secure Water Treatment (SWaT) testbed. The project compares nine detection methods, evaluates false alarms and event detection, and selects a model from recorded evidence.
 
-> **Project status:** Notebooks 01–13 are complete. Notebook 13's replay tests support a **GO to build a historical-monitoring prototype** using the frozen TCN. FastAPI, React, database, and hosting work are next; no live-plant integration or production readiness has been established.
+> **Project status:** Notebooks 01–13 are complete. Notebook 13's replay tests support a **GO to build a historical-monitoring prototype** using the frozen TCN. Frozen-model inference, validation, historical replay, and a FastAPI API skeleton are present; the React screen is still the Vite starter, and database, notification, container, and hosting work remains. No live-plant integration or production readiness has been established.
 
 ## What the project asks
 
@@ -72,7 +72,184 @@ Run notebooks in numeric order, subject to the data and environment limitations 
 13. [13 — Deployment feasibility and historical replay](notebooks/13_deployment_feasibility_and_historical_replay_rest.ipynb)
 
 The root [`PROJECT_SPEC.md`](PROJECT_SPEC.md) defines the research methodology. [`PROJECT_STATE.md`](PROJECT_STATE.md) records the verified project state.
-The repository layout, hosting choices, database, notifications, Docker setup, and test plan are in [`DEPLOYMENT_PLAN.md`](DEPLOYMENT_PLAN.md). Current target: the React/Vite frontend on Vercel, FastAPI and frozen-TCN inference on Modal, and PostgreSQL run/alert history on Neon. Application files are still placeholders; the app is not implemented or deployed.
+The deployment choices, database, notifications, Docker setup, test plan, and deployment gates are in [`DEPLOYMENT_PLAN.md`](DEPLOYMENT_PLAN.md). Current target: the React/Vite frontend on Vercel, FastAPI and frozen-TCN inference on Modal, and PostgreSQL run/alert history on Neon. The API/replay implementation is local and not deployed; the full dashboard and persistence layer are not implemented.
+
+## Repository structure
+
+The tree below focuses on project code, code-bearing notebooks, and the configuration needed to develop and deploy the application. Data, model exports, reports, and saved notebook artifacts are represented by their folder structure only; their individual files are intentionally omitted. Entries marked **planned** describe code to add later, not files that currently exist. Some existing source, test, and configuration files are empty scaffolding; their presence does not imply implementation.
+
+```text
+.
+├── .github
+│   └── workflows
+│       └── ci.yml
+├── backend
+│   ├── Dockerfile
+│   ├── modal_app.py  # planned
+│   └── requirements.txt  # planned
+├── configs
+│   ├── evaluation.yaml
+│   ├── project.yaml
+│   └── robustness.yaml
+├── data
+│   ├── processed
+│   │   ├── audit
+│   │   ├── evaluation
+│   │   ├── features
+│   │   └── robustness
+│   └── raw
+├── database
+│   └── migrations
+│       └── 001_initial_schema.sql
+├── frontend
+│   ├── public
+│   ├── src
+│   │   ├── api
+│   │   │   └── apiClient.ts
+│   │   ├── assets
+│   │   ├── components
+│   │   │   ├── AlertEpisodeList.tsx  # planned
+│   │   │   ├── NotificationHost.tsx
+│   │   │   ├── ReplayControls.tsx  # planned
+│   │   │   ├── RunSummary.tsx  # planned
+│   │   │   └── ScoreTimeline.tsx  # planned
+│   │   ├── hooks
+│   │   │   └── useRunNotifier.ts
+│   │   ├── pages
+│   │   │   └── Dashboard.tsx  # planned
+│   │   ├── test
+│   │   │   └── setup.ts
+│   │   ├── types
+│   │   │   ├── api.ts
+│   │   │   └── notifications.ts
+│   │   ├── App.css
+│   │   ├── App.test.tsx
+│   │   ├── App.tsx
+│   │   ├── index.css
+│   │   └── main.tsx
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── .oxlintrc.json
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── models
+│   ├── isolation_forest
+│   ├── tcn_preliminary
+│   └── usad_preliminary
+├── nb08_artifacts
+│   ├── isolation_forest
+│   ├── tcn_preliminary
+│   ├── tuning
+│   │   ├── isolation_forest
+│   │   ├── lof
+│   │   │   └── monitor_scores
+│   │   ├── lstm_autoencoder
+│   │   │   ├── checkpoints
+│   │   │   └── histories
+│   │   ├── sgd_one_class_svm
+│   │   ├── tcn_autoencoder
+│   │   │   ├── checkpoints
+│   │   │   └── histories
+│   │   └── usad
+│   │       ├── checkpoints
+│   │       └── histories
+│   └── usad_preliminary
+├── nb09_artifacts
+├── nb10_artifacts
+│   ├── batch_scoring
+│   ├── nb10_artifacts
+│   │   ├── batch_scoring
+│   │   ├── pilot
+│   │   ├── plots
+│   │   ├── synthesis
+│   │   └── window_scores
+│   ├── pilot
+│   ├── plots
+│   ├── synthesis
+│   └── window_scores
+├── nb11_artifacts
+│   ├── alignment
+│   └── comparison
+├── nb12_artifacts
+├── nb13_artifacts
+├── notebooks
+│   ├── 01_data_and_process_understanding.ipynb
+│   ├── 02-data-quality-and-temporal-split.ipynb
+│   ├── 03-exploratory-analysis.ipynb
+│   ├── 04-baseline-anomaly-detection.ipynb
+│   ├── 05-lstm-autoencoder.ipynb
+│   ├── 06-traditional-ml-anomaly-detection.ipynb
+│   ├── 07-deep-learning-anomaly-detection.ipynb
+│   ├── 08-hyperparameter-tuning-threshold-calibration.ipynb
+│   ├── 09_error_and_event_analysis.ipynb
+│   ├── 10-robustness-Analysis.ipynb
+│   ├── 11_final_model.ipynb
+│   ├── 12_reproducibility.ipynb
+│   └── 13_deployment_feasibility_and_historical_replay_rest.ipynb
+├── reports
+│   └── figures
+├── src
+│   ├── api
+│   │   ├── detector_service.py
+│   │   ├── main.py
+│   │   └── schemas.py
+│   ├── data
+│   │   ├── ingestion.py
+│   │   ├── preprocessing.py
+│   │   └── validation.py
+│   ├── detection
+│   │   ├── event_detection.py
+│   │   ├── isolation_forest.py
+│   │   ├── rolling_statistical.py
+│   │   └── rule_based.py
+│   ├── evaluation
+│   │   ├── detection_delay.py
+│   │   ├── drift.py
+│   │   ├── event_metrics.py
+│   │   ├── point_metrics.py
+│   │   └── robustness.py
+│   ├── inference
+│   │   ├── __init__.py
+│   │   ├── frozen_bundle.py
+│   │   └── validate.py
+│   ├── monitoring
+│   │   ├── logger.py
+│   │   └── schemas.py
+│   ├── notifications
+│   │   └── hook_notifier.py  # planned
+│   ├── replay
+│   │   ├── __init__.py
+│   │   └── runner.py
+│   ├── storage
+│   │   └── postgres_repository.py  # planned
+│   └── utils
+│       ├── __init__.py
+│       └── paths.py
+├── swat-artifacts
+│   ├── isolation_forest
+│   ├── tcn_preliminary
+│   └── usad_preliminary
+├── tests
+│   ├── conftest.py  # planned
+│   ├── test_api.py
+│   ├── test_data_validation.py
+│   ├── test_detectors.py
+│   ├── test_evaluation.py
+│   ├── test_event_detection.py
+│   └── test_monitoring.py
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+└── requirements.txt
+```
+
+Generated or machine-specific internals are intentionally excluded from the tree: `.git/`, the local `cats/` Python environment, `frontend/node_modules/`, `frontend/dist/`, Python `__pycache__/` directories, and `*.pyc` files. The data and artifact folders shown are local project resources; listing a folder does not mean its contents are tracked by Git or permitted for public hosting.
 
 ## Reproduce the audit
 
@@ -100,7 +277,7 @@ Notebook 13 tested chronological replay using the **frozen Notebook 11 TCN**, it
 
 On the tested Windows CPU, model-only single-sequence inference had a median latency of 2.64 ms, well below the dataset's 1-second sampling interval. This is encouraging for a prototype, but it does not measure FastAPI, network, or Modal latency.
 
-**Conclusion: GO to build and test the portfolio prototype—not to claim production readiness.** The next stage is local FastAPI integration and API/parity tests, followed by Neon-backed run reports and episode-level `HookNotifier` events, a React human-review UI, Docker integration, and staged hosting (**Modal API/model → Neon PostgreSQL → Vercel frontend**). Notebook 13 rejected malformed inputs, but its G2 diagnostic needs a wording fix before that validation is exposed through the API. The real HTTP path, concurrent sessions, hosted performance, data-sharing permissions, and real-plant behavior still require verification.
+**Conclusion: GO to build and test the portfolio prototype—not to claim production readiness.** Frozen inference, validation, replay, and a local FastAPI API skeleton are now present. Next, verify API/parity behavior and request isolation, then add Neon-backed run reports and episode-level `HookNotifier` events, build the React human-review UI, complete Docker integration, and proceed to staged hosting (**Modal API/model → Neon PostgreSQL → Vercel frontend**). The G2 diagnostic fix is in the validator used by `/predict`, but endpoint coverage is still required. Hosted performance, data-sharing permissions, and real-plant behavior remain unverified.
 
 ## Known limitations
 

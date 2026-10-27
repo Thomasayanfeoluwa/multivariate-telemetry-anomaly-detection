@@ -1,6 +1,6 @@
 # SWaT Monitoring Prototype — Deployment Plan
 
-This document describes the next phase after Notebook 13's historical-replay feasibility test. Notebook 13 produced a **GO for building the application prototype**, not for production or live-plant deployment. This document is a plan; the application has not been implemented or deployed.
+This document describes the next phase after Notebook 13's historical-replay feasibility test. Notebook 13 produced a **GO for building the application prototype**, not for production or live-plant deployment. Inference, replay, and a local FastAPI API skeleton now exist, but the complete application is not implemented or deployed.
 
 ### Chosen deployment services
 
@@ -17,22 +17,21 @@ Vercel is selected over Netlify because this is a static Vite/React app and Verc
 - Notebook 13 reproduced frozen scores across 181,031 sequences with max absolute difference `5.215e-08` and zero alert-flag disagreements. Stateful replay on the tested slices also had zero flag disagreements.
 - Event results matched the recorded reference: 28/36 scenarios detected, 8 missed, 73 validation false-alarm periods; median delay was 0 seconds among detected scenarios only, p90 22.8 seconds, maximum 1,489 seconds.
 - On the tested Windows CPU, single-sequence inference median was 2.64 ms against the dataset's 1 Hz cadence. This is model-only timing, not measured FastAPI/Modal response latency.
-- Test G rejected all malformed fixtures and accepted the control input. G2 was rejected safely but its diagnostic misclassified an unexpected feature as an ordering problem; correct this before exposing validation through FastAPI.
-- Notebook 13 justifies proceeding to a local, historical-replay application prototype. HTTP serving, deployed Modal performance, concurrent sessions, and real-plant behavior remain untested.
+- The standalone `src/inference/validate.py` ports Notebook 13's input checks and fixes the G2 diagnostic distinction. `src/api/main.py` calls that validator for `/predict`; HTTP/API parity and automated test coverage still need verification.
+- The local Python implementation now includes CSV partition ingestion, data validation, frozen TCN loading/inference, request schemas, FastAPI routes, and a stateful replay runner. These files are present but do not yet constitute a fully tested or deployed service.
 - The selected model artifacts exist locally under `nb08_artifacts/`: the TCN checkpoint, scaler, training metadata, and `frozen_thresholds.json`. The selected threshold in that file is `0.003906734725460411`. An identical copy of the TCN training folder also exists under `models/tcn_preliminary/`; treat the NB08 artifacts as the selection record and do not package both copies.
-- The `frontend/` directory contains a Vite/React/TypeScript starter and empty notification/test placeholders; it is not yet the SWaT dashboard. Its `App.tsx` is still template content. There is no authentication or browser-side database integration in scope.
-- The current `backend/Dockerfile`, root `docker-compose.yml`, root and frontend `.env.example` files, three files in `configs/`, database migration, CI workflow, and the Python test modules are empty placeholders. Most files under `src/` are also empty; `src/utils/paths.py` is the existing path-resolution utility.
-- `database/migrations/001_initial_schema.sql` exists but is empty. There is no configured PostgreSQL database or deployed database service.
-- The frontend has empty `useRunNotifier.ts`, `NotificationHost.tsx`, notification-type, test setup, and `App.test.tsx` placeholders. Its package manifest and lockfile have been reconciled, and the unused database-client placeholder/dependency has been removed. Frontend test scripts and packages can be added when implementation begins.
+- The frontend contains a typed API client and API response types, but `App.tsx` remains the Vite starter. Notification components, notification types, test setup, and `App.test.tsx` are empty placeholders; there is not yet a SWaT dashboard.
+- The Python test modules, `backend/Dockerfile`, root Compose file, root/frontend `.env.example`, three research config files, database migration, and CI workflow are empty placeholders. Several research detector/evaluation/monitoring modules are also empty placeholders; see the full current tree in the root README.
+- `database/migrations/001_initial_schema.sql` is empty. Neon persistence and `HookNotifier` are not implemented; no hosted database/service is configured.
 - The selected database is Neon, so the browser must use the backend API for all database access; do not connect the browser directly to Neon.
-- Keep `src/` as the one Python implementation tree. `backend/` is reserved for the Modal entrypoint, Dockerfile, and backend runtime dependency list; do not create a second copy of application modules there.
+- Keep `src/` as the one Python implementation tree. `backend/` currently contains only the empty Dockerfile; a Modal entrypoint and backend runtime dependency file remain future work. Do not duplicate application modules under `backend/`.
 - The existing notebook, data, and generated-artifact directories stay at the repository root. Several notebooks and `src/utils/paths.py` resolve these root-relative paths directly, and Notebook 12 records their locations. Do not relocate or duplicate them as part of deployment setup.
 - Raw SWaT data and generated model artifacts must stay outside the source image and must not be committed unless dataset terms and artifact-sharing permissions have been checked.
 
 ## Recommended build order
 
-1. **Carry forward Notebook 13's one validation fix.** Report unexpected/missing feature names separately from a correct feature set in the wrong order. Preserve the tested policy: exact feature order, exact window shape, finite numeric values, and strictly increasing timestamps; reject invalid data rather than silently imputing or reordering it.
-2. **Implement and test the API locally first.** Reuse Notebook 13's frozen inference behavior. Keep per-run sequence buffers isolated, test reset/boundary handling and concurrent requests, and verify API scores against the notebook within a documented tolerance. Do not expose retraining, threshold-tuning, or plant-control endpoints.
+1. **Verify the input-validation fix.** `src/inference/validate.py` now distinguishes missing/unexpected feature names from a correct set in the wrong order, and `/predict` calls it. Add endpoint tests for those diagnostics and preserve the policy of exact feature order/window shape, finite numeric values, and strictly increasing timestamps; reject invalid data rather than silently imputing or reordering it.
+2. **Test and harden the local API.** Reuse Notebook 13's frozen inference behavior. Keep per-run sequence buffers isolated, test reset/boundary handling and concurrent requests, and verify API scores against the notebook within a documented tolerance. Do not expose retraining, threshold-tuning, or plant-control endpoints.
 3. **Measure the HTTP path.** Test serialization, validation, response time, and full replay duration locally. The Notebook 13 2.64 ms figure is model-only on its Windows CPU; it does not establish Modal or end-to-end latency. Use the measurements to decide whether replay can be synchronous or needs a Modal background job.
 4. **Add Neon persistence and notifications.** Store run status, compact reports, alert episodes, and delivery state. Implement `HookNotifier` for run start/completion/failure and new alert episodes, with deduplication and bounded retries. Do not notify once per anomalous sample.
 5. **Build the Vercel-hosted React interface.** Present replay progress, score/telemetry context, event outcomes, alert episodes, and limitations. Alerts remain advisory model outputs, never confirmed attacks or process failures.
@@ -44,128 +43,11 @@ The recommendation is **GO for building and validating a portfolio prototype**. 
 
 ## Repository structure and placement rules
 
-The tree below distinguishes files that exist now from files to add during implementation. Items marked **planned** are not implemented. Empty tracked placeholders are called out so the tree does not imply that the API, database, CI, tests, or dashboard already work.
+The **current code and deployment structure** is maintained in the root [README](README.md). It lists code-bearing files, notebooks, configuration, and planned code locations; data, reports, and saved model/notebook artifacts appear as folders only, without individual filenames. Planned files are explicitly marked. The listing omits Git internals, the local `cats/` environment, installed `frontend/node_modules/`, generated `frontend/dist/`, Python `__pycache__/`, and `*.pyc` files.
 
-```text
-.
-├── .github/workflows/ci.yml                 # existing empty CI placeholder
-├── backend/
-│   ├── modal_app.py                         # planned Modal/FastAPI entrypoint
-│   ├── requirements.txt                     # planned serving dependencies
-│   └── Dockerfile                           # existing empty; local API image definition
-├── configs/
-│   ├── evaluation.yaml                      # existing empty research placeholder
-│   ├── project.yaml                         # existing empty research placeholder
-│   └── robustness.yaml                      # existing empty research placeholder
-├── data/
-│   ├── raw/                                 # attack.csv, normal.csv, merged.csv, workbook
-│   └── processed/                           # audit/evaluation/features/robustness folders
-├── database/
-│   └── migrations/001_initial_schema.sql    # existing empty; Neon schema migration
-├── frontend/                                # existing Vite + React + TypeScript app
-│   ├── .env.example                         # existing empty; public VITE_API_BASE_URL only
-│   ├── .gitignore
-│   ├── README.md
-│   ├── index.html
-│   ├── .oxlintrc.json
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── public/                              # favicon.svg, icons.svg
-│   └── src/
-│       ├── App.tsx                           # existing Vite starter
-│       ├── App.css
-│       ├── App.test.tsx                      # existing empty placeholder
-│       ├── index.css
-│       ├── main.tsx
-│       ├── assets/                           # existing starter images/SVGs
-│       ├── components/
-│       │   ├── NotificationHost.tsx         # existing empty placeholder
-│       │   └── [dashboard components]        # planned
-│       ├── hooks/useRunNotifier.ts           # existing empty placeholder
-│       ├── test/setup.ts                     # existing empty placeholder
-│       ├── types/notifications.ts             # existing empty placeholder
-│       ├── api/apiClient.ts                  # planned
-│       ├── pages/Dashboard.tsx               # planned
-│       └── types/api.ts                      # planned
-│   ├── tsconfig*.json
-│   └── vite.config.ts
-├── models/                                  # existing local research exports; preserve
-├── nb08_artifacts/                           # existing model-selection evidence
-├── nb09_artifacts/                           # existing Notebook 09 outputs
-├── nb10_artifacts/                           # existing Notebook 10 outputs
-├── nb11_artifacts/                           # existing Notebook 11 outputs
-├── nb12_artifacts/                           # existing Notebook 12 audit outputs
-├── nb13_artifacts/                           # existing Notebook 13 feasibility outputs
-├── notebooks/                                # completed notebooks 01–13
-│   ├── 01_data_and_process_understanding.ipynb
-│   ├── 02-data-quality-and-temporal-split.ipynb
-│   ├── 03-exploratory-analysis.ipynb
-│   ├── 04-baseline-anomaly-detection.ipynb
-│   ├── 05-lstm-autoencoder.ipynb
-│   ├── 06-traditional-ml-anomaly-detection.ipynb
-│   ├── 07-deep-learning-anomaly-detection.ipynb
-│   ├── 08-hyperparameter-tuning-threshold-calibration.ipynb
-│   ├── 09_error_and_event_analysis.ipynb
-│   ├── 10-robustness-Analysis.ipynb
-│   ├── 11_final_model.ipynb
-│   ├── 12_reproducibility.ipynb
-│   └── 13_deployment_feasibility_and_historical_replay_rest.ipynb
-├── reports/
-│   ├── NOTEBOOK_13_COMPLIANCE_AND_COMPLETION_REPORT.md
-│   └── figures/frozen-baseline-comparison.png
-├── src/                                      # sole Python implementation tree
-│   ├── api/
-│   │   ├── detector_service.py               # existing empty placeholder
-│   │   ├── main.py                           # existing empty placeholder
-│   │   ├── schemas.py                        # existing empty placeholder
-│   │   └── routes.py                         # planned
-│   ├── data/
-│   │   ├── ingestion.py                      # existing empty placeholder
-│   │   ├── preprocessing.py                  # existing empty placeholder
-│   │   └── validation.py                     # existing empty placeholder
-│   ├── detection/
-│   │   ├── event_detection.py                # existing empty placeholder
-│   │   ├── isolation_forest.py               # existing empty placeholder
-│   │   ├── rolling_statistical.py             # existing empty placeholder
-│   │   └── rule_based.py                     # existing empty placeholder
-│   ├── evaluation/
-│   │   ├── detection_delay.py                # existing empty placeholder
-│   │   ├── drift.py                          # existing empty placeholder
-│   │   ├── event_metrics.py                  # existing empty placeholder
-│   │   ├── point_metrics.py                  # existing empty placeholder
-│   │   └── robustness.py                     # existing empty placeholder
-│   ├── monitoring/
-│   │   ├── logger.py                         # existing empty placeholder
-│   │   └── schemas.py                        # existing empty placeholder
-│   ├── replay/runner.py                      # planned
-│   ├── notifications/hook_notifier.py        # planned; run/episode events
-│   ├── storage/postgres_repository.py        # planned; Neon access only
-│   └── utils/
-│       ├── __init__.py
-│       └── paths.py                          # existing path-resolution utility
-├── swat-artifacts/                            # existing legacy output path; preserve
-├── tests/
-│   ├── test_api.py                            # existing empty placeholder
-│   ├── test_data_validation.py                # existing empty placeholder
-│   ├── test_detectors.py                      # existing empty placeholder
-│   ├── test_evaluation.py                     # existing empty placeholder
-│   ├── test_event_detection.py                # existing empty placeholder
-│   └── test_monitoring.py                     # existing empty placeholder
-├── .dockerignore                             # build-context exclusions
-├── .env.example                              # existing empty local backend template
-├── DEPLOYMENT_PLAN.md
-├── PROJECT_SPEC.md
-├── PROJECT_STATE.md
-├── README.md
-├── docker-compose.yml                        # existing empty local integration placeholder
-└── requirements.txt                          # research/notebook dependencies
-```
+The current implementation lives under `src/`; the `backend/` directory currently contains only the empty Dockerfile. Keep frontend code under `frontend/`, SQL migrations under `database/migrations/`, research configuration under `configs/`, and tests under `tests/`. Keep the existing root locations for data, notebook files, model exports, and `nb08_artifacts/` through `nb13_artifacts/`: notebooks and the path-resolution helper depend on those locations. Do not move or duplicate them for deployment.
 
-The local `cats/` virtual environment, installed `frontend/node_modules/`, frontend build output, raw CSV/XLSX data, and generated model/run artifacts are not source-code directories. They remain in place locally where they already exist; Git and Docker ignore rules keep them out of commits and images. `models/` and `swat-artifacts/` are overlapping research/export trees; the `nb08_artifacts/`–`nb13_artifacts/` directories contain notebook evidence and outputs. Preserve these root paths rather than consolidating them based on apparent duplicates. The deployment bundle should contain only the verified files needed for inference, supplied through the approved Modal artifact mechanism.
-
-Keep research dependencies in the root `requirements.txt` and add a separate `backend/requirements.txt` only when the serving dependencies are chosen. Do not duplicate Python application modules under `backend/`; `backend/modal_app.py` is a **planned** Modal adapter that will import the implementation from `src/`. Keep frontend-only code under `frontend/`, Neon migrations under `database/migrations/`, synthetic Python tests under `tests/`, and project-wide evidence/reporting under `reports/` and the existing notebook artifact directories.
-
-Notebook artifact directories remain at the root because notebook code and saved audit records refer to those exact paths. Empty, untracked folders that contained no files (`docs/`, root `nb09_analysis/`, `notebooks/nb09_analysis/`, `reports/tables/`, and `frontend/src/lib/`) were removed; they are not needed by the current code or plan. Do not create duplicate copies of documentation or research artifacts to make the tree look more uniform.
+Files that do not yet exist—such as the Modal entrypoint, backend runtime requirements, persistence repository, notification service, and dashboard components—belong in the locations described in the implementation sections below. They are future work and are intentionally absent from the current-tree listing.
 
 ## Backend responsibilities
 
@@ -178,13 +60,7 @@ The backend is a read-only inference and historical-replay service:
 - Keep event labels and evaluation metrics in offline replay evaluation, separate from inference responses.
 - Begin with a simple replay request/response API. Add background jobs only if Notebook 13 shows replay duration exceeds practical request limits.
 
-Small initial API surface:
-
-- `GET /api/v1/health` — service readiness and model-loaded status; no sensitive paths.
-- `GET /api/v1/model` — model name and public configuration summary (window, feature count, threshold version), not filesystem paths.
-- `POST /api/v1/replays` — create a replay for an allowlisted dataset and time range; return a run ID.
-- `GET /api/v1/replays/{run_id}` — retrieve status and the saved report.
-- `GET /api/v1/replays/{run_id}/alerts` — retrieve alert episodes for the dashboard.
+The current local API skeleton exposes `GET /health`, `GET /model-info`, `POST /predict`, `POST /replay/start`, `GET /replay/status`, `POST /replay/advance`, and `POST /replay/reset`. These endpoints use an in-process replay runner and local CSV partitions; there is not yet run-history persistence, a multi-user run ID, or alert-episode API. Treat versioned routes and persistent replay records as future API design, not existing behavior.
 
 Use Pydantic request/response schemas. Configure CORS for the Vercel production domain and chosen preview domain only; CORS is not authentication. Never accept arbitrary filesystem paths or raw-data uploads from a public browser. Apply replay size, duration, and concurrency limits. Do not expose a live process-control endpoint.
 
@@ -200,7 +76,7 @@ Use React with TypeScript and a small set of components:
 
 Use one API client module and typed response definitions. The browser calls FastAPI and never connects directly to Neon. Keep `VITE_API_BASE_URL` public; do not put database URLs, webhook URLs, or Modal secrets in Vite variables. During an active replay, poll the run status at a modest interval for in-app progress/notifications; the backend `HookNotifier` sends outbound webhook alerts. Do not add global state management until ordinary component state proves insufficient.
 
-The current Vite starter is scaffolding, not a designed monitoring UI. Keep the existing Vite/React/TypeScript setup; later replace the template screen, add the dashboard components and API client, and configure component tests. There is no need to create a separate frontend backend or connect the browser to the database.
+The current Vite starter is scaffolding, not a designed monitoring UI. A typed API client and API types exist; later replace the template screen, add the dashboard components, and configure component tests. There is no need to create a separate frontend backend or connect the browser to the database.
 
 ## PostgreSQL decision: Neon
 
