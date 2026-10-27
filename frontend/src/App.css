@@ -571,3 +571,44 @@ body {
   background: var(--warning);
   color: var(--bg);
 }
+
+.metric-help {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.metric-help summary {
+  cursor: pointer;
+  color: var(--text-subtle);
+  font-size: 0.75rem;
+  user-select: none;
+  list-style: none;
+}
+
+.metric-help summary::-webkit-details-marker {
+  display: none;
+}
+
+.metric-help summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.metric-help[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.metric-help summary:hover {
+  color: var(--accent);
+}
+
+.metric-help p {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-left: 2px solid var(--retro-border);
+  background: var(--surface-elevated);
+  border-radius: 0 4px 4px 0;
+  line-height: 1.6;
+}

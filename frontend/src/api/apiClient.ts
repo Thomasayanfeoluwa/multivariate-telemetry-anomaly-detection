@@ -82,6 +82,9 @@ async function request<T>(
   body?: unknown,
 ): Promise<T> {
   const url = `${getBaseUrl()}${path}`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
   let response: Response;
   try {
     response = await fetch(url, {
@@ -91,10 +94,16 @@ async function request<T>(
           ? { "Content-Type": "application/json", Accept: "application/json" }
           : { Accept: "application/json" },
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
     });
   } catch (e) {
+    if (e instanceof Error && e.name === "AbortError") {
+      throw new ApiError(0, `Request timed out after 10s: ${url}`, url);
+    }
     const reason = e instanceof Error ? e.message : String(e);
     throw new ApiError(0, `Network error contacting ${url}: ${reason}`, url);
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   let parsed: unknown = null;

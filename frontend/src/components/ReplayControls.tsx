@@ -63,6 +63,11 @@ export function ReplayControls({
         if (!cancelled) {
           setStatus(s);
           setActive(true);
+          // Sync dropdown to backend's actual partition so a page refresh
+          // does not leave the select showing a stale value.
+          if (s.partition) {
+            setPartition(s.partition as Partition);
+          }
           onInitialStatus?.(s);
         }
       },

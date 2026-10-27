@@ -115,11 +115,14 @@ export function EvaluationSummary() {
               {data.event_level.period_gap_limit_s} s gaps)
             </dd>
           </dl>
-          <p className="interpretation-note">
-            Median delay of 0 s indicates alerts fired at the first scored
-            observation of detected scenarios, not before. FP periods count
-            clustered alerts, not individual flagged observations.
-          </p>
+          <details className="metric-help">
+            <summary>How to read these metrics</summary>
+            <p>
+              Median 0 s = first alert lands at scenario onset. p90 22.8 s =
+              90% of detected scenarios alerted within 22.8 s. FP periods
+              group consecutive threshold crossings into clusters.
+            </p>
+          </details>
         </div>
 
         <div className="eval-block">
