@@ -12,6 +12,7 @@
  */
 
 import type {
+  EvaluationSummaryResponse,
   HealthResponse,
   ModelInfoResponse,
   Partition,
@@ -157,5 +158,9 @@ export const api = {
 
   replayReset(): Promise<ReplayResetResponse> {
     return request<ReplayResetResponse>("POST", "/replay/reset");
+    },
+  
+    evaluationSummary(): Promise<EvaluationSummaryResponse> {
+    return request<EvaluationSummaryResponse>("GET", "/evaluation-summary");
   },
 };

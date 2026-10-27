@@ -19,6 +19,8 @@ export interface ReplayControlsProps {
   onStart?: (res: ReplayResetResponse) => void;
   onAdvance?: (res: ReplayAdvanceResponse) => void;
   onReset?: (res: ReplayResetResponse) => void;
+  /** Called once on mount with the current backend status (or null if no active replay). */
+  onInitialStatus?: (status: ReplayStatus | null) => void;
 }
 
 export function ReplayControls({

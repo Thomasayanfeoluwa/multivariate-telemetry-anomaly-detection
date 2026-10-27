@@ -232,6 +232,66 @@ class ReplayResetResponse(BaseModel):
     status: ReplayStatus
 
 
+# --- Evaluation summary --------------------------------------------------
+
+class EvaluationParity(BaseModel):
+    n_sequences: int = Field(
+        description="Total sequences across the three partitions used for parity."
+    )
+    max_abs_diff_score: float
+    flag_disagreements: int
+
+
+class EvaluationPointLevel(BaseModel):
+    validation_fp_count: int
+    attack_tp_count: int
+
+
+class EvaluationEventLevel(BaseModel):
+    scenarios_total: int
+    scenarios_detected: int
+    scenarios_missed: int
+    median_delay_s: float
+    p90_delay_s: float
+    max_delay_s: float
+    validation_fp_count: int
+    validation_fp_periods: int
+    period_gap_limit_s: float
+
+
+class EvaluationPerformance(BaseModel):
+    batch1_median_ms: float
+    batch1_utilization_pct_1hz: float
+    batch1_throughput_seqs_per_s: float
+    batch512_median_ms: float
+    batch512_throughput_seqs_per_s: float
+
+
+class EvaluationSummaryResponse(BaseModel):
+    source_artifact: str = Field(
+        description="Repo-relative path of the JSON artifact these values were read from."
+    )
+    decision: str = Field(description="Notebook 13's final decision, e.g. 'GO'.")
+    method: str
+    window_size: int
+    threshold: float
+    parity: EvaluationParity
+    point_level: EvaluationPointLevel
+    event_level: EvaluationEventLevel
+    performance: EvaluationPerformance
+    disclaimer: str = Field(
+        description="Explicit separation of retrospective evaluation from live replay."
+    )
+
+
+EVALUATION_DISCLAIMER = (
+    "Retrospective benchmark evaluation, not a live-inference result. These "
+    "numbers come from Notebook 13's offline run, which used ground-truth "
+    "labels only for scoring. Ground-truth labels are NOT sent to /predict "
+    "or /replay/advance and do NOT influence any alert shown during replay."
+)
+
+
 # --- Standalone smoke test -----------------------------------------------
 #
 # Run from the project root:

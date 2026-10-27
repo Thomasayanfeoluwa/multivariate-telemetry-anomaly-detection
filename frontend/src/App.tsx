@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { api } from "./api/apiClient";
 import { ReplayControls } from "./components/ReplayControls";
 import { ScoreChart, type ScorePoint } from "./components/ScoreChart";
+import { AlertTable } from "./components/AlertTable";
+import { EvaluationSummary } from "./components/EvaluationSummary";
 import "./App.css";
 
 function App() {
@@ -52,6 +54,8 @@ function App() {
           <AlertTable points={history} threshold={threshold} />
         </>
       )}
+
+      <EvaluationSummary />
     </main>
   );
 }

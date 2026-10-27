@@ -33,7 +33,7 @@ export function AlertTable({
           No threshold-exceeding observations in this replay so far. This is
           not evidence of normal operation — the frozen threshold produces
           roughly 1% alerts on the calibration partition and ~3.2% on the
-          validation partition (NB13 Cell 6).
+          validation partition.
         </p>
       ) : (
         <table>

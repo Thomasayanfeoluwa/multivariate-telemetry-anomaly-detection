@@ -115,3 +115,49 @@ export interface ReplayResetResponse {
   reset: boolean;
   status: ReplayStatus;
 }
+
+// --- Evaluation summary (retrospective benchmark, NOT live replay) ------
+
+export interface EvaluationParity {
+  n_sequences: number;
+  max_abs_diff_score: number;
+  flag_disagreements: number;
+}
+
+export interface EvaluationPointLevel {
+  validation_fp_count: number;
+  attack_tp_count: number;
+}
+
+export interface EvaluationEventLevel {
+  scenarios_total: number;
+  scenarios_detected: number;
+  scenarios_missed: number;
+  median_delay_s: number;
+  p90_delay_s: number;
+  max_delay_s: number;
+  validation_fp_count: number;
+  validation_fp_periods: number;
+  period_gap_limit_s: number;
+}
+
+export interface EvaluationPerformance {
+  batch1_median_ms: number;
+  batch1_utilization_pct_1hz: number;
+  batch1_throughput_seqs_per_s: number;
+  batch512_median_ms: number;
+  batch512_throughput_seqs_per_s: number;
+}
+
+export interface EvaluationSummaryResponse {
+  source_artifact: string;
+  decision: string;
+  method: string;
+  window_size: number;
+  threshold: number;
+  parity: EvaluationParity;
+  point_level: EvaluationPointLevel;
+  event_level: EvaluationEventLevel;
+  performance: EvaluationPerformance;
+  disclaimer: string;
+}

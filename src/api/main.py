@@ -36,7 +36,7 @@ Run:
 """
 
 from __future__ import annotations
-
+import json
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -56,6 +56,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.schemas import (
     ALERT_INTERPRETATION,
+    EVALUATION_DISCLAIMER,
+    EvaluationEventLevel,
+    EvaluationParity,
+    EvaluationPerformance,
+    EvaluationPointLevel,
+    EvaluationSummaryResponse,
     HealthResponse,
     ModelInfoResponse,
     PredictRequest,
@@ -78,6 +84,8 @@ from src.replay.runner import ReplayError, ReplayRunner
 
 CSV_ROOT = PROJECT_ROOT / "data" / "raw"
 MODEL_ID = "tcn_autoencoder_nb08_frozen"
+NB13_VERDICT_JSON = PROJECT_ROOT / "nb13_artifacts" / "cell9_final_verdict.json"
+NB13_PARITY_JSON  = PROJECT_ROOT / "nb13_artifacts" / "cell3_test_b.json"
 
 
 # --- App state -----------------------------------------------------------
@@ -294,6 +302,89 @@ def replay_advance() -> ReplayAdvanceResponse:
             status=_status_from_runner(runner),
         )
 
+@app.get("/evaluation-summary", response_model=EvaluationSummaryResponse)
+def evaluation_summary() -> EvaluationSummaryResponse:
+    """Retrospective benchmark numbers, read from verified NB13 artifacts."""
+    bundle = _require_bundle()
+
+    if not NB13_VERDICT_JSON.is_file() or not NB13_PARITY_JSON.is_file():
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Evaluation artifacts not available. "
+                "Expected nb13_artifacts/cell9_final_verdict.json and "
+                "nb13_artifacts/cell3_test_b.json."
+            ),
+        )
+
+    try:
+        verdict = json.loads(NB13_VERDICT_JSON.read_text(encoding="utf-8"))
+        parity  = json.loads(NB13_PARITY_JSON.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Could not read evaluation artifacts: {e}",
+        )
+
+    pins = verdict.get("numeric_pins", {})
+    partitions = parity.get("partitions", {})
+    n_sequences = int(sum(
+        int(p.get("n_sequences", 0)) for p in partitions.values()
+    ))
+
+    try:
+        return EvaluationSummaryResponse(
+            source_artifact="nb13_artifacts/cell9_final_verdict.json "
+                          "+ nb13_artifacts/cell3_test_b.json",
+            decision=str(verdict["decision"]),
+            method="TCN Autoencoder",
+            window_size=bundle.window_size,
+            threshold=bundle.threshold,
+            parity=EvaluationParity(
+                n_sequences=n_sequences,
+                max_abs_diff_score=float(pins["test_b_max_abs_diff_overall"]),
+                flag_disagreements=int(pins["test_b_flag_disagreements_total"]),
+            ),
+            point_level=EvaluationPointLevel(
+                validation_fp_count=int(pins["test_d_validation_fp"]),
+                attack_tp_count=int(pins["test_d_attack_tp"]),
+            ),
+            event_level=EvaluationEventLevel(
+                scenarios_total=36,
+                scenarios_detected=int(pins["test_e_scenarios_detected"]),
+                scenarios_missed=int(pins["test_e_scenarios_missed"]),
+                median_delay_s=float(pins["test_e_median_delay_s"]),
+                p90_delay_s=float(pins["test_e_p90_delay_s"]),
+                max_delay_s=float(pins["test_e_max_delay_s"]),
+                validation_fp_count=int(pins["test_e_validation_fp_count"]),
+                validation_fp_periods=int(pins["test_e_validation_fp_periods"]),
+                period_gap_limit_s=1.5,
+            ),
+            performance=EvaluationPerformance(
+                batch1_median_ms=float(pins["test_f_batch1_median_ms"]),
+                batch1_utilization_pct_1hz=float(
+                    pins["test_f_batch1_utilization_pct_1hz"]
+                ),
+                batch1_throughput_seqs_per_s=float(
+                    pins["test_f_batch1_throughput_seqs_per_s"]
+                ),
+                batch512_median_ms=float(pins["test_f_batch512_median_ms"]),
+                batch512_throughput_seqs_per_s=float(
+                    pins["test_f_batch512_throughput_seqs_per_s"]
+                ),
+            ),
+            disclaimer=EVALUATION_DISCLAIMER,
+        )
+    except KeyError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"NB13 artifact missing expected field {e!r}. "
+                "Re-run the notebook's final report cell to regenerate "
+                "cell9_final_verdict.json before serving /evaluation-summary."
+            ),
+        )
+
 
 @app.post("/replay/reset", response_model=ReplayResetResponse)
 def replay_reset() -> ReplayResetResponse:
@@ -465,6 +556,28 @@ if __name__ == "__main__":
         _check(
             "A8", r.status_code == 422,
             f"status={r.status_code}",
+        )
+
+        # A9: evaluation summary reads from NB13 artifacts
+        r = client.get("/evaluation-summary")
+        j = r.json()
+        a9 = (
+            r.status_code == 200
+            and j["decision"] == "GO"
+            and j["parity"]["max_abs_diff_score"] <= 5.22e-8
+            and j["parity"]["flag_disagreements"] == 0
+            and j["point_level"]["validation_fp_count"] == 2528
+            and j["point_level"]["attack_tp_count"] == 43345
+            and j["event_level"]["scenarios_detected"] == 28
+            and j["event_level"]["scenarios_missed"] == 8
+            and j["event_level"]["validation_fp_periods"] == 73
+            and j["threshold"] == 0.003906734725460411
+        )
+        _check(
+            "A9", a9,
+            f"decision={j.get('decision')} "
+            f"scenarios={j.get('event_level', {}).get('scenarios_detected')}"
+            f"/36 fp_periods={j.get('event_level', {}).get('validation_fp_periods')}",
         )
 
     print("\n" + "=" * 72)
