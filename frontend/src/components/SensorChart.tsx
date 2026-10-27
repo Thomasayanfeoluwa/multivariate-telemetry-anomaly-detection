@@ -47,10 +47,8 @@ export function SensorChart({
       <section className="sensor-chart" aria-label="Sensor measurement chart">
         <h2>Sensor measurements</h2>
         <p className="hint">
-          No observations accumulated in this session&apos;s history yet.
-          Advance the replay to accumulate sensor measurements here. Values
-          are shown exactly as recorded in the CSV, without invented units or
-          operating limits.
+          No observations in this session yet. Advance the replay to see
+          measurements.
         </p>
       </section>
     );
@@ -80,7 +78,9 @@ export function SensorChart({
   values.forEach((v, i) => {
     const y = yFor(v);
     if (y === null) return;
-    pathParts.push(`${pathParts.length === 0 ? "M" : "L"} ${xFor(i).toFixed(2)} ${y.toFixed(2)}`);
+    pathParts.push(
+      `${pathParts.length === 0 ? "M" : "L"} ${xFor(i).toFixed(2)} ${y.toFixed(2)}`,
+    );
   });
   const path = pathParts.join(" ");
 
@@ -114,7 +114,7 @@ export function SensorChart({
           x2={width - PAD.right}
           y1={PAD.top + innerH}
           y2={PAD.top + innerH}
-          stroke="#888"
+          stroke="#3b5875"
           strokeWidth={1}
         />
         {view.length === 1 && yFor(values[0]) !== null ? (
@@ -122,35 +122,39 @@ export function SensorChart({
             cx={xFor(0)}
             cy={yFor(values[0]) as number}
             r={3}
-            fill="#27ae60"
+            fill="#14b8a6"
           />
         ) : pathParts.length > 0 ? (
-          <path d={path} fill="none" stroke="#27ae60" strokeWidth={1.5} />
+          <path d={path} fill="none" stroke="#14b8a6" strokeWidth={1.5} />
         ) : null}
 
-        {/* y-axis labels */}
-        <text x={PAD.left - 6} y={PAD.top + 10} fontSize={10} fill="#666" textAnchor="end">
+        <text
+          x={PAD.left - 6}
+          y={PAD.top + 10}
+          fontSize={10}
+          fill="#8ba3ba"
+          textAnchor="end"
+        >
           {yMax.toFixed(3)}
         </text>
         <text
           x={PAD.left - 6}
           y={PAD.top + innerH - 4}
           fontSize={10}
-          fill="#666"
+          fill="#8ba3ba"
           textAnchor="end"
         >
           {yMin.toFixed(3)}
         </text>
 
-        {/* x-axis labels */}
-        <text x={PAD.left} y={height - 6} fontSize={10} fill="#666">
+        <text x={PAD.left} y={height - 6} fontSize={10} fill="#8ba3ba">
           {shortTs(view[0].timestamp)}
         </text>
         <text
           x={width - PAD.right}
           y={height - 6}
           fontSize={10}
-          fill="#666"
+          fill="#8ba3ba"
           textAnchor="end"
         >
           {shortTs(view[view.length - 1].timestamp)}
@@ -158,8 +162,7 @@ export function SensorChart({
       </svg>
       <p className="chart-caption">
         <strong>{feature}</strong> — last {view.length} observation
-        {view.length === 1 ? "" : "s"}. Values shown as recorded; no units,
-        operating limits, or safety ranges are assumed.
+        {view.length === 1 ? "" : "s"}
       </p>
     </section>
   );

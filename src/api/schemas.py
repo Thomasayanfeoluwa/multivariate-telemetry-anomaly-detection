@@ -299,6 +299,30 @@ EVALUATION_DISCLAIMER = (
 )
 
 
+# --- Ground-truth windows (retrospective overlay only) -------------------
+
+class GroundTruthWindow(BaseModel):
+    scenario_id: int
+    start: str = Field(description="Format: YYYY-MM-DD HH:MM:SS")
+    end: str = Field(description="Format: YYYY-MM-DD HH:MM:SS")
+
+
+class GroundTruthResponse(BaseModel):
+    partition: str = Field(description="Which replay partition these windows belong to.")
+    source: str = Field(description="Repo-relative artifact path.")
+    disclaimer: str = Field(
+        description="Explicit separation of labels from inference."
+    )
+    windows: list[GroundTruthWindow]
+
+
+GROUND_TRUTH_DISCLAIMER = (
+    "Retrospective labels from NB09's offline scenario analysis. These "
+    "windows are used ONLY for visual shading on the attack partition and "
+    "are never sent to /predict or /replay/advance."
+)
+
+
 # --- Standalone smoke test -----------------------------------------------
 #
 # Run from the project root:

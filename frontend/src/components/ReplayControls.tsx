@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "../api/apiClient";
 import type {
   Partition,
@@ -8,6 +8,13 @@ import type {
 } from "../types/api";
 
 const PARTITIONS: Partition[] = ["threshold", "validation", "attack"];
+
+const SPEEDS = [
+  { label: "1×", value: 1 },
+  { label: "5×", value: 5 },
+  { label: "20×", value: 20 },
+  { label: "50×", value: 50 },
+] as const;
 
 function formatError(e: unknown): string {
   if (e instanceof ApiError) return `${e.status}: ${e.detail}`;
@@ -19,7 +26,6 @@ export interface ReplayControlsProps {
   onStart?: (res: ReplayResetResponse) => void;
   onAdvance?: (res: ReplayAdvanceResponse) => void;
   onReset?: (res: ReplayResetResponse) => void;
-  /** Called once on mount with the current backend status (or null if no active replay). */
   onInitialStatus?: (status: ReplayStatus | null) => void;
 }
 
@@ -35,7 +41,21 @@ export function ReplayControls({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState<number>(10);
 
+  const playRef = useRef(false);
+  const onAdvanceRef = useRef(onAdvance);
+
+  useEffect(() => {
+    playRef.current = playing;
+  }, [playing]);
+
+  useEffect(() => {
+    onAdvanceRef.current = onAdvance;
+  }, [onAdvance]);
+
+  // Mount probe: resume from any existing backend replay.
   useEffect(() => {
     let cancelled = false;
     api.replayStatus().then(
@@ -59,7 +79,44 @@ export function ReplayControls({
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-play loop.
+  useEffect(() => {
+    if (!playing) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const tick = async () => {
+      if (cancelled || !playRef.current) return;
+      try {
+        const res = await api.replayAdvance();
+        if (cancelled) return;
+        setStatus(res.status);
+        setLast(res);
+        onAdvanceRef.current?.(res);
+        if (res.finished) {
+          setPlaying(false);
+          return;
+        }
+      } catch (e) {
+        setError(formatError(e));
+        setPlaying(false);
+        return;
+      }
+      if (!cancelled) {
+        timer = setTimeout(tick, Math.max(1, 1000 / speed));
+      }
+    };
+
+    tick();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [playing, speed]);
 
   const withBusy = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -75,6 +132,7 @@ export function ReplayControls({
 
   const handleStart = () =>
     withBusy(async () => {
+      setPlaying(false);
       const res = await api.replayStart(partition);
       setStatus(res.status);
       setLast(null);
@@ -92,13 +150,17 @@ export function ReplayControls({
 
   const handleReset = () =>
     withBusy(async () => {
+      setPlaying(false);
       const res = await api.replayReset();
       setStatus(res.status);
       setLast(null);
       onReset?.(res);
     });
 
+  const handlePlayToggle = () => setPlaying((p) => !p);
+
   const finished = status?.finished ?? false;
+  const canPlay = active && !finished && !busy;
 
   return (
     <section className="replay-controls" aria-label="Historical replay controls">
@@ -108,7 +170,7 @@ export function ReplayControls({
           <select
             value={partition}
             onChange={(e) => setPartition(e.target.value as Partition)}
-            disabled={busy}
+            disabled={busy || playing}
           >
             {PARTITIONS.map((p) => (
               <option key={p} value={p}>
@@ -117,17 +179,43 @@ export function ReplayControls({
             ))}
           </select>
         </label>
-        <button type="button" onClick={handleStart} disabled={busy}>
+        <button type="button" onClick={handleStart} disabled={busy || playing}>
           Start
         </button>
         <button
           type="button"
           onClick={handleAdvance}
-          disabled={busy || !active || finished}
+          disabled={busy || !active || finished || playing}
         >
           Advance
         </button>
-        <button type="button" onClick={handleReset} disabled={busy || !active}>
+        <button
+          type="button"
+          onClick={handlePlayToggle}
+          disabled={!canPlay}
+          className={playing ? "playing" : undefined}
+        >
+          {playing ? "Pause" : "Play"}
+        </button>
+        <label>
+          Speed{" "}
+          <select
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            disabled={busy}
+          >
+            {SPEEDS.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={handleReset}
+          disabled={busy || !active}
+        >
           Reset
         </button>
       </div>
@@ -156,7 +244,7 @@ export function ReplayControls({
           <dd>
             {status.window_filled
               ? "yes"
-              : `no (${status.warmup_remaining} observations to go)`}
+              : `no (${status.warmup_remaining} to go)`}
           </dd>
           <dt>last timestamp</dt>
           <dd>{status.last_timestamp ?? "—"}</dd>

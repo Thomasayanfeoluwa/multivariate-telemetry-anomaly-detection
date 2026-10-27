@@ -62,17 +62,13 @@ export function EvaluationSummary() {
       aria-label="Retrospective benchmark evaluation"
     >
       <header className="retro-header">
-        <h2>Retrospective benchmark evaluation</h2>
-        <p className="badge">Not live inference — offline evaluation</p>
+        <h2>Retrospective benchmark</h2>
+        <p className="badge">Offline evaluation</p>
       </header>
 
-      <p className="disclaimer">{data.disclaimer}</p>
-
       <p className="meta">
-        <strong>Decision:</strong> {data.decision} &nbsp;|&nbsp;
-        <strong>Method:</strong> {data.method} &nbsp;|&nbsp;
-        <strong>Window:</strong> {data.window_size} &nbsp;|&nbsp;
-        <strong>Threshold:</strong> {data.threshold.toExponential(4)}
+        <strong>{data.method}</strong> · Window {data.window_size} · Threshold{" "}
+        {data.threshold.toExponential(4)}
       </p>
 
       <div className="eval-grid">
@@ -120,11 +116,9 @@ export function EvaluationSummary() {
             </dd>
           </dl>
           <p className="interpretation-note">
-            A median delay of ~0 s means the first alert coincides with the
-            first scored observation of a detected scenario. It does{" "}
-            <strong>not</strong> mean the model predicts attacks before they
-            occur. Validation FP periods count <em>clusters</em> of
-            consecutive alerts, not individual flagged observations.
+            Median delay of 0 s indicates alerts fired at the first scored
+            observation of detected scenarios, not before. FP periods count
+            clustered alerts, not individual flagged observations.
           </p>
         </div>
 
@@ -148,12 +142,7 @@ export function EvaluationSummary() {
           </dl>
         </div>
       </div>
-
-      <p className="source-note">
-        Source artifacts: <code>{data.source_artifact}</code>. These numbers
-        were computed by Notebook 13's offline evaluation; they are independent
-        of any live replay in progress above.
-      </p>
+      
     </section>
   );
 }
