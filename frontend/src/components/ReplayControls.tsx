@@ -27,6 +27,8 @@ export interface ReplayControlsProps {
   onAdvance?: (res: ReplayAdvanceResponse) => void;
   onReset?: (res: ReplayResetResponse) => void;
   onInitialStatus?: (status: ReplayStatus | null) => void;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }
 
 export function ReplayControls({
@@ -34,6 +36,8 @@ export function ReplayControls({
   onAdvance,
   onReset,
   onInitialStatus,
+  soundEnabled,
+  onToggleSound,
 }: ReplayControlsProps = {}) {
   const [partition, setPartition] = useState<Partition>("threshold");
   const [status, setStatus] = useState<ReplayStatus | null>(null);
