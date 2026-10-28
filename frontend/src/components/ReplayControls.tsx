@@ -40,6 +40,26 @@ function computeTickParams(speed: number): { n: number; intervalMs: number } {
   return { n: Math.max(1, Math.ceil(speed / 5)), intervalMs: 200 };
 }
 
+// Batch advance with one retry on timeout. Render's free tier cold-starts
+// after 15 min idle, and the first request after idle can take 30–60 s
+// even though the API itself is instant once warm. Retrying once covers
+// that case without surfacing a spurious error to the user.
+async function advanceBatchWithRetry(n: number) {
+  try {
+    return await api.replayAdvanceBatch(n);
+  } catch (e) {
+    if (
+      e instanceof ApiError &&
+      e.status === 0 &&
+      e.detail.includes("timed out")
+    ) {
+      // One retry — the service is probably just waking up.
+      return await api.replayAdvanceBatch(n);
+    }
+    throw e;
+  }
+}
+
 export interface ReplayControlsProps {
   onStart?: (res: ReplayResetResponse) => void;
   onAdvance?: (res: ReplayAdvanceResponse) => void;
@@ -120,7 +140,7 @@ export function ReplayControls({
     const tick = async () => {
       if (cancelled || !playRef.current) return;
       try {
-        const batch = await api.replayAdvanceBatch(n);
+        const batch = await advanceBatchWithRetry(n);
         if (cancelled) return;
         if (batch.results.length > 0) {
           const finalResult = batch.results[batch.results.length - 1];
