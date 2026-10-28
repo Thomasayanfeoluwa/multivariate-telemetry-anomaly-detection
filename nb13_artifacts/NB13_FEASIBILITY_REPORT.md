@@ -1,5 +1,11 @@
 # Notebook 13. Feasibility Report
 
+> **Post-script (added after deployment):** This report was written at the
+> close of the research phase. The FastAPI + React prototype it recommended
+> has since been built and deployed to Render. The report is preserved
+> unchanged as the historical record of Notebook 13's conclusions; current
+> project state is in the top-level `README.md`.
+
 **Decision: GO**
 
 All seven tests (A. model load, B. score parity, C. chronological replay, D. full alert record, E. event parity, F. inference performance, G. input handling) passed their required checks. The replay workflow is functionally equivalent to the frozen NB08 scoring path at every measured level, and the CPU inference performance fits the SWaT 1 Hz cadence with substantial headroom. The remaining limitations do not block FastAPI and React application development.
