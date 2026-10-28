@@ -200,6 +200,25 @@ def _status_from_runner(runner: ReplayRunner) -> ReplayStatus:
 
 # --- Endpoints -----------------------------------------------------------
 
+@app.get("/")
+def root() -> dict[str, str]:
+    """Friendly pointer when the backend URL is visited in a browser.
+
+    The dashboard UI is served from a separate frontend service.
+    This route exists only so visiting the API root returns useful
+    information instead of a bare 404.
+    """
+    return {
+        "service": "SWaT Process Anomaly Monitor — backend API",
+        "docs": "/docs",
+        "health": "/health",
+        "note": (
+            "This is the backend API, not the dashboard. "
+            "The dashboard is served from a separate frontend URL. "
+            "Visit /docs for the interactive API explorer."
+        ),
+    }
+
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     """Reports whether the model is loaded. Never reports success on failure."""

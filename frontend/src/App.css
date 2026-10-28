@@ -1089,3 +1089,198 @@ body {
   height: 3px;
   border-radius: 2px;
 }
+
+/* --- Alert table — compact, live, colored ----------------------------- */
+
+.alert-table-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.alert-table-header h2 {
+  margin: 0;
+}
+
+.alert-table-count {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-subtle);
+  font-weight: 600;
+  padding: 3px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+}
+
+.alert-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+  font-size: 0.85rem;
+}
+
+.alert-table thead th {
+  text-align: left;
+  padding: 4px 12px;
+  border: none;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-subtle);
+  font-weight: 600;
+}
+
+.alert-table thead th:not(:first-child) {
+  text-align: right;
+}
+
+.alert-row td {
+  padding: 10px 12px;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  background: var(--surface-elevated);
+  vertical-align: middle;
+}
+
+.alert-row td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-left: 3px solid transparent;
+}
+
+.alert-row td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Newest row — strongest visual emphasis, red-tinted */
+.alert-row-newest td {
+  background: linear-gradient(
+    90deg,
+    rgba(239, 68, 68, 0.18) 0%,
+    rgba(239, 68, 68, 0.06) 100%
+  );
+  border-top-color: rgba(239, 68, 68, 0.35);
+  border-bottom-color: rgba(239, 68, 68, 0.35);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.alert-row-newest td:first-child {
+  border-left-color: var(--danger);
+}
+
+.alert-row-newest .num {
+  font-weight: 600;
+}
+
+/* Recent row — subtle emphasis */
+.alert-row-recent td {
+  background: rgba(239, 68, 68, 0.06);
+  border-top-color: rgba(239, 68, 68, 0.15);
+  border-bottom-color: rgba(239, 68, 68, 0.15);
+  color: var(--text-muted);
+}
+
+.alert-row-recent td:first-child {
+  border-left-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Older rows — neutral, dimmer */
+.alert-row-older td {
+  color: var(--text-subtle);
+}
+
+.alert-row-older td:first-child {
+  border-left-color: var(--border-strong);
+}
+
+/* Column alignment */
+.alert-row .num {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.alert-row .num.muted {
+  color: var(--text-subtle);
+}
+
+/* Excess cell — value + percentage stacked */
+.alert-row .excess {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.excess-value {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+.excess-pct {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-subtle);
+}
+
+.alert-row-newest .excess-pct {
+  color: var(--warning);
+}
+
+/* Live indicator dot */
+.alert-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+.alert-dot-newest {
+  background: var(--danger);
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: alert-pulse 1.6s ease-out infinite;
+}
+
+.alert-dot-recent {
+  background: rgba(239, 68, 68, 0.55);
+}
+
+.alert-dot-older {
+  background: var(--border-strong);
+}
+
+@keyframes alert-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.alert-row time {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.alert-table-footer {
+  margin: 12px 0 0;
+  font-size: 0.72rem;
+  color: var(--text-subtle);
+  text-align: right;
+  font-style: italic;
+}
