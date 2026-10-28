@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "../api/apiClient";
 import type {
   Partition,
+  ReplayAdvanceBatchResponse,
   ReplayAdvanceResponse,
   ReplayResetResponse,
   ReplayStatus,
@@ -22,9 +23,27 @@ function formatError(e: unknown): string {
   return String(e);
 }
 
+/**
+ * Compute batch size and tick interval for the Play loop.
+ *
+ * At 5× and below, we still send one row per tick because the interval
+ * itself is long enough that batching buys nothing.
+ *
+ * Above 5×, we batch to overcome the network round-trip (200 ms on
+ * Render free tier). Fixed 200 ms tick interval, batch size scales with
+ * speed: 20× -> n=4, 50× -> n=10.
+ */
+function computeTickParams(speed: number): { n: number; intervalMs: number } {
+  if (speed <= 5) {
+    return { n: 1, intervalMs: Math.round(1000 / speed) };
+  }
+  return { n: Math.max(1, Math.ceil(speed / 5)), intervalMs: 200 };
+}
+
 export interface ReplayControlsProps {
   onStart?: (res: ReplayResetResponse) => void;
   onAdvance?: (res: ReplayAdvanceResponse) => void;
+  onBatch?: (batch: ReplayAdvanceBatchResponse) => void;
   onReset?: (res: ReplayResetResponse) => void;
   onInitialStatus?: (status: ReplayStatus | null) => void;
   soundEnabled?: boolean;
@@ -34,6 +53,7 @@ export interface ReplayControlsProps {
 export function ReplayControls({
   onStart,
   onAdvance,
+  onBatch,
   onReset,
   onInitialStatus,
   soundEnabled,
@@ -50,6 +70,7 @@ export function ReplayControls({
 
   const playRef = useRef(false);
   const onAdvanceRef = useRef(onAdvance);
+  const onBatchRef = useRef(onBatch);
 
   useEffect(() => {
     playRef.current = playing;
@@ -59,7 +80,10 @@ export function ReplayControls({
     onAdvanceRef.current = onAdvance;
   }, [onAdvance]);
 
-  // Mount probe: resume from any existing backend replay.
+  useEffect(() => {
+    onBatchRef.current = onBatch;
+  }, [onBatch]);
+
   useEffect(() => {
     let cancelled = false;
     api.replayStatus().then(
@@ -67,11 +91,7 @@ export function ReplayControls({
         if (!cancelled) {
           setStatus(s);
           setActive(true);
-          // Sync dropdown to backend's actual partition so a page refresh
-          // does not leave the select showing a stale value.
-          if (s.partition) {
-            setPartition(s.partition as Partition);
-          }
+          if (s.partition) setPartition(s.partition as Partition);
           onInitialStatus?.(s);
         }
       },
@@ -91,21 +111,24 @@ export function ReplayControls({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-play loop.
   useEffect(() => {
     if (!playing) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    const { n, intervalMs } = computeTickParams(speed);
 
     const tick = async () => {
       if (cancelled || !playRef.current) return;
       try {
-        const res = await api.replayAdvance();
+        const batch = await api.replayAdvanceBatch(n);
         if (cancelled) return;
-        setStatus(res.status);
-        setLast(res);
-        onAdvanceRef.current?.(res);
-        if (res.finished) {
+        if (batch.results.length > 0) {
+          const finalResult = batch.results[batch.results.length - 1];
+          setStatus(finalResult.status);
+          setLast(finalResult);
+        }
+        onBatchRef.current?.(batch);
+        if (batch.finished) {
           setPlaying(false);
           return;
         }
@@ -115,7 +138,7 @@ export function ReplayControls({
         return;
       }
       if (!cancelled) {
-        timer = setTimeout(tick, Math.max(1, 1000 / speed));
+        timer = setTimeout(tick, intervalMs);
       }
     };
 

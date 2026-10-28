@@ -19,6 +19,7 @@ import type {
   Partition,
   PredictRequest,
   PredictResponse,
+  ReplayAdvanceBatchResponse,
   ReplayAdvanceResponse,
   ReplayResetResponse,
   ReplayStartRequest,
@@ -164,6 +165,14 @@ export const api = {
 
   replayAdvance(): Promise<ReplayAdvanceResponse> {
     return request<ReplayAdvanceResponse>("POST", "/replay/advance");
+  },
+
+  replayAdvanceBatch(n: number): Promise<ReplayAdvanceBatchResponse> {
+    const k = Math.max(1, Math.min(100, Math.floor(n)));
+    return request<ReplayAdvanceBatchResponse>(
+      "POST",
+      `/replay/advance-batch?n=${k}`,
+    );
   },
 
   replayReset(): Promise<ReplayResetResponse> {

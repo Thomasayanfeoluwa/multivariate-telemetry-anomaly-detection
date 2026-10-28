@@ -197,6 +197,46 @@ export function Dashboard({ onExit }: DashboardProps) {
                 ]);
               }
             }}
+            onBatch={(batch) => {
+              setPriorBackendState(null);
+              if (batch.results.length > 0) {
+                setCurrentPartition(
+                  batch.results[batch.results.length - 1].status.partition,
+                );
+              }
+              const newPoints: ScorePoint[] = [];
+              const newSensors: SensorObservation[] = [];
+              for (const r of batch.results) {
+                const isAlert = r.alert === true;
+                if (isAlert && !lastAlertRef.current) {
+                  playAlert();
+                }
+                lastAlertRef.current = isAlert;
+                if (r.timestamp !== null && r.observation !== null) {
+                  newSensors.push({
+                    timestamp: r.timestamp as string,
+                    values: r.observation as Record<string, number>,
+                  });
+                }
+                if (
+                  r.score !== null &&
+                  r.timestamp !== null &&
+                  r.alert !== null
+                ) {
+                  newPoints.push({
+                    timestamp: r.timestamp as string,
+                    score: r.score as number,
+                    alert: r.alert as boolean,
+                  });
+                }
+              }
+              if (newSensors.length > 0) {
+                setSensorHistory((s) => [...s, ...newSensors]);
+              }
+              if (newPoints.length > 0) {
+                setHistory((h) => [...h, ...newPoints]);
+              }
+            }}
           />
 
           {priorBackendState !== null &&
