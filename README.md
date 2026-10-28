@@ -4,7 +4,7 @@ An experimental study of anomaly detection on multivariate telemetry from the Se
 
 > **Project status:** Notebooks 01–13 are complete. The historical-replay monitoring prototype is **built and deployed on Render** — FastAPI backend, React/Vite frontend, and 4.65 MB of per-partition parquet files committed to the repository under CC0. Full replay, batch advance, live alerts, feature attribution, retrospective attack-window overlay, and a session summary all work on the deployed site. This is not a production or live-plant system.
 
-🎥 **Demo:** *(https://youtu.be/KsfToradzcA)*
+🎥 **Demo:** *https://youtu.be/KsfToradzcA*
 
 ## What the project asks
 
