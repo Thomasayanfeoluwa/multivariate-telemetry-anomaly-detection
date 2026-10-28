@@ -87,7 +87,7 @@ from src.inference.validate import ValidationError, validate_inference_request
 from src.replay.runner import ReplayError, ReplayRunner
 
 
-CSV_ROOT = PROJECT_ROOT / "data" / "raw"
+PARQUET_ROOT = PROJECT_ROOT / "data" / "parquet"
 MODEL_ID = "tcn_autoencoder_nb08_frozen"
 NB13_VERDICT_JSON = PROJECT_ROOT / "nb13_artifacts" / "cell9_final_verdict.json"
 NB13_PARITY_JSON  = PROJECT_ROOT / "nb13_artifacts" / "cell3_test_b.json"
@@ -145,6 +145,10 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ],
+    # Render-hosted frontends: match any *.onrender.com subdomain so
+    # preview builds and the production site both work without a second
+    # backend redeploy every time the frontend URL changes.
+    allow_origin_regex=r"https://[\w-]+\.onrender\.com",
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
@@ -266,10 +270,18 @@ def replay_start(req: ReplayStartRequest) -> ReplayResetResponse:
     bundle = _require_bundle()
     with _state.lock:
         try:
-            df = load_partition(CSV_ROOT, req.partition, bundle.feature_names)
+            df = load_partition(PARQUET_ROOT, req.partition, bundle.feature_names)
             validate_partition(df, req.partition, bundle.feature_names)
         except (IngestionError, DataIntegrityError) as e:
-            raise HTTPException(status_code=500, detail=f"Data load failed: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"Replay data unavailable: {e} "
+                    "The parquet files must be present at data/parquet/. "
+                    "Run scripts/convert_to_parquet.py with a permitted "
+                    "SWaT copy."
+                ),
+            )
         _state.runner = ReplayRunner(bundle, df, req.partition)
         return ReplayResetResponse(
             reset=True,
