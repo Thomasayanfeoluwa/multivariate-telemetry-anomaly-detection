@@ -22,7 +22,6 @@
     "datasets/<dataset-owner>/10-robustness-analysis/src/utils/paths.py"
   ],
   "md": [
-    "datasets/<dataset-owner>/10-robustness-analysis/PROJECT_STATE.md",
     "datasets/<dataset-owner>/10-robustness-analysis/README.md",
     "datasets/<dataset-owner>/10-robustness-analysis/nb08_artifacts/_verification_report.md"
   ],

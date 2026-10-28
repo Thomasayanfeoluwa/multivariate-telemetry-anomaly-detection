@@ -1,7 +1,6 @@
 # SWaT Monitoring Frontend
 
-This React, TypeScript, and Vite application provides a local monitoring interface for the SWaT historical-replay API. The frontend is a prototype; Vercel is the planned hosting target.
-
+This React, TypeScript, and Vite application provides a local monitoring interface for the SWaT historical-replay API. The frontend is a prototype; Render Static Site is the live hosting target.
 ## Run locally
 
 From this directory:
