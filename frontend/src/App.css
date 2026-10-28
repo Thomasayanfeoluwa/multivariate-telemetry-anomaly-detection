@@ -615,8 +615,9 @@ body {
 
 .metric-help summary {
   cursor: pointer;
-  color: var(--text-subtle);
-  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
   user-select: none;
   list-style: none;
 }
@@ -629,6 +630,7 @@ body {
   content: "▸ ";
   display: inline-block;
   transition: transform 0.15s ease;
+  color: var(--accent);
 }
 
 .metric-help[open] summary::before {
@@ -641,11 +643,13 @@ body {
 
 .metric-help p {
   margin: 8px 0 0;
-  padding: 8px 12px;
-  border-left: 2px solid var(--retro-border);
-  background: var(--surface-elevated);
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent);
+  background: rgba(20, 184, 166, 0.08);
   border-radius: 0 4px 4px 0;
-  line-height: 1.6;
+  line-height: 1.7;
+  color: var(--text);
+  font-size: 0.82rem;
 }
 
 .sound-toggle {

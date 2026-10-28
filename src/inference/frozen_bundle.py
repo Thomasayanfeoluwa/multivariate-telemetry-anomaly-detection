@@ -174,6 +174,38 @@ class FrozenBundle:
         score = self.score_scaled(scaled)
         return score, bool(score > self.threshold)
 
+    def predict_with_residuals(
+        self, window: np.ndarray
+    ) -> tuple[float, bool, dict[str, float]]:
+        """Like predict(), but also returns per-feature reconstruction residuals.
+
+        Residuals are the mean squared error per feature averaged over the
+        window's timesteps. Their sum equals n_features * score, so the
+        individual residuals are a genuine decomposition of the total error.
+        """
+        window = np.asarray(window, dtype=np.float32)
+        expected = (self.window_size, self.n_features)
+        if window.shape != expected:
+            raise FrozenBundleError(
+                f"Expected window shape {expected}, got {window.shape}."
+            )
+        named = pd.DataFrame(window, columns=self.feature_names)
+        scaled = self.scaler.transform(named).astype(np.float32)
+        tensor = torch.as_tensor(
+            scaled, dtype=torch.float32, device=self.device,
+        ).unsqueeze(0)
+        with torch.no_grad():
+            recon = self.model(tensor)
+            # Score computed identically to predict() for bit-identical output
+            score = float(((recon - tensor) ** 2).mean().item())
+            squared_tf = ((recon - tensor) ** 2).squeeze(0)  # (T, F)
+            per_feature = squared_tf.mean(dim=0).cpu().numpy()  # (F,)
+        residuals = {
+            name: float(per_feature[i])
+            for i, name in enumerate(self.feature_names)
+        }
+        return score, bool(score > self.threshold), residuals    
+
 def _require_file(path: Path, label: str) -> None:
     if not path.is_file():
         raise FrozenBundleError(f"{label} not found: {path}")
