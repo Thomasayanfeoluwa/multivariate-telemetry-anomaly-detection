@@ -1,0 +1,32 @@
+{
+  "rule_text": "Learned models: threshold = 99th percentile (linear interpolation) of threshold-partition sequence scores. Flag if score > threshold. Baselines: threshold = 0.0 (any violation flags). No validation or attack labels were consulted.",
+  "learned_percentile": 99,
+  "learned_interpolation": "linear",
+  "baseline_threshold": 0.0,
+  "thresholds": {
+    "rule": 0.0,
+    "rolling": 0.0,
+    "simple": 0.0,
+    "if": 0.6053833093392436,
+    "ocsvm": -13.48318294920446,
+    "lof": 15.505176544189453,
+    "lstm": 0.018826062995940453,
+    "tcn": 0.003906734725460411,
+    "usad": 0.0564194791764021
+  },
+  "sources": {
+    "rule": "frozen (score > 0), protocol \u00a75.4",
+    "rolling": "frozen (score > 0), protocol \u00a75.4",
+    "simple": "frozen (score > 0), protocol \u00a75.4",
+    "if": "99th pct of threshold partition (interpolation=linear)",
+    "ocsvm": "99th pct of threshold partition (interpolation=linear)",
+    "lof": "99th pct of threshold partition (interpolation=linear)",
+    "lstm": "99th pct of threshold partition (interpolation=linear)",
+    "tcn": "99th pct of threshold partition (interpolation=linear)",
+    "usad": "99th pct of threshold partition (interpolation=linear)"
+  },
+  "n_threshold_sequences": 47408,
+  "n_validation_sequences": 79031,
+  "n_attack_sequences": 54592,
+  "numpy_version": "2.1.3"
+}

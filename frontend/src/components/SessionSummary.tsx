@@ -39,7 +39,7 @@ function computeEpisodes(points: ScorePoint[]): Episode[] {
         peak: p.score,
         peakTs: p.timestamp,
       };
-    } else {
+    } else if (current !== null) {
       current.endTs = p.timestamp;
       current.count += 1;
       if (p.score > current.peak) {
@@ -80,7 +80,6 @@ export function SessionSummary({ points, threshold }: SessionSummaryProps) {
 
   const firstTs = points[0].timestamp;
   const lastTs = points[points.length - 1].timestamp;
-  const spanSec = (toMs(lastTs) - toMs(firstTs)) / 1000;
   const peakMultiplier = peakPoint.score / threshold;
   const alertCoveragePct = scored > 0 ? (alerts / scored) * 100 : 0;
 
