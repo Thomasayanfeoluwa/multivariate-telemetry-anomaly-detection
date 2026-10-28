@@ -1,82 +1,37 @@
 # Project audit
 
-Generated from `C:\Users\ADEGOKE\Desktop\SWATS`.
+Generated from the repository root.
 
 ## Summary
 
 | Category | Count |
 |---|---:|
-| Total files | 444 |
-| Meaningful (>1 KB) | 349 |
-| Small (100 B – 1 KB) | 55 |
+| Total files | 401 |
+| Meaningful (>1 KB) | 341 |
+| Small (100 B – 1 KB) | 56 |
 | Stub (1 – 100 B) | 4 |
-| Empty (0 B) | 36 |
+| Empty (0 B) | 0 |
 | Empty folders | 0 |
 
 ## Empty and stub files
 
 | Directory | File | Size | Category |
 |---|---|---:|---|
-| `./` | `.env.example` | 0 B | empty |
-| `./` | `docker-compose.yml` | 0 B | empty |
-| `.github/workflows/` | `ci.yml` | 0 B | empty |
-| `backend/` | `Dockerfile` | 0 B | empty |
-| `configs/` | `evaluation.yaml` | 0 B | empty |
-| `configs/` | `project.yaml` | 0 B | empty |
-| `configs/` | `robustness.yaml` | 0 B | empty |
-| `database/migrations/` | `001_initial_schema.sql` | 0 B | empty |
-| `frontend/` | `.env.example` | 0 B | empty |
-| `frontend/src/` | `App.test.tsx` | 0 B | empty |
 | `frontend/src/` | `index.css` | 99 B | stub |
-| `frontend/src/components/` | `NotificationHost.tsx` | 0 B | empty |
-| `frontend/src/hooks/` | `useRunNotifier.ts` | 0 B | empty |
-| `frontend/src/test/` | `setup.ts` | 0 B | empty |
-| `frontend/src/types/` | `notifications.ts` | 0 B | empty |
-| `models/isolation_forest/` | `reproducibility.json` | 0 B | empty |
-| `nb08_artifacts/isolation_forest/` | `reproducibility.json` | 0 B | empty |
-| `src/api/` | `detector_service.py` | 0 B | empty |
-| `src/data/` | `preprocessing.py` | 0 B | empty |
-| `src/detection/` | `event_detection.py` | 0 B | empty |
-| `src/detection/` | `isolation_forest.py` | 0 B | empty |
-| `src/detection/` | `rolling_statistical.py` | 0 B | empty |
-| `src/detection/` | `rule_based.py` | 0 B | empty |
-| `src/evaluation/` | `detection_delay.py` | 0 B | empty |
-| `src/evaluation/` | `drift.py` | 0 B | empty |
-| `src/evaluation/` | `event_metrics.py` | 0 B | empty |
-| `src/evaluation/` | `point_metrics.py` | 0 B | empty |
-| `src/evaluation/` | `robustness.py` | 0 B | empty |
 | `src/inference/` | `__init__.py` | 65 B | stub |
-| `src/monitoring/` | `logger.py` | 0 B | empty |
-| `src/monitoring/` | `schemas.py` | 0 B | empty |
 | `src/replay/` | `__init__.py` | 63 B | stub |
 | `src/utils/` | `__init__.py` | 78 B | stub |
-| `swat-artifacts/isolation_forest/` | `reproducibility.json` | 0 B | empty |
-| `tests/` | `test_api.py` | 0 B | empty |
-| `tests/` | `test_data_validation.py` | 0 B | empty |
-| `tests/` | `test_detectors.py` | 0 B | empty |
-| `tests/` | `test_evaluation.py` | 0 B | empty |
-| `tests/` | `test_event_detection.py` | 0 B | empty |
-| `tests/` | `test_monitoring.py` | 0 B | empty |
 
 ## Meaningful files
 
 ### `./`
 
 - `.gitignore` — 3,251 B
-- `DEPLOYMENT_PLAN.md` — 23,077 B
-- `PROJECT_SPEC.md` — 41,331 B
-- `PROJECT_STATE.md` — 5,840 B
-- `README.md` — 16,939 B
+- `README.md` — 15,467 B
 
 ### `frontend/`
 
 - `package-lock.json` — 41,484 B
-- `README.md` — 1,278 B
-
-### `frontend/pages/`
-
-- `Dashboard.tsx` — 10,094 B
-- `Home.tsx` — 1,561 B
 
 ### `frontend/src/`
 
@@ -86,12 +41,6 @@ Generated from `C:\Users\ADEGOKE\Desktop\SWATS`.
 ### `frontend/src/api/`
 
 - `apiClient.ts` — 5,684 B
-
-### `frontend/src/assets/`
-
-- `hero.png` — 13,057 B
-- `react.svg` — 4,126 B
-- `vite.svg` — 8,709 B
 
 ### `frontend/src/components/`
 
@@ -501,23 +450,24 @@ Generated from `C:\Users\ADEGOKE\Desktop\SWATS`.
 
 ### `notebooks/`
 
-- `01_data_and_process_understanding.ipynb` — 9,642 B
+- `01_data_and_process_understanding.ipynb` — 9,161 B
 - `02-data-quality-and-temporal-split.ipynb` — 148,881 B
 - `03-exploratory-analysis.ipynb` — 1,016,780 B
-- `04-baseline-anomaly-detection.ipynb` — 174,003 B
-- `05-lstm-autoencoder.ipynb` — 225,973 B
-- `06-traditional-ml-anomaly-detection.ipynb` — 670,020 B
-- `07-deep-learning-anomaly-detection.ipynb` — 336,719 B
-- `08-hyperparameter-tuning-threshold-calibration.ipynb` — 839,115 B
+- `04-baseline-anomaly-detection.ipynb` — 173,966 B
+- `05-lstm-autoencoder.ipynb` — 225,936 B
+- `06-traditional-ml-anomaly-detection.ipynb` — 669,983 B
+- `07-deep-learning-anomaly-detection.ipynb` — 336,682 B
+- `08-hyperparameter-tuning-threshold-calibration.ipynb` — 839,078 B
 - `09_error_and_event_analysis.ipynb` — 385,688 B
 - `10-robustness-Analysis.ipynb` — 852,075 B
 - `11_final_model.ipynb` — 50,488 B
-- `12_reproducibility.ipynb` — 232,874 B
-- `13_deployment_feasibility_and_historical_replay_rest.ipynb` — 250,666 B
+- `12_reproducibility.ipynb` — 233,030 B
+- `13_deployment_feasibility_and_historical_replay_rest.ipynb` — 250,736 B
 
 ### `reports/`
 
-- `NOTEBOOK_13_COMPLIANCE_AND_COMPLETION_REPORT.md` — 14,438 B
+- `NOTEBOOK_13_COMPLIANCE_AND_COMPLETION_REPORT.md` — 13,907 B
+- `project_audit.md` — 17,587 B
 
 ### `reports/figures/`
 
@@ -525,8 +475,8 @@ Generated from `C:\Users\ADEGOKE\Desktop\SWATS`.
 
 ### `scripts/`
 
-- `audit_project.py` — 7,125 B
-- `convert_to_parquet.py` — 3,413 B
+- `audit_project.py` — 7,117 B
+- `convert_to_parquet.py` — 3,405 B
 
 ### `src/api/`
 
@@ -549,7 +499,7 @@ Generated from `C:\Users\ADEGOKE\Desktop\SWATS`.
 
 ### `src/utils/`
 
-- `paths.py` — 5,148 B
+- `paths.py` — 5,111 B
 
 ### `swat-artifacts/`
 

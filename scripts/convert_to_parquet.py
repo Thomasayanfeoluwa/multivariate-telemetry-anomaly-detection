@@ -98,8 +98,8 @@ def main() -> int:
     print("  Next steps:")
     print("    1. Verify the sizes with:")
     print("       Get-ChildItem data\\parquet\\*.parquet | Select-Object Name, Length")
-    print("    2. Confirm the SWaT data-copy terms permit redistribution before")
-    print("       committing the .parquet files to Git.")
+    print("    2. Keep the Kaggle source and its stated CC0 listing documented")
+    print("       alongside the derived dataset.")
     return 0
 
 

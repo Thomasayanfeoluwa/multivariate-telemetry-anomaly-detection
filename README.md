@@ -85,7 +85,7 @@ The notebooks and saved reports document the research methodology and results.
 - **No database, no notifications, no containers.** These were deliberate scope decisions: the prototype is single-session, and the Session summary + evaluation panel deliver the "understandable analytics" goal without persistence.
 
 **Live URLs:**
-- Frontend: `https://<frontend>.onrender.com`
+- Frontend: `https://swat-anomaly-monitor-system.onrender.com`
 - Backend: `https://swat-process-anomaly-monitor.onrender.com` (API only — visit `/docs` for the interactive API explorer, `/` for a friendly JSON response)
 
 **Free-tier caveat:** Render's free web service spins down after 15 minutes of inactivity. The first request after idle takes 30–60 seconds to wake. The frontend shows a "Cannot reach the API" banner with a Retry button during this window.

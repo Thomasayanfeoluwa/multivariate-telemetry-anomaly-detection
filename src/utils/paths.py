@@ -92,7 +92,7 @@ def resolve_project_paths(verbose: bool = True) -> Dict[str, Any]:
         project_root = next(
             (
                 d for d in [cwd, *cwd.parents]
-                if (d / "PROJECT_SPEC.md").is_file() or (d / "requirements.txt").is_file()
+                if (d / "requirements.txt").is_file()
             ),
             cwd
         )

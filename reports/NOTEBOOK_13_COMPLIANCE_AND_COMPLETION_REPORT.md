@@ -39,7 +39,7 @@ Following your explicit instruction, Notebook 13 has been audited, refactored to
      - **Cell 17 (Code):** Clean executable Python script that runs the consolidated aggregator without schema bugs.
      - **Cell 18 (Markdown):** Evidence-based Result Record documenting actual outputs, the scorecard, and the official **GO** decision.
    - The authoritative feasibility report [`nb13_artifacts/NB13_FEASIBILITY_REPORT.md`](../nb13_artifacts/NB13_FEASIBILITY_REPORT.md) and machine-readable verdict record [`nb13_artifacts/cell9_final_verdict.json`](../nb13_artifacts/cell9_final_verdict.json) have been generated and validated.
-   - [`PROJECT_STATE.md`](../PROJECT_STATE.md) has been updated to record Notebook 13 completion.
+   - The project README records the current Notebook 13 status and prototype direction.
 
 ---
 
@@ -114,17 +114,10 @@ All required artifacts are cleanly saved in [`nb13_artifacts/`](../nb13_artifact
 
 ---
 
-## 5. Non-Blocking Carried-Forward Issue for FastAPI Implementation
+## 5. Validation Diagnostic Follow-Up
 
-- **Issue G2 (Diagnostic Message Polish):** In Test G fixture G2, the validator correctly rejected the payload with an unexpected feature name, but the error message stated `"Feature names match the expected set but are in a different order"`. This occurs because set-equality was checked before checking difference sets. The behavior is functionally safe (the malformed payload was rejected and never passed to inference). When implementing the FastAPI request validator in `backend/app/`, split this into two explicit branches:
-  ```python
-  if set(feature_names) == set(FEATURES) and list(feature_names) != FEATURES:
-      raise ValidationError("Feature names match expected set but are in a different order.")
-  if set(feature_names) != set(FEATURES):
-      missing = sorted(set(FEATURES) - set(feature_names))
-      unexpected = sorted(set(feature_names) - set(FEATURES))
-      raise ValidationError(f"Feature set mismatch. Missing: {missing}. Unexpected: {unexpected}.")
-  ```
+- **Notebook 13 Test G finding:** Fixture G2 was rejected, but its original diagnostic described an unexpected feature as an ordering error. That recorded notebook result is unchanged.
+- **Subsequent implementation:** `src/inference/validate.py` now distinguishes a feature-set mismatch from a correct feature set in the wrong order, and `src/api/main.py` uses that validator for `/predict`. The HTTP error wording still needs focused API tests. This later code change does not alter Notebook 13's saved outputs or verdict.
 
 ---
 
@@ -136,4 +129,4 @@ Notebook 13 has concluded with an unambiguous **GO** decision. The selected TCN 
 3. Operating at over **370x real-time speed** on commodity CPU hardware.
 4. Safely rejecting malformed inputs at the API validation boundary.
 
-The project is authorized to proceed to **Phase 2: FastAPI Model Inference Backend & React.js Monitoring Dashboard** as a historical-replay prototype, in accordance with [`DEPLOYMENT_PLAN.md`](../DEPLOYMENT_PLAN.md). This GO is not production or live-plant authorization.
+The project is authorized to proceed to a **historical-replay monitoring prototype**. The current application status and architecture summary are in the [project README](../README.md). This GO is not production or live-plant authorization.

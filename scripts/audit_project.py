@@ -127,8 +127,8 @@ def print_report(files_by_dir, empty_dirs, total_files, root: Path) -> None:
         print()
 
 
-def write_markdown(path: Path, files_by_dir, empty_dirs, total_files, root: Path) -> None:
-    lines: list[str] = [f"# Project audit\n\nGenerated from `{root}`.\n"]
+def write_markdown(path: Path, files_by_dir, empty_dirs, total_files) -> None:
+    lines: list[str] = ["# Project audit\n\nGenerated from the repository root.\n"]
 
     counts = defaultdict(int)
     for dir_files in files_by_dir.values():
@@ -195,7 +195,7 @@ def main() -> int:
     if args.markdown:
         out = Path(args.markdown)
         out.parent.mkdir(parents=True, exist_ok=True)
-        write_markdown(out, files_by_dir, empty_dirs, total, root)
+        write_markdown(out, files_by_dir, empty_dirs, total)
         print(f"\nMarkdown report written to: {out}")
 
     return 0

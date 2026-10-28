@@ -6,7 +6,7 @@ model-info, predict, replay start/status/advance/reset — lives here so the
 whole API can be read in one pass. If we later need multiple routers, split
 into `src/api/routes.py` and mount from here.
 
-Design commitments (see DEPLOYMENT_PLAN.md and NB13):
+Design commitments (see the project README and NB13):
 
     - FrozenBundle is loaded ONCE at startup via the FastAPI lifespan.
       If it fails to load, /health returns status='not_ready',
