@@ -3,6 +3,7 @@ import { api } from "../api/apiClient";
 import { ReplayControls } from "../components/ReplayControls";
 import { ScoreChart, type ScorePoint } from "../components/ScoreChart";
 import { AlertTable } from "../components/AlertTable";
+import { ScoreDistribution } from "../components/ScoreDistribution";
 import { SensorChart, type SensorObservation } from "../components/SensorChart";
 import { EvaluationSummary } from "../components/EvaluationSummary";
 import { SessionSummary } from "../components/SessionSummary";
