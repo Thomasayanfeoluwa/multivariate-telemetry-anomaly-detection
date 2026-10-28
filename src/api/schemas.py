@@ -322,6 +322,17 @@ GROUND_TRUTH_DISCLAIMER = (
     "are never sent to /predict or /replay/advance."
 )
 
+class ReplayAdvanceBatchResponse(BaseModel):
+    """Batch response for the Play loop: N observations per HTTP request."""
+    advanced: int = Field(
+        description="Number of rows actually consumed (<= n; less if reached end of partition)."
+    )
+    finished: bool = Field(
+        description="True if the replay reached the end of the partition during this batch."
+    )
+    results: list[ReplayAdvanceResponse] = Field(
+        description="One entry per consumed row, in chronological order."
+    )
 
 # --- Standalone smoke test -----------------------------------------------
 #

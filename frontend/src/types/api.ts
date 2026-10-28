@@ -177,3 +177,9 @@ export interface GroundTruthResponse {
   disclaimer: string;
   windows: GroundTruthWindow[];
 }
+
+export interface ReplayAdvanceBatchResponse {
+  advanced: number;
+  finished: boolean;
+  results: ReplayAdvanceResponse[];
+}

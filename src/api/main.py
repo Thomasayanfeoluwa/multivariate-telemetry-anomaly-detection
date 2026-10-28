@@ -71,6 +71,7 @@ from src.api.schemas import (
     ModelInfoResponse,
     PredictRequest,
     PredictResponse,
+    ReplayAdvanceBatchResponse,
     ReplayAdvanceResponse,
     ReplayResetResponse,
     ReplayStartRequest,
@@ -380,6 +381,51 @@ def ground_truth_windows() -> GroundTruthResponse:
         disclaimer=GROUND_TRUTH_DISCLAIMER,
         windows=windows,
     )
+
+@app.post("/replay/advance-batch", response_model=ReplayAdvanceBatchResponse)
+def replay_advance_batch(n: int = 5) -> ReplayAdvanceBatchResponse:
+    """Consume up to n rows in one request. n is bounded to prevent abuse.
+
+    Returns the full list of intermediate results so the frontend can
+    accumulate every scored point. Stops early if the partition finishes.
+    """
+    if n < 1 or n > 100:
+        raise HTTPException(
+            status_code=422,
+            detail="n must be between 1 and 100.",
+        )
+    _require_bundle()
+    with _state.lock:
+        runner = _require_runner()
+        results: list[ReplayAdvanceResponse] = []
+        for _ in range(n):
+            try:
+                result = runner.advance()
+            except ReplayError as e:
+                raise HTTPException(status_code=500, detail=str(e))
+            results.append(
+                ReplayAdvanceResponse(
+                    advanced=result.advanced,
+                    finished=result.finished,
+                    position=result.position,
+                    end_index=result.end_index,
+                    timestamp=result.timestamp,
+                    score=result.score,
+                    alert=result.alert,
+                    window_filled=result.window_filled,
+                    warmup_remaining=result.warmup_remaining,
+                    threshold=result.threshold,
+                    observation=result.observation,
+                    status=_status_from_runner(runner),
+                )
+            )
+            if result.finished:
+                break
+        return ReplayAdvanceBatchResponse(
+            advanced=len(results),
+            finished=runner.status()["finished"],
+            results=results,
+        )
 
 @app.get("/evaluation-summary", response_model=EvaluationSummaryResponse)
 def evaluation_summary() -> EvaluationSummaryResponse:
