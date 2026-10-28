@@ -7,6 +7,9 @@ import { AlertTable } from "../components/AlertTable";
 import { SensorChart, type SensorObservation } from "../components/SensorChart";
 import { EvaluationSummary } from "../components/EvaluationSummary";
 import { SessionSummary } from "../components/SessionSummary";
+import { ScoreDistribution } from "../components/ScoreDistribution";
+import { FeatureAttribution } from "../components/FeatureAttribution";
+import { AlertRateChart } from "../components/AlertRateChart";
 import type {
   GroundTruthWindow,
   ModelInfoResponse,
@@ -30,6 +33,11 @@ export function Dashboard({ onExit }: DashboardProps) {
   const [groundTruthWindows, setGroundTruthWindows] = useState<
     GroundTruthWindow[]
   >([]);
+  const [lastAlertResiduals, setLastAlertResiduals] = useState<{
+    residuals: Record<string, number>;
+    score: number;
+    timestamp: string;
+  } | null>(null);
 
   const [backendStatus, setBackendStatus] =
     useState<BackendStatus>("checking");
@@ -154,6 +162,7 @@ export function Dashboard({ onExit }: DashboardProps) {
             onStart={(res) => {
               setHistory([]);
               setSensorHistory([]);
+              setLastAlertResiduals(null);
               setPriorBackendState(null);
               setCurrentPartition(res.status.partition);
               lastAlertRef.current = false;
@@ -161,6 +170,7 @@ export function Dashboard({ onExit }: DashboardProps) {
             onReset={(res) => {
               setHistory([]);
               setSensorHistory([]);
+              setLastAlertResiduals(null);
               setPriorBackendState(null);
               setCurrentPartition(res.status.partition);
               lastAlertRef.current = false;
@@ -195,6 +205,18 @@ export function Dashboard({ onExit }: DashboardProps) {
                     alert: res.alert as boolean,
                   },
                 ]);
+              }
+              if (
+                res.alert === true &&
+                res.feature_residuals !== null &&
+                res.score !== null &&
+                res.timestamp !== null
+              ) {
+                setLastAlertResiduals({
+                  residuals: res.feature_residuals,
+                  score: res.score,
+                  timestamp: res.timestamp,
+                });
               }
             }}
             onBatch={(batch) => {
@@ -235,6 +257,21 @@ export function Dashboard({ onExit }: DashboardProps) {
               }
               if (newPoints.length > 0) {
                 setHistory((h) => [...h, ...newPoints]);
+              }
+              // Capture the residuals of the last alert in this batch (if any)
+              for (const r of batch.results) {
+                if (
+                  r.alert === true &&
+                  r.feature_residuals !== null &&
+                  r.score !== null &&
+                  r.timestamp !== null
+                ) {
+                  setLastAlertResiduals({
+                    residuals: r.feature_residuals,
+                    score: r.score,
+                    timestamp: r.timestamp,
+                  });
+                }
               }
             }}
           />
@@ -278,6 +315,16 @@ export function Dashboard({ onExit }: DashboardProps) {
                 )}
               </div>
               <AlertTable points={history} threshold={threshold} />
+              <div className="dashboard-analysis-grid">
+                <FeatureAttribution
+                  residuals={lastAlertResiduals?.residuals ?? null}
+                  score={lastAlertResiduals?.score ?? null}
+                  threshold={threshold}
+                  timestamp={lastAlertResiduals?.timestamp ?? null}
+                />
+                <AlertRateChart points={history} />
+              </div>
+              <ScoreDistribution points={history} threshold={threshold} />
               <SessionSummary points={history} threshold={threshold} />
             </>
           )}

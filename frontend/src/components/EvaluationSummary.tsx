@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../api/apiClient";
 import type { EvaluationSummaryResponse } from "../types/api";
+import { ConfusionMatrix } from "./ConfusionMatrix";
 
 function formatError(e: unknown): string {
   if (e instanceof ApiError) return `${e.status}: ${e.detail}`;
@@ -92,6 +93,18 @@ export function EvaluationSummary() {
             <dt>Attack alerts (TP)</dt>
             <dd>{data.point_level.attack_tp_count.toLocaleString()}</dd>
           </dl>
+          <ConfusionMatrix
+            tp={data.point_level.attack_tp_count}
+            fn={
+              data.point_level.attack_total -
+              data.point_level.attack_tp_count
+            }
+            fp={data.point_level.validation_fp_count}
+            tn={
+              data.point_level.validation_total -
+              data.point_level.validation_fp_count
+            }
+          />
         </div>
 
         <div className="eval-block">
