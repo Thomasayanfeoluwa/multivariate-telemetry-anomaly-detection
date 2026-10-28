@@ -73,7 +73,7 @@ export function EvaluationSummary() {
 
       <div className="eval-grid">
         <div className="eval-block">
-          <h3>Score parity vs frozen NB08 scores</h3>
+          <h3>Score parity vs frozen reference</h3>
           <dl>
             <dt>Sequences rescored</dt>
             <dd>{data.parity.n_sequences.toLocaleString()}</dd>
@@ -126,7 +126,7 @@ export function EvaluationSummary() {
         </div>
 
         <div className="eval-block">
-          <h3>Inference performance (CPU, NB13 Cell 7)</h3>
+          <h3>Inference performance (CPU)</h3>
           <dl>
             <dt>Batch=1 median latency</dt>
             <dd>{data.performance.batch1_median_ms.toFixed(2)} ms</dd>

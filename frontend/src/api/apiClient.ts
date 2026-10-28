@@ -3,8 +3,8 @@
  *
  * One method per backend endpoint. Uses native fetch (Node 20+).
  * Every method throws ApiError on non-2xx responses, carrying FastAPI's
- * `detail` string verbatim so callers can surface the same diagnostic
- * the backend produces (e.g. the exact NB13 Test-G feature-order error).
+ * `detail` string verbatim so callers can surface the same validation
+ * diagnostic the backend produces (e.g. feature-order errors).
  *
  * Base URL: import.meta.env.VITE_API_BASE_URL, default http://127.0.0.1:8000.
  * Vite exposes only VITE_* vars to the client; anything else is not
