@@ -1417,3 +1417,41 @@ body {
   background: var(--surface-elevated);
   border-radius: 8px;
 }
+
+/* --- Home About panel (3 columns) ---------------------------------- */
+
+.about-panel {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 40px 0 24px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.about-column h3 {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.about-column p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+@media (max-width: 780px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

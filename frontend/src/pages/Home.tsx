@@ -1,4 +1,5 @@
 import { AnimatedPreviewChart } from "../components/AnimatedPreviewChart";
+import { AboutPanel } from "../components/AboutPanel";
 
 const REPO_URL =
   (import.meta.env.VITE_REPO_URL as string | undefined) ??
@@ -27,6 +28,7 @@ export function Home({ onEnter }: HomeProps) {
         </div>
         <AnimatedPreviewChart />
       </div>
+      <AboutPanel />
       <footer className="home-footer">
         <p className="home-disclaimer">
           This is a research prototype. Model alerts are advisory outputs
