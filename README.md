@@ -12,6 +12,8 @@ Can a detector identify unusual patterns in the available SWaT observations whil
 
 The intended eventual use is a **human-reviewed monitoring aid**: display a timestamped anomaly score and relevant telemetry so an operator can investigate. An alert is not proof of an attack, equipment failure, unsafe water, or root cause.
 
+The model is a semi-supervised anomaly detector (also called a one-class classifier): trained on normal-operation data only, with a threshold calibrated from normal-operation scores. Attack labels are used exclusively for offline evaluation and never reach the model or the runtime inference path.
+
 ## Dataset and scope
 
 - **Dataset source:** a local copy of the Kaggle reupload, [SWaT Dataset: Secure Water Treatment System](https://www.kaggle.com/datasets/vishala28/swat-dataset-secure-water-treatment-system/data). Kaggle lists the dataset license as **CC0: Public Domain** ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)).
