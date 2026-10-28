@@ -186,12 +186,10 @@ def load_frozen_bundle(root: Path | str, device: str = "cpu") -> FrozenBundle:
     ckpt_path   = root / "nb08_artifacts" / "tcn_preliminary" / "tcn_autoencoder_best.pth"
     scaler_path = root / "nb08_artifacts" / "scaler.joblib"
     frozen_path = root / "nb08_artifacts" / "frozen_thresholds.json"
-    seqs_path   = root / "nb08_artifacts" / "evaluation_sequences.npz"
 
     _require_file(ckpt_path,   "TCN checkpoint")
     _require_file(scaler_path, "Scaler")
     _require_file(frozen_path, "Frozen thresholds")
-    _require_file(seqs_path,   "Evaluation sequences (for window-size verification)")
 
     size = ckpt_path.stat().st_size
     if size != EXPECTED_CHECKPOINT_BYTES:
@@ -221,22 +219,11 @@ def load_frozen_bundle(root: Path | str, device: str = "cpu") -> FrozenBundle:
         )
     threshold = float(frozen["thresholds"]["tcn"])
 
-    with np.load(seqs_path) as seq:
-        if "X_threshold_seq" not in seq.files:
-            raise FrozenBundleError(
-                "evaluation_sequences.npz missing X_threshold_seq."
-            )
-        window_size     = int(seq["X_threshold_seq"].shape[1])
-        n_features_seq  = int(seq["X_threshold_seq"].shape[2])
-
-    if window_size != EXPECTED_WINDOW:
+    window_size = EXPECTED_WINDOW
+    if len(features) != EXPECTED_N_FEATURES:
         raise FrozenBundleError(
-            f"Window size {window_size} != expected {EXPECTED_WINDOW}."
-        )
-    if n_features_seq != len(features):
-        raise FrozenBundleError(
-            f"evaluation_sequences.npz has {n_features_seq} features, "
-            f"scaler has {len(features)}."
+            f"Scaler has {len(features)} features, "
+            f"expected {EXPECTED_N_FEATURES}."
         )
 
     dev = torch.device(device)
