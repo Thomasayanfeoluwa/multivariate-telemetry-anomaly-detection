@@ -227,6 +227,14 @@ class ReplayAdvanceResponse(BaseModel):
             "feature name. Populated for both warm-up and scored rows."
         ),
     )
+    feature_residuals: Optional[dict[str, float]] = Field(
+        default=None,
+        description=(
+            "Per-feature reconstruction error for the window ending at this "
+            "row. None during warm-up (no window to score). Sum equals "
+            "n_features * score."
+        ),
+    )
     status: ReplayStatus = Field(
         description="Snapshot of the runner state after this advance."
     )
@@ -252,6 +260,8 @@ class EvaluationParity(BaseModel):
 class EvaluationPointLevel(BaseModel):
     validation_fp_count: int
     attack_tp_count: int
+    validation_total: int
+    attack_total: int
 
 
 class EvaluationEventLevel(BaseModel):

@@ -64,6 +64,7 @@ class ReplayResult:
     warmup_remaining: int
     threshold: float
     observation: Optional[dict[str, float]] = None  # current row's feature values
+    residuals: Optional[dict[str, float]] = None    # per-feature reconstruction error
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -78,6 +79,7 @@ class ReplayResult:
             "warmup_remaining": self.warmup_remaining,
             "threshold": self.threshold,
             "observation": self.observation,
+            "residuals": self.residuals,
         }
 
 
@@ -128,6 +130,7 @@ class ReplayRunner:
         self._total_scored: int = 0
         self._last_score: Optional[float] = None
         self._last_alert: Optional[bool] = None
+        self._last_residuals: Optional[dict[str, float]] = None
         self._peak_score: Optional[float] = None
 
     # ---- public API ---------------------------------------------------
@@ -160,6 +163,7 @@ class ReplayRunner:
                     name: float(last_row[i])
                     for i, name in enumerate(self._features)
                 },
+                residuals=self._last_residuals,
             )
         ts = pd.Timestamp(self._df["timestamp"].iloc[self._pos])
         if self._last_ts is not None and ts <= self._last_ts:
@@ -174,14 +178,16 @@ class ReplayRunner:
 
         score: Optional[float] = None
         alert: Optional[bool] = None
+        residuals: Optional[dict[str, float]] = None
         if len(self._buf) == self._window_size:
             window = np.stack(self._buf, axis=0)
-            score, alert = self._bundle.predict(window)
+            score, alert, residuals = self._bundle.predict_with_residuals(window)
             self._total_scored += 1
             if alert:
                 self._alerts_emitted += 1
             if self._peak_score is None or score > self._peak_score:
                 self._peak_score = score
+            self._last_residuals = residuals
 
         self._last_score = score
         self._last_alert = alert
@@ -204,6 +210,7 @@ class ReplayRunner:
                 name: float(row[i])
                 for i, name in enumerate(self._features)
             },
+            residuals=residuals,
         )
 
     def reset(self) -> None:

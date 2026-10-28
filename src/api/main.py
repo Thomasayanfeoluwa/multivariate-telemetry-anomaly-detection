@@ -319,6 +319,7 @@ def replay_advance() -> ReplayAdvanceResponse:
             warmup_remaining=result.warmup_remaining,
             threshold=result.threshold,
             observation=result.observation,
+            feature_residuals=result.residuals,
             status=_status_from_runner(runner),
         )
 
@@ -416,6 +417,7 @@ def replay_advance_batch(n: int = 5) -> ReplayAdvanceBatchResponse:
                     warmup_remaining=result.warmup_remaining,
                     threshold=result.threshold,
                     observation=result.observation,
+                    feature_residuals=result.residuals,
                     status=_status_from_runner(runner),
                 )
             )
@@ -473,6 +475,8 @@ def evaluation_summary() -> EvaluationSummaryResponse:
             point_level=EvaluationPointLevel(
                 validation_fp_count=int(pins["test_d_validation_fp"]),
                 attack_tp_count=int(pins["test_d_attack_tp"]),
+                validation_total=int(partitions["validation"]["n_sequences"]),
+                attack_total=int(partitions["attack"]["n_sequences"]),
             ),
             event_level=EvaluationEventLevel(
                 scenarios_total=36,

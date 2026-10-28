@@ -107,6 +107,7 @@ export interface ReplayAdvanceResponse {
   warmup_remaining: number;
   threshold: number;
   observation: Record<string, number> | null;
+  feature_residuals: Record<string, number> | null;
   status: ReplayStatus;
   alert_interpretation: string;
   warmup_interpretation: string;
@@ -128,6 +129,8 @@ export interface EvaluationParity {
 export interface EvaluationPointLevel {
   validation_fp_count: number;
   attack_tp_count: number;
+  validation_total: number;
+  attack_total: number;
 }
 
 export interface EvaluationEventLevel {
