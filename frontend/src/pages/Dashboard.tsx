@@ -38,6 +38,11 @@ export function Dashboard({ onExit }: DashboardProps) {
     score: number;
     timestamp: string;
   } | null>(null);
+  const [liveState, setLiveState] = useState<{
+    timestamp: string | null;
+    score: number | null;
+    alert: boolean | null;
+  } | null>(null);
 
   const [backendStatus, setBackendStatus] =
     useState<BackendStatus>("checking");
@@ -163,6 +168,7 @@ export function Dashboard({ onExit }: DashboardProps) {
               setHistory([]);
               setSensorHistory([]);
               setLastAlertResiduals(null);
+              setLiveState(null);
               setPriorBackendState(null);
               setCurrentPartition(res.status.partition);
               lastAlertRef.current = false;
@@ -171,6 +177,7 @@ export function Dashboard({ onExit }: DashboardProps) {
               setHistory([]);
               setSensorHistory([]);
               setLastAlertResiduals(null);
+              setLiveState(null);
               setPriorBackendState(null);
               setCurrentPartition(res.status.partition);
               lastAlertRef.current = false;
@@ -178,6 +185,11 @@ export function Dashboard({ onExit }: DashboardProps) {
             onAdvance={(res) => {
               setPriorBackendState(null);
               setCurrentPartition(res.status.partition);
+              setLiveState({
+                timestamp: res.timestamp,
+                score: res.score,
+                alert: res.alert,
+              });
               const isAlert = res.alert === true;
               if (isAlert && !lastAlertRef.current) {
                 playAlert();
@@ -222,9 +234,13 @@ export function Dashboard({ onExit }: DashboardProps) {
             onBatch={(batch) => {
               setPriorBackendState(null);
               if (batch.results.length > 0) {
-                setCurrentPartition(
-                  batch.results[batch.results.length - 1].status.partition,
-                );
+                const finalResult = batch.results[batch.results.length - 1];
+                setCurrentPartition(finalResult.status.partition);
+                setLiveState({
+                  timestamp: finalResult.timestamp,
+                  score: finalResult.score,
+                  alert: finalResult.alert,
+                });
               }
               const newPoints: ScorePoint[] = [];
               const newSensors: SensorObservation[] = [];
@@ -314,7 +330,11 @@ export function Dashboard({ onExit }: DashboardProps) {
                   />
                 )}
               </div>
-              <AlertTable points={history} threshold={threshold} />
+              <AlertTable
+                points={history}
+                threshold={threshold}
+                liveState={liveState}
+              />
               <div className="dashboard-analysis-grid">
                 <FeatureAttribution
                   residuals={lastAlertResiduals?.residuals ?? null}

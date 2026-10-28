@@ -1284,3 +1284,136 @@ body {
   text-align: right;
   font-style: italic;
 }
+
+/* --- Live status row at top of alert table ------------------------- */
+
+.alert-live-row td {
+  vertical-align: middle;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+
+.alert-live-row td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+
+.alert-live-row td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Normal — teal tint */
+.alert-live-normal td {
+  background: rgba(20, 184, 166, 0.08);
+  border-top: 1px solid rgba(20, 184, 166, 0.25);
+  border-bottom: 1px solid rgba(20, 184, 166, 0.25);
+  color: var(--text);
+}
+
+.alert-live-normal td:first-child {
+  border-left-color: var(--accent);
+}
+
+/* Alert — red tint */
+.alert-live-alert td {
+  background: linear-gradient(
+    90deg,
+    rgba(239, 68, 68, 0.16) 0%,
+    rgba(239, 68, 68, 0.05) 100%
+  );
+  border-top: 1px solid rgba(239, 68, 68, 0.35);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.35);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.alert-live-alert td:first-child {
+  border-left-color: var(--danger);
+}
+
+.alert-live-alert .live-status {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* Warm-up — amber tint */
+.alert-live-warmup td {
+  background: rgba(245, 158, 11, 0.06);
+  border-top: 1px solid rgba(245, 158, 11, 0.25);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  color: var(--text-muted);
+}
+
+.alert-live-warmup td:first-child {
+  border-left-color: var(--warning);
+}
+
+.alert-live-warmup .live-status {
+  color: var(--warning);
+}
+
+/* LIVE badge */
+.alert-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  margin-right: 10px;
+  padding: 2px 7px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  vertical-align: middle;
+}
+
+.alert-live-alert .alert-live-badge {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.alert-live-warmup .alert-live-badge {
+  color: var(--warning);
+  border-color: var(--warning);
+}
+
+.alert-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: alert-pulse-live 1.4s ease-in-out infinite;
+}
+
+@keyframes alert-pulse-live {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}
+
+/* The live row's live-status cell */
+.alert-live-row .live-status {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+/* Placeholder cell when no live state yet */
+.hint-cell {
+  padding: 16px 12px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  background: var(--surface-elevated);
+  border-radius: 8px;
+}
