@@ -148,7 +148,8 @@ export function SessionSummary({ points, threshold }: SessionSummaryProps) {
 
       <p className="summary-spacer-note">
         Duration shown is the recorded interval between first and last
-        observations, not continuous sampling time.
+        observations, not continuous sampling time. Anomalous periods are
+        grouped using a 1.5-second gap rule (consecutive alerts are merged into one period).
       </p>
     </section>
   );

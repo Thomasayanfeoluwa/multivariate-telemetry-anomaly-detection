@@ -4,12 +4,13 @@ import { useAlertSound } from "../hooks/useAlertSound";
 import { ReplayControls } from "../components/ReplayControls";
 import { ScoreChart, type ScorePoint } from "../components/ScoreChart";
 import { AlertTable } from "../components/AlertTable";
-import { SensorChart, type SensorObservation } from "../components/SensorChart";
+import { ScoreDistribution } from "../components/ScoreDistribution";
+import { SensorGrid, type SensorObservation } from "../components/SensorGrid";
 import { EvaluationSummary } from "../components/EvaluationSummary";
 import { SessionSummary } from "../components/SessionSummary";
-import { ScoreDistribution } from "../components/ScoreDistribution";
 import { FeatureAttribution } from "../components/FeatureAttribution";
 import { AlertRateChart } from "../components/AlertRateChart";
+import { WaterPlantGraphic } from "../components/WaterPlantGraphic";
 import type {
   GroundTruthWindow,
   ModelInfoResponse,
@@ -27,33 +28,29 @@ export function Dashboard({ onExit }: DashboardProps) {
   const [sensorHistory, setSensorHistory] = useState<SensorObservation[]>([]);
   const [threshold, setThreshold] = useState<number | null>(null);
   const [featureNames, setFeatureNames] = useState<string[]>([]);
-  const [priorBackendState, setPriorBackendState] =
-    useState<ReplayStatus | null>(null);
+  const [priorBackendState, setPriorBackendState] = useState<ReplayStatus | null>(null);
   const [currentPartition, setCurrentPartition] = useState<string | null>(null);
-  const [groundTruthWindows, setGroundTruthWindows] = useState<
-    GroundTruthWindow[]
-  >([]);
+  const [groundTruthWindows, setGroundTruthWindows] = useState<GroundTruthWindow[]>([]);
+  const [backendStatus, setBackendStatus] = useState<BackendStatus>("checking");
+  const [backendMessage, setBackendMessage] = useState<string>("");
+  const [healthRetry, setHealthRetry] = useState(0);
+
   const [lastAlertResiduals, setLastAlertResiduals] = useState<{
     residuals: Record<string, number>;
     score: number;
     timestamp: string;
   } | null>(null);
+  
   const [liveState, setLiveState] = useState<{
     timestamp: string | null;
     score: number | null;
     alert: boolean | null;
+    alertStartTime?: string | null;
   } | null>(null);
 
-  const [backendStatus, setBackendStatus] =
-    useState<BackendStatus>("checking");
-  const [backendMessage, setBackendMessage] = useState<string>("");
-  const [healthRetry, setHealthRetry] = useState(0);
-
-  const { enabled: soundEnabled, toggle: toggleSound, play: playAlert } =
-    useAlertSound();
+  const { enabled: soundEnabled, toggle: toggleSound, play: playAlert } = useAlertSound();
   const lastAlertRef = useRef<boolean>(false);
 
-  // Health check gate — decides whether the rest of the page can render.
   useEffect(() => {
     let cancelled = false;
     setBackendStatus("checking");
@@ -71,92 +68,63 @@ export function Dashboard({ onExit }: DashboardProps) {
       (e) => {
         if (cancelled) return;
         setBackendStatus("unreachable");
-        setBackendMessage(
-          e instanceof ApiError ? e.detail : String(e),
-        );
-      },
+        setBackendMessage(e instanceof ApiError ? e.detail : String(e));
+      }
     );
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [healthRetry]);
 
-  // Fetch model info only when backend is confirmed OK.
   useEffect(() => {
     if (backendStatus !== "ok") return;
-    api
-      .modelInfo()
-      .then((mi: ModelInfoResponse) => {
+    api.modelInfo().then((mi: ModelInfoResponse) => {
         setThreshold(mi.threshold);
         setFeatureNames(mi.feature_names);
-      })
-      .catch(() => {
-        setThreshold(null);
-        setFeatureNames([]);
-      });
+      }).catch(() => { setThreshold(null); setFeatureNames([]); });
   }, [backendStatus]);
 
   useEffect(() => {
     if (backendStatus !== "ok") return;
-    api
-      .groundTruthWindows()
-      .then((r) => setGroundTruthWindows(r.windows))
-      .catch(() => setGroundTruthWindows([]));
+    api.groundTruthWindows().then((r) => setGroundTruthWindows(r.windows)).catch(() => setGroundTruthWindows([]));
   }, [backendStatus]);
 
   return (
     <main className="app">
       <header className="dashboard-header">
         {onExit && (
-          <button
-            type="button"
-            className="back-home"
-            onClick={onExit}
-            aria-label="Back to home page"
-          >
+          <button type="button" className="back-home" onClick={onExit} aria-label="Back to home page">
             ← Home
           </button>
         )}
-        <h1>SWaT Process Anomaly Monitor</h1>
+        <div className="dashboard-title-group">
+          <h1>SWaT Process Anomaly Monitor</h1>
+          <p className="dashboard-subtitle">Research prototype for industrial telemetry anomaly detection</p>
+        </div>
       </header>
 
-      {backendStatus === "checking" && (
-        <p className="hint">Connecting to the API…</p>
-      )}
+      {backendStatus === "checking" && <p className="hint">Connecting to the API…</p>}
 
       {backendStatus === "unreachable" && (
         <div className="backend-banner backend-error" role="alert">
           <div className="backend-banner-text">
-            <strong>Cannot reach the API.</strong>{" "}
-            {backendMessage || "The backend is not responding."} Check that
-            the FastAPI server is running, then retry.
+            <strong>Cannot reach the API.</strong> {backendMessage || "The backend is not responding."} Check that the FastAPI server is running, then retry.
           </div>
-          <button
-            type="button"
-            onClick={() => setHealthRetry((n) => n + 1)}
-          >
-            Retry
-          </button>
+          <button type="button" onClick={() => setHealthRetry((n) => n + 1)}>Retry</button>
         </div>
       )}
 
       {backendStatus === "not_ready" && (
         <div className="backend-banner backend-error" role="alert">
           <div className="backend-banner-text">
-            <strong>Model not ready.</strong>{" "}
-            {backendMessage || "The model bundle failed to load on the backend."}
+            <strong>Model not ready.</strong> {backendMessage || "The model bundle failed to load on the backend."}
           </div>
-          <button
-            type="button"
-            onClick={() => setHealthRetry((n) => n + 1)}
-          >
-            Retry
-          </button>
+          <button type="button" onClick={() => setHealthRetry((n) => n + 1)}>Retry</button>
         </div>
       )}
 
       {backendStatus === "ok" && (
         <>
+          <WaterPlantGraphic />
+
           <ReplayControls
             soundEnabled={soundEnabled}
             onToggleSound={toggleSound}
@@ -165,70 +133,34 @@ export function Dashboard({ onExit }: DashboardProps) {
               setCurrentPartition(s?.partition ?? null);
             }}
             onStart={(res) => {
-              setHistory([]);
-              setSensorHistory([]);
-              setLastAlertResiduals(null);
-              setLiveState(null);
-              setPriorBackendState(null);
-              setCurrentPartition(res.status.partition);
-              lastAlertRef.current = false;
+              setHistory([]); setSensorHistory([]); setLastAlertResiduals(null); setLiveState(null);
+              setPriorBackendState(null); setCurrentPartition(res.status.partition); lastAlertRef.current = false;
             }}
             onReset={(res) => {
-              setHistory([]);
-              setSensorHistory([]);
-              setLastAlertResiduals(null);
-              setLiveState(null);
-              setPriorBackendState(null);
-              setCurrentPartition(res.status.partition);
-              lastAlertRef.current = false;
+              setHistory([]); setSensorHistory([]); setLastAlertResiduals(null); setLiveState(null);
+              setPriorBackendState(null); setCurrentPartition(res.status.partition); lastAlertRef.current = false;
             }}
             onAdvance={(res) => {
-              setPriorBackendState(null);
-              setCurrentPartition(res.status.partition);
-              setLiveState({
-                timestamp: res.timestamp,
-                score: res.score,
-                alert: res.alert,
-              });
+              setPriorBackendState(null); setCurrentPartition(res.status.partition);
+              setLiveState({ timestamp: res.timestamp, score: res.score, alert: res.alert });
               const isAlert = res.alert === true;
               if (isAlert && !lastAlertRef.current) {
                 playAlert();
+                // Record the exact time this alert episode started
+                setLiveState((prev) => ({ ...prev!, alertStartTime: res.timestamp }));
+              }
+              if (!isAlert) {
+                setLiveState((prev) => ({ ...prev!, alertStartTime: null }));
               }
               lastAlertRef.current = isAlert;
               if (res.timestamp !== null && res.observation !== null) {
-                setSensorHistory((s) => [
-                  ...s,
-                  {
-                    timestamp: res.timestamp as string,
-                    values: res.observation as Record<string, number>,
-                  },
-                ]);
+                setSensorHistory((s) => [...s, { timestamp: res.timestamp as string, values: res.observation as Record<string, number> }]);
               }
-              if (
-                res.score !== null &&
-                res.timestamp !== null &&
-                res.alert !== null
-              ) {
-                setHistory((h) => [
-                  ...h,
-                  {
-                    timestamp: res.timestamp as string,
-                    score: res.score as number,
-                    alert: res.alert as boolean,
-                  },
-                ]);
+              if (res.score !== null && res.timestamp !== null && res.alert !== null) {
+                setHistory((h) => [...h, { timestamp: res.timestamp as string, score: res.score as number, alert: res.alert as boolean }]);
               }
-              if (
-                res.alert === true &&
-                res.feature_residuals !== null &&
-                res.score !== null &&
-                res.timestamp !== null
-              ) {
-                setLastAlertResiduals({
-                  residuals: res.feature_residuals,
-                  score: res.score,
-                  timestamp: res.timestamp,
-                });
+              if (res.alert === true && res.feature_residuals !== null && res.score !== null && res.timestamp !== null) {
+                setLastAlertResiduals({ residuals: res.feature_residuals, score: res.score, timestamp: res.timestamp });
               }
             }}
             onBatch={(batch) => {
@@ -236,114 +168,70 @@ export function Dashboard({ onExit }: DashboardProps) {
               if (batch.results.length > 0) {
                 const finalResult = batch.results[batch.results.length - 1];
                 setCurrentPartition(finalResult.status.partition);
-                setLiveState({
-                  timestamp: finalResult.timestamp,
-                  score: finalResult.score,
-                  alert: finalResult.alert,
-                });
+                setLiveState({ timestamp: finalResult.timestamp, score: finalResult.score, alert: finalResult.alert });
               }
               const newPoints: ScorePoint[] = [];
               const newSensors: SensorObservation[] = [];
               for (const r of batch.results) {
                 const isAlert = r.alert === true;
-                if (isAlert && !lastAlertRef.current) {
-                  playAlert();
-                }
+                if (isAlert && !lastAlertRef.current) playAlert();
                 lastAlertRef.current = isAlert;
                 if (r.timestamp !== null && r.observation !== null) {
-                  newSensors.push({
-                    timestamp: r.timestamp as string,
-                    values: r.observation as Record<string, number>,
-                  });
+                  newSensors.push({ timestamp: r.timestamp as string, values: r.observation as Record<string, number> });
                 }
-                if (
-                  r.score !== null &&
-                  r.timestamp !== null &&
-                  r.alert !== null
-                ) {
-                  newPoints.push({
-                    timestamp: r.timestamp as string,
-                    score: r.score as number,
-                    alert: r.alert as boolean,
-                  });
+                if (r.score !== null && r.timestamp !== null && r.alert !== null) {
+                  newPoints.push({ timestamp: r.timestamp as string, score: r.score as number, alert: r.alert as boolean });
+                }
+                if (r.alert === true && r.feature_residuals !== null && r.score !== null && r.timestamp !== null) {
+                  setLastAlertResiduals({ residuals: r.feature_residuals, score: r.score, timestamp: r.timestamp });
                 }
               }
-              if (newSensors.length > 0) {
-                setSensorHistory((s) => [...s, ...newSensors]);
-              }
-              if (newPoints.length > 0) {
-                setHistory((h) => [...h, ...newPoints]);
-              }
-              // Capture the residuals of the last alert in this batch (if any)
-              for (const r of batch.results) {
-                if (
-                  r.alert === true &&
-                  r.feature_residuals !== null &&
-                  r.score !== null &&
-                  r.timestamp !== null
-                ) {
-                  setLastAlertResiduals({
-                    residuals: r.feature_residuals,
-                    score: r.score,
-                    timestamp: r.timestamp,
-                  });
-                }
-              }
+              if (newSensors.length > 0) setSensorHistory((s) => [...s, ...newSensors]);
+              if (newPoints.length > 0) setHistory((h) => [...h, ...newPoints]);
             }}
           />
 
-          {priorBackendState !== null &&
-            priorBackendState.position > 0 &&
-            history.length === 0 && (
-              <p className="resume-banner" role="status">
-                Backend replay is already active at position{" "}
-                <strong>{priorBackendState.position}</strong> /{" "}
-                {priorBackendState.total_rows}
-                {priorBackendState.alerts_emitted > 0 && (
-                  <>
-                    {" "}with{" "}
-                    <strong>{priorBackendState.alerts_emitted}</strong>{" "}
-                    alert{priorBackendState.alerts_emitted === 1 ? "" : "s"}{" "}
-                    emitted
-                  </>
-                )}
-                . Click <strong>Reset</strong> to align with the backend
-                count, or <strong>Advance</strong> to continue and accumulate
-                fresh history.
-              </p>
-            )}
+          {priorBackendState !== null && priorBackendState.position > 0 && history.length === 0 && (
+            <p className="resume-banner" role="status">
+              Backend replay is already active at position <strong>{priorBackendState.position}</strong> / {priorBackendState.total_rows}
+              {priorBackendState.alerts_emitted > 0 && (
+                <> with <strong>{priorBackendState.alerts_emitted}</strong> alert{priorBackendState.alerts_emitted === 1 ? "" : "s"} emitted</>
+              )}
+              . Click <strong>Reset</strong> to align with the backend count, or <strong>Advance</strong> to continue and accumulate fresh history.
+            </p>
+          )}
 
           {threshold !== null && (
             <>
-              <div className="dashboard-charts">
+              <div className="dashboard-top-grid">
                 <ScoreChart
                   points={history}
                   threshold={threshold}
-                  retrospectiveWindows={
-                    currentPartition === "attack" ? groundTruthWindows : []
-                  }
+                  retrospectiveWindows={currentPartition === "attack" ? groundTruthWindows : []}
                 />
                 {featureNames.length > 0 && (
-                  <SensorChart
-                    observations={sensorHistory}
-                    featureNames={featureNames}
-                  />
+                  <SensorGrid observations={sensorHistory} featureNames={featureNames} />
                 )}
               </div>
-              <AlertTable
-                points={history}
-                threshold={threshold}
-                liveState={liveState}
-              />
-              <div className="dashboard-analysis-grid">
-                <FeatureAttribution
-                  residuals={lastAlertResiduals?.residuals ?? null}
-                  score={lastAlertResiduals?.score ?? null}
-                  threshold={threshold}
-                  timestamp={lastAlertResiduals?.timestamp ?? null}
+
+              <div className="dashboard-bottom-grid">
+                                <AlertTable 
+                  points={history} 
+                  threshold={threshold} 
+                  liveState={liveState} 
+                  backendAlerts={priorBackendState?.alerts_emitted || 0} 
                 />
-                <AlertRateChart points={history} />
+                <div className="dashboard-analysis-stack">
+                  <FeatureAttribution
+                    residuals={lastAlertResiduals?.residuals ?? null}
+                    score={lastAlertResiduals?.score ?? null}
+                    threshold={threshold}
+                    timestamp={lastAlertResiduals?.timestamp ?? null}
+                  />
+                  <AlertRateChart points={history} />
+                </div>
               </div>
+
               <ScoreDistribution points={history} threshold={threshold} />
               <SessionSummary points={history} threshold={threshold} />
             </>
