@@ -304,11 +304,12 @@ On the tested Windows CPU, model-only single-sequence inference had a median lat
 
 ## Known limitations
 
-- SWaT release provenance for the local copy remains unresolved.
-- A large tail of `normal.csv` has missing data and timestamp discontinuities and is outside the evaluated prefix.
-- The evaluation uses a single historical split with temporal overlap between attack and normal partitions.
-- Only TCN and LSTM were tested across the selected robustness perturbations; robustness is not established for all methods or all operating conditions.
-- USAD did not meet its intended training specification; its result is not a fair estimate of a fully trained USAD model.
-- The model detects statistical deviations. It does not establish attack intent, physical failure, cause, safety impact, or real-plant effectiveness.
-- The frontend and API are deployed on Render's free tier for demonstration only. No live-data integration, no user study, and no production service level has been established. Cold starts and CPU throttling on the free tier make the deployed Play loop slower than local replay; the demo video shows the full-speed experience.
-- Financial savings, profit, and ROI have not been estimated.
+- **SWaT release provenance:** The exact release for the local copy remains unresolved.
+- **Data completeness:** A large tail of `normal.csv` has missing data and timestamp discontinuities and is outside the evaluated prefix.
+- **Retrospective evaluation:** The evaluation uses a single historical split with temporal overlap between attack and normal partitions. This is a retrospective historical replay, not a prospective forecast on future plant operations.
+- **No analyst feedback loop:** The dashboard is advisory only. It does not currently capture human-in-the-loop feedback (e.g., labeling false alarms) to retrain and improve the model over time.
+- **Robustness scope:** Only TCN and LSTM were tested across the selected robustness perturbations; robustness is not established for all methods or all operating conditions.
+- **USAD training:** USAD did not meet its intended training specification; its result is not a fair estimate of a fully trained USAD model.
+- **Interpretation of alerts:** The model detects statistical deviations. It does not establish attack intent, physical failure, cause, safety impact, or real-plant effectiveness.
+- **Hosting and live data:** The frontend and API are deployed on Render's free tier for demonstration only. The service sleeps after 15 minutes of inactivity, so a first-time visitor may wait 30–60 seconds for the service to wake up. Cold starts and CPU throttling make the deployed Play loop slower than local replay; the demo video shows the full-speed experience. No live-data integration, user study, or production service level has been established.
+- **Financial impact:** Financial savings, profit, and ROI have not been estimated.
